@@ -44,7 +44,9 @@ const poolConfig = {
   connectionTimeoutMillis: 30000, // Increased from 10s to 30s
 };
 
-if (process.env.NODE_ENV === 'production' || process.env.DATABASE_PUBLIC_URL) {
+// Only enforce SSL if explicitly told to via environment variables 
+// (Self-hosted Postgres containers usually don't support SSL out of the box)
+if (process.env.DB_REQUIRE_SSL === 'true' || process.env.DATABASE_PUBLIC_URL) {
   poolConfig.ssl = {
     rejectUnauthorized: false
   };
