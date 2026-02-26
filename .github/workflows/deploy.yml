@@ -1,0 +1,42 @@
+name: Deploy to Droplet
+
+on:
+  push:
+    branches:
+      - main # Trigger deployment when pushing to the main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Copy files via SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.DROPLET_IP }}
+          username: ${{ secrets.DROPLET_USERNAME }}
+          key: ${{ secrets.DROPLET_SSH_KEY }}
+          source: "."
+          target: "/root/callto-app"
+
+      - name: Execute deployment commands on Droplet
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DROPLET_IP }}
+          username: ${{ secrets.DROPLET_USERNAME }}
+          key: ${{ secrets.DROPLET_SSH_KEY }}
+          script: |
+            cd /root/callto-app
+            
+            # Create the .env file in the backend folder from GitHub Secrets
+            mkdir -p backend
+            echo "${{ secrets.ENV_FILE }}" > backend/.env
+            
+            # Rebuild and restart the Docker containers
+            docker compose down
+            docker compose up -d --build
+            
+            # Clean up old unused docker images to save space
+            docker image prune -f

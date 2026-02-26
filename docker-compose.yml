@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  # ======== BACKEND ========
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: callto_backend
+    restart: always
+    ports:
+      - "${PORT:-5000}:5000"
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      # If Postgres is natively installed on Linux VPS, host.docker.internal works in newer Docker, 
+      # or you can use the static server IP.
+      - DB_HOST=${DB_HOST:-host.docker.internal}
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_NAME=${DB_NAME:-calltodb}
+      - DATABASE_URL=postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-postgres}@${DB_HOST:-host.docker.internal}:${DB_PORT:-5432}/${DB_NAME:-calltodb}
+      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key-change-this-in-production}
+
+  # ======== ADMIN PANEL ========
+  admin-panel:
+    build:
+      context: ./admin-panel
+      dockerfile: Dockerfile
+    container_name: callto_admin_panel
+    restart: always
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
