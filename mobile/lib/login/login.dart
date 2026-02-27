@@ -97,6 +97,7 @@ class _LoginScreenState extends State with TickerProviderStateMixin {
   void _initializeGoogleSignIn() {
     try {
       _googleSignIn = GoogleSignIn(
+        clientId: '21566908692-c9u79t06co3ve9qo5nujrdlq7kvpij3t.apps.googleusercontent.com',
         scopes: ['email', 'profile'],
       );
       _googleSignInAvailable = true;

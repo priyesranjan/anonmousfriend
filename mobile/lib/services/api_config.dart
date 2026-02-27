@@ -12,7 +12,7 @@ class ApiConfig {
   static final String baseUrl =
       dotenv.env['API_BASE_URL']?.trim().isNotEmpty == true
       ? dotenv.env['API_BASE_URL']!.trim()
-      : 'https://callto1.onrender.com';
+      : 'https://api.appdost.com';
 
   // static final String baseUrl ='http://localhost:3002';
 
