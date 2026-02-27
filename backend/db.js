@@ -71,7 +71,7 @@ async function testConnection(retries = 3) {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
       const client = await pool.connect();
-      console.log('✓ Successfully connected to AWS RDS PostgreSQL database');
+      console.log('✓ Successfully connected to PostgreSQL database');
       
       // Test query
       const result = await client.query('SELECT NOW()');

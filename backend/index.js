@@ -1210,7 +1210,7 @@ const PORT = config.PORT;
 async function startServer() {
   try {
     // Test database connection
-    console.log('🔗 Connecting to AWS RDS PostgreSQL...');
+    console.log('🔗 Connecting to PostgreSQL...');
     const connected = await testConnection();
     
     if (!connected) {
