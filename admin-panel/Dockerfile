@@ -21,7 +21,9 @@ FROM nginx:alpine
 # Copy built assets from build stage to nginx serve directory
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# Add custom nginx config if necessary, or use default
+# Add custom nginx config for React SPA routing
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
 # Expose port 80
 EXPOSE 80
 
