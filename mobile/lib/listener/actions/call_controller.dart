@@ -1,16 +1,13 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:agora_rtc_engine/agora_rtc_engine.dart' hide AudioDeviceManager, AudioRoute;
-import 'package:permission_handler/permission_handler.dart';
+import 'package:livekit_client/livekit_client.dart';
 
-import '../../services/agora_service.dart';
-import '../../services/agora_api.dart';
+import '../../services/livekit_service.dart';
 import '../../services/socket_service.dart';
 import '../../services/call_service.dart';
 import '../../services/incoming_call_overlay_service.dart';
 import '../../services/active_call_service.dart';
-import 'audio_device_manager.dart';
 
 /// Single source of truth for call state.
 /// UI renders strictly based on this enum — no multi-flag toggling.
@@ -41,15 +38,13 @@ class CallController extends ChangeNotifier {
   });
 
   // ── Services (singletons) ──
-  final AgoraService _agoraService = AgoraService();
+  final LiveKitService _livekitService = LiveKitService();
   final SocketService _socketService = SocketService();
   final CallService _callService = CallService();
   final ActiveCallService _activeCallService = ActiveCallService();
 
   // ── Audio ──
   late final AudioPlayer _audioPlayer = AudioPlayer();
-  late final AudioDeviceManager audioDeviceManager =
-      AudioDeviceManager(agoraService: _agoraService);
 
   // ── Subscriptions (cancel in dispose) ──
   StreamSubscription? _callConnectedSub;
@@ -110,7 +105,7 @@ class CallController extends ChangeNotifier {
     if (!isAccepted) {
       _playConnectingSound();
     }
-    await _initAgora();
+    await _initLiveKit();
   }
 
   Map<String, dynamic> _buildActiveCallSession() {
@@ -203,9 +198,9 @@ class CallController extends ChangeNotifier {
     } catch (_) {}
   }
 
-  // ── Agora init + join ──
+  // ── LiveKit init + join ──
 
-  Future<void> _initAgora() async {
+  Future<void> _initLiveKit() async {
     final micStatus = await Permission.microphone.request();
     if (!micStatus.isGranted) {
       _setError('Microphone permission denied');
@@ -213,76 +208,49 @@ class CallController extends ChangeNotifier {
     }
 
     final channel = channelName ?? callId ?? 'call_${DateTime.now().millisecondsSinceEpoch}';
-    debugPrint('CallController: joining channel $channel');
+    debugPrint('CallController: joining room $channel');
 
     // Fetch token
-    final tokenResult = await _agoraService.fetchToken(channelName: channel);
-    if (!tokenResult.success || tokenResult.token == null) {
+    final tokenResult = await _livekitService.fetchToken(roomName: channel);
+    if (!tokenResult.success || tokenResult.token == null || tokenResult.url == null) {
       _setError(tokenResult.error ?? 'Failed to get call token');
       _scheduleAutoClose();
       return;
     }
 
-    // Init engine
-    final initialized = await _agoraService.initEngine(appId: AgoraConfig.appId);
-    if (!initialized) {
-      _setError('Failed to initialize call engine');
-      return;
-    }
-
-    // Register Agora event handler
-    _agoraService.registerEventHandler(RtcEngineEventHandler(
-      onJoinChannelSuccess: (connection, elapsed) {
-        debugPrint('CallController: joined channel ${connection.channelId}');
-        _stopAudio();
-        _transitionTo(CallState.connecting);
-      },
-      onUserJoined: (connection, remoteUid, elapsed) {
-        debugPrint('CallController: remote user joined $remoteUid');
+    // Register LiveKit event handler
+    final listener = RoomListener(
+      onParticipantConnected: (participant) {
+        debugPrint('CallController: remote user joined');
         _transitionTo(CallState.connected);
       },
-      onUserOffline: (connection, remoteUid, reason) {
-        debugPrint('CallController: remote user left $remoteUid');
+      onParticipantDisconnected: (participant) {
+        debugPrint('CallController: remote user left');
         endCall();
       },
-      onError: (err, msg) {
-        debugPrint('CallController: Agora error $err – $msg');
+      onDisconnected: (reason) {
+        debugPrint('CallController: room disconnected $reason');
         if (_callState != CallState.connected && !_disposed) {
-          _setError('Call error: $msg');
-        }
-      },
-      onConnectionStateChanged: (connection, state, reason) {
-        debugPrint('CallController: conn state $state reason $reason');
-        if (state == ConnectionStateType.connectionStateFailed) {
-          String errorMsg = 'Connection failed';
-          if (reason == ConnectionChangedReasonType.connectionChangedTokenExpired) {
-            errorMsg = 'Call session expired. Please try again.';
-          } else if (reason == ConnectionChangedReasonType.connectionChangedRejectedByServer) {
-            errorMsg = 'Connection rejected. Please try again.';
-          } else if (reason == ConnectionChangedReasonType.connectionChangedInvalidToken) {
-            errorMsg = 'Invalid call token. Please try again.';
-          }
-          _setError(errorMsg);
+          _setError('Call error: Disconnected');
           endCall();
         }
       },
-      onAudioRoutingChanged: (routing) {
-        // Forward to AudioDeviceManager for icon updates
-        audioDeviceManager.onAudioRoutingChanged(routing);
-      },
-    ));
+    );
 
-    // Join channel
-    final joined = await _agoraService.joinChannel(
+    // Join room
+    final joined = await _livekitService.connectToRoom(
+      url: tokenResult.url!,
       token: tokenResult.token!,
-      channelName: channel,
-      uid: tokenResult.uid ?? 0,
+      listener: listener,
     );
 
     if (!joined) {
       _setError('Failed to join call');
       _scheduleAutoClose();
     } else {
+      _stopAudio();
+      _transitionTo(CallState.connecting);
+
       _resolvedChannel = channel;
       await _persistActiveCallSession();
       _socketService.joinedChannel(
@@ -297,12 +265,8 @@ class CallController extends ChangeNotifier {
   void toggleMute() {
     if (_disposed) return;
     _isMuted = !_isMuted;
-    _agoraService.muteLocalAudio(_isMuted);
+    _livekitService.muteLocalAudio(_isMuted);
     notifyListeners();
-  }
-
-  void selectAudioRoute(AudioRoute route) {
-    audioDeviceManager.selectRoute(route);
   }
 
   /// End the call. Safe to call multiple times — no-ops after first.
@@ -319,9 +283,9 @@ class CallController extends ChangeNotifier {
     _stopAudio();
     _transitionTo(CallState.ended);
 
-    // 2. Disconnect Agora FIRST — stops audio instantly for both sides
-    debugPrint('[CALL-L] Disconnecting Agora engine');
-    await _agoraService.reset();
+    // 2. Disconnect LiveKit FIRST — stops audio instantly for both sides
+    debugPrint('[CALL-L] Disconnecting LiveKit room');
+    await _livekitService.reset();
 
     // 3. Notify peer via socket IMMEDIATELY
     if (callerId != null && _resolvedChannel != null) {
@@ -400,12 +364,7 @@ class CallController extends ChangeNotifier {
     _callTimer?.cancel();
     _audioPlayer.stop();
     _audioPlayer.dispose();
-    audioDeviceManager.dispose();
-    if (_resolvedChannel != null) {
-      _socketService.leftChannel(channelName: _resolvedChannel!);
-    }
-    // Don't call _agoraService.dispose() here — it's a singleton
-    // and reset() was already called in endCall()
+    // LiveKit disconnect logic handles everything
     super.dispose();
   }
 }

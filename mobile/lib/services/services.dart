@@ -8,7 +8,7 @@ export 'user_service.dart';
 export 'call_service.dart';
 export 'chat_service.dart';
 export 'contact_service.dart';
-export 'agora_service.dart';
+export 'livekit_service.dart';
 export 'agora_chat_config.dart';
 export 'socket_service.dart';
 export 'in_app_chat_notification_service.dart';

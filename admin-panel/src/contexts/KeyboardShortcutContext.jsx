@@ -26,14 +26,14 @@ export const KeyboardShortcutProvider = ({ children }) => {
 
   const handleKeyDown = useCallback((event) => {
     // Handle global keyboard shortcuts
-    const key = event.key.toLowerCase();
+    const key = event.key ? event.key.toLowerCase() : '';
     const ctrlOrCmd = event.ctrlKey || event.metaKey;
-    
+
     if (ctrlOrCmd && key === '/') {
       event.preventDefault();
       setShowShortcuts(true);
     }
-    
+
     if (key === 'escape') {
       setShowShortcuts(false);
     }
@@ -45,10 +45,10 @@ export const KeyboardShortcutProvider = ({ children }) => {
   }, [handleKeyDown]);
 
   return (
-    <KeyboardShortcutContext.Provider value={{ 
-      shortcuts, 
-      showShortcuts, 
-      setShowShortcuts 
+    <KeyboardShortcutContext.Provider value={{
+      shortcuts,
+      showShortcuts,
+      setShowShortcuts
     }}>
       {children}
     </KeyboardShortcutContext.Provider>

@@ -1,7 +1,6 @@
 import express from 'express';
 const router = express.Router();
-import pkg from 'agora-access-token';
-const { RtcTokenBuilder, RtcRole } = pkg;
+import { AccessToken } from 'livekit-server-sdk';
 import Call from '../models/Call.js';
 import Rating from '../models/Rating.js';
 import Listener from '../models/Listener.js';
@@ -43,7 +42,7 @@ router.post('/', authenticate, async (req, res) => {
 
     // Get listener details for rate
     const listener = await Listener.findById(listener_id);
-    
+
     if (!listener) {
       return res.status(404).json({ error: 'Experts not found' });
     }
@@ -53,7 +52,7 @@ router.post('/', authenticate, async (req, res) => {
     const verificationStatus = listener.verification_status || 'approved'; // Backward compatibility
     if (verificationStatus !== 'approved') {
       console.log(`[CALLS] Call blocked: Listener ${listener_id} not approved (status: ${verificationStatus})`);
-      return res.status(403).json({ 
+      return res.status(403).json({
         error: 'Listener not approved yet',
         details: 'This listener is currently under verification and cannot receive calls.'
       });
@@ -61,7 +60,7 @@ router.post('/', authenticate, async (req, res) => {
 
     if (!listener.is_available || !listener.is_online) {
       console.log(`[CALLS] Experts ${listener.listener_id} unavailable: available=${listener.is_available}, online=${listener.is_online}`);
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: 'Experts is not available',
         details: { is_available: listener.is_available, is_online: listener.is_online }
       });
@@ -134,7 +133,7 @@ router.get('/:call_id', authenticate, async (req, res) => {
     // Check if user is part of the call (as caller or listener)
     const listener = await Listener.findByUserId(req.userId);
     const isListener = listener && call.listener_id === listener.listener_id;
-    
+
     if (call.caller_id !== req.userId && !isListener) {
       return res.status(403).json({ error: 'Forbidden' });
     }
@@ -163,15 +162,15 @@ router.put('/:call_id/status', authenticate, async (req, res) => {
 
     // Get call and verify user is part of it
     const call = await Call.findById(req.params.call_id);
-    
+
     if (!call) {
       return res.status(404).json({ error: 'Call not found' });
     }
-    
+
     // Check if user is caller or listener
     const listener = await Listener.findByUserId(req.userId);
     const isListener = listener && call.listener_id === listener.listener_id;
-    
+
     if (call.caller_id !== req.userId && !isListener) {
       return res.status(403).json({ error: 'Forbidden' });
     }
@@ -323,7 +322,7 @@ router.get('/history/listener', authenticate, async (req, res) => {
 
     // Get listener_id for this user
     const listener = await Listener.findByUserId(req.userId);
-    
+
     if (!listener) {
       return res.status(404).json({ error: 'Listener profile not found' });
     }
@@ -427,7 +426,7 @@ router.post('/random', authenticate, async (req, res) => {
 
     if (!listener.is_available || !listener.is_online) {
       console.log(`[CALLS] Listener ${listener.listener_id} unavailable: available=${listener.is_available}, online=${listener.is_online}`);
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: 'Listener is not available',
         details: { is_available: listener.is_available, is_online: listener.is_online }
       });
@@ -494,84 +493,40 @@ router.post('/random', authenticate, async (req, res) => {
   }
 });
 
-// POST /api/calls/agora/token
-// Generate Agora RTC token for a call
-router.post('/agora/token', authenticate, async (req, res) => {
+// POST /api/calls/livekit/token
+// Generate LiveKit JWT token for a call
+router.post('/livekit/token', authenticate, async (req, res) => {
   try {
-    const { channel_name, uid } = req.body;
-    console.log(`[AGORA] Token request for channel: ${channel_name}, uid: ${uid}`);
+    const { channel_name } = req.body;
 
     if (!channel_name) {
-      console.log('[AGORA] Error: channel_name is required');
       return res.status(400).json({ error: 'channel_name is required' });
     }
 
-    const appId = config.agora.appId;
-    const appCertificate = config.agora.appCertificate;
+    const apiKey = config.livekit?.apiKey || process.env.LIVEKIT_API_KEY || 'devkey';
+    const apiSecret = config.livekit?.apiSecret || process.env.LIVEKIT_API_SECRET || 'secret';
+    const participantIdentity = req.userId.toString();
+    const participantName = `User_${participantIdentity.substring(0, 5)}`;
 
-    if (!appId || !appCertificate) {
-      console.error('[AGORA] Error: Agora credentials not configured', { appId: !!appId, cert: !!appCertificate });
-      return res.status(500).json({ error: 'Agora credentials not configured' });
-    }
+    const at = new AccessToken(apiKey, apiSecret, {
+      identity: participantIdentity,
+      name: participantName,
+    });
 
-    // Use provided uid or default to 0 (will be assigned by Agora)
-    let userUid = 0;
-    if (uid !== undefined && uid !== null) {
-      userUid = parseInt(uid);
-      if (isNaN(userUid)) userUid = 0;
-    }
-    
-    // Token expiry time (1 hour from now - increased for stability)
-    const expirationTimeInSeconds = config.agora.tokenExpirySeconds || 3600;
-    const currentTimestamp = Math.floor(Date.now() / 1000);
-    const privilegeExpiredTs = currentTimestamp + expirationTimeInSeconds;
+    at.addGrant({ roomJoin: true, room: channel_name, canPublish: true, canSubscribe: true });
 
-    console.log(`[AGORA] Generating token with: appId=${appId.substring(0, 5)}..., cert=${appCertificate ? 'YES' : 'NO'}, channel=${channel_name}, uid=${userUid}, expiry=${expirationTimeInSeconds}s`);
-
-    // Build token with uid
-    let token;
-    try {
-      console.log('[AGORA] Calling RtcTokenBuilder.buildTokenWithUid...');
-      token = RtcTokenBuilder.buildTokenWithUid(
-        appId,
-        appCertificate,
-        channel_name,
-        userUid,
-        RtcRole.PUBLISHER,
-        privilegeExpiredTs
-      );
-      console.log('[AGORA] Token builder success');
-    } catch (buildError) {
-      console.error('[AGORA] buildTokenWithUid failed with error:', buildError);
-      console.error('[AGORA] Error stack:', buildError.stack);
-      return res.status(500).json({ 
-        error: 'Failed to build Agora token', 
-        details: buildError.message,
-        stack: buildError.stack
-      });
-    }
-
-    if (!token) {
-      console.error('[AGORA] Token builder returned empty token');
-      return res.status(500).json({ error: 'Generated token is empty' });
-    }
-
-    console.log('[AGORA] Token generated successfully');
+    const token = await at.toJwt();
 
     res.json({
       token,
       channel_name,
-      uid: userUid,
-      expires_at: new Date(privilegeExpiredTs * 1000).toISOString()
+      url: process.env.LIVEKIT_URL || 'wss://livekit.appdost.com'
     });
   } catch (error) {
-    console.error('[AGORA] Fatal error generating Agora token:', error);
-    res.status(500).json({ 
-      error: 'Failed to generate Agora token',
-      details: error.message,
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
-    });
+    console.error('Fatal error generating LiveKit token:', error);
+    res.status(500).json({ error: 'Failed to generate token' });
   }
 });
+
 
 export default router;

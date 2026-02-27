@@ -570,6 +570,8 @@ async function ensureSchema() {
       ALTER TABLE listeners ADD COLUMN IF NOT EXISTS total_earning DECIMAL(10, 2) DEFAULT 0.0;
       ALTER TABLE listeners ADD COLUMN IF NOT EXISTS wallet_balance DECIMAL(10, 2) DEFAULT 0.0;
       ALTER TABLE listeners ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE;
+      ALTER TABLE listeners ADD COLUMN IF NOT EXISTS rejection_reason TEXT;
+      ALTER TABLE listeners ADD COLUMN IF NOT EXISTS reapply_attempts INTEGER DEFAULT 0;
       
       ALTER TABLE calls ADD COLUMN IF NOT EXISTS billed_minutes INTEGER;
       ALTER TABLE calls ADD COLUMN IF NOT EXISTS offer_applied BOOLEAN DEFAULT FALSE;

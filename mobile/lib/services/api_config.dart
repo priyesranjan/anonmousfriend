@@ -38,7 +38,7 @@ class ApiConfig {
   static final String callHistory = '$apiBase/calls/history/me';
   static final String listenerCallHistory = '$apiBase/calls/history/listener';
   static final String activeCalls = '$apiBase/calls/active/me';
-  static final String agoraToken = '$apiBase/calls/agora/token';
+  static final String livekitToken = '$apiBase/calls/livekit/token';
   static final String callRates = '$apiBase/config/call-rates';
   static final String submitRating = '$apiBase/ratings/submit';
   static final String submitAppRating = '$apiBase/app-ratings';

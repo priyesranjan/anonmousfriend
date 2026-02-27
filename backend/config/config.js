@@ -74,11 +74,11 @@ export default {
     pingInterval: 2000, // Reduced from 25000ms to 2000ms for more frequent heartbeats
   },
 
-  // Agora RTC configuration
-  agora: {
-    appId: process.env.AGORA_APP_ID,
-    appCertificate: process.env.AGORA_APP_CERT,
-    tokenExpirySeconds: 60 * 60 // 1 hour
+  // LiveKit RTC configuration
+  livekit: {
+    apiKey: process.env.LIVEKIT_API_KEY,
+    apiSecret: process.env.LIVEKIT_API_SECRET,
+    url: process.env.LIVEKIT_URL || 'wss://livekit.appdost.com'
   },
   razorpay: {
     keyId: process.env.RAZORPAY_KEY_ID,

@@ -1,16 +1,13 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:agora_rtc_engine/agora_rtc_engine.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:livekit_client/livekit_client.dart';
 
-import '../../services/agora_service.dart';
-import '../../services/agora_api.dart';
+import '../../services/livekit_service.dart';
 import '../../services/socket_service.dart';
 import '../../services/call_service.dart';
 import '../../services/user_service.dart';
 import '../../services/active_call_service.dart';
-import 'audio_device_manager.dart';
 
 /// Single source of truth for call state on the USER side.
 /// UI renders strictly based on this enum — no multi-flag toggling.
@@ -45,7 +42,7 @@ class UserCallController extends ChangeNotifier {
   });
 
   // ── Services (singletons) ──
-  final AgoraService _agoraService = AgoraService();
+  final LiveKitService _livekitService = LiveKitService();
   final SocketService _socketService = SocketService();
   final CallService _callService = CallService();
   final UserService _userService = UserService();
@@ -53,8 +50,6 @@ class UserCallController extends ChangeNotifier {
 
   // ── Audio ──
   late final AudioPlayer _audioPlayer = AudioPlayer();
-  late final UserAudioDeviceManager audioDeviceManager =
-      UserAudioDeviceManager(agoraService: _agoraService);
 
   // ── Subscriptions (cancel in dispose) ──
   StreamSubscription? _callConnectedSub;
@@ -141,7 +136,7 @@ class UserCallController extends ChangeNotifier {
       // Backward compatibility: channel already created
       _callId = channelName;
       await _persistActiveCallSession();
-      await _initAgora();
+      await _initLiveKit();
     } else {
       await _initiateCallAndConnect();
     }
@@ -312,7 +307,7 @@ class UserCallController extends ChangeNotifier {
     debugPrint('UserCallController: Call created with ID: $_callId');
     await _persistActiveCallSession();
 
-    // 3. IMMEDIATELY notify listener via socket (before Agora setup)
+    // 3. IMMEDIATELY notify listener via socket (before LiveKit setup)
     final targetUserId = listenerId;
     if (targetUserId != null && _callId != null) {
       _socketService.initiateCall(
@@ -326,96 +321,68 @@ class UserCallController extends ChangeNotifier {
       );
     }
 
-    // 4. Init Agora (mic permission already resolved in parallel)
+    // 4. Init LiveKit (mic permission already resolved in parallel)
     final micStatus = await micFuture;
     if (!micStatus.isGranted) {
       _setError('Microphone permission denied');
       return;
     }
-    await _initAgoraEngine();
+    await _initLiveKitEngine();
   }
 
-  // ── Agora init + join ──
+  // ── LiveKit init + join ──
 
-  Future<void> _initAgora() async {
+  Future<void> _initLiveKit() async {
     final micStatus = await Permission.microphone.request();
     if (!micStatus.isGranted) {
       _setError('Microphone permission denied');
       return;
     }
-    await _initAgoraEngine();
+    await _initLiveKitEngine();
   }
 
-  /// Core Agora setup — mic permission must already be granted.
-  Future<void> _initAgoraEngine() async {
+  /// Core LiveKit setup — mic permission must already be granted.
+  Future<void> _initLiveKitEngine() async {
     final channel = _callId ?? channelName ??
         'call_${listenerId ?? DateTime.now().millisecondsSinceEpoch}';
     _currentChannelName = channel;
 
-    debugPrint('UserCallController: joining channel $channel');
+    debugPrint('UserCallController: joining room $channel');
 
     // Fetch token
-    final tokenResult = await _agoraService.fetchToken(channelName: channel);
-    if (!tokenResult.success || tokenResult.token == null) {
+    final tokenResult = await _livekitService.fetchToken(roomName: channel);
+    if (!tokenResult.success || tokenResult.token == null || tokenResult.url == null) {
       _setError(tokenResult.error ?? 'Failed to get call token');
       _stopRingtone();
       _scheduleAutoClose();
       return;
     }
 
-    // Init engine
-    final initialized = await _agoraService.initEngine(appId: AgoraConfig.appId);
-    if (!initialized) {
-      _setError('Failed to initialize call engine');
-      _stopRingtone();
-      return;
-    }
+    _transitionTo(UserCallState.connecting);
 
-    // Register Agora event handler
-    _agoraService.registerEventHandler(RtcEngineEventHandler(
-      onJoinChannelSuccess: (connection, elapsed) {
-        debugPrint('UserCallController: joined channel ${connection.channelId}');
-        _transitionTo(UserCallState.connecting);
-      },
-      onUserJoined: (connection, remoteUid, elapsed) {
-        debugPrint('UserCallController: listener joined call, UID: $remoteUid');
+    // Join room
+    final listener = RoomListener(
+      onParticipantConnected: (participant) {
+        debugPrint('UserCallController: listener joined call');
         _transitionTo(UserCallState.connected);
       },
-      onUserOffline: (connection, remoteUid, reason) {
-        debugPrint('UserCallController: listener left $remoteUid');
+      onParticipantDisconnected: (participant) {
+        debugPrint('UserCallController: listener left');
         endCall(reason: 'remote_end');
       },
-      onError: (err, msg) {
-        debugPrint('UserCallController: Agora error $err – $msg');
-        if (_callState != UserCallState.connected && !_disposed) {
-          _setError('Call error: $msg');
+      onDisconnected: (reason) {
+        debugPrint('UserCallController: room disconnected $reason');
+        if (_callState != UserCallState.ended && !_disposed) {
+           _setError('Call disconnected');
+           endCall(reason: 'network_drop');
         }
       },
-      onConnectionStateChanged: (connection, state, reason) {
-        debugPrint('UserCallController: conn state $state reason $reason');
-        if (state == ConnectionStateType.connectionStateFailed) {
-          String errorMsg = 'Connection failed';
-          if (reason == ConnectionChangedReasonType.connectionChangedTokenExpired) {
-            errorMsg = 'Call session expired. Please try again.';
-          } else if (reason == ConnectionChangedReasonType.connectionChangedRejectedByServer) {
-            errorMsg = 'Connection rejected. Please try again.';
-          } else if (reason == ConnectionChangedReasonType.connectionChangedInvalidToken) {
-            errorMsg = 'Invalid call token. Please try again.';
-          }
-          _setError(errorMsg);
-          endCall(reason: 'network_drop');
-        }
-      },
-      onAudioRoutingChanged: (routing) {
-        audioDeviceManager.onAudioRoutingChanged(routing);
-      },
-    ));
+    );
 
-    // Join channel
-    final joined = await _agoraService.joinChannel(
+    final joined = await _livekitService.connectToRoom(
+      url: tokenResult.url!,
       token: tokenResult.token!,
-      channelName: channel,
-      uid: tokenResult.uid ?? 0,
+      listener: listener,
     );
 
     if (!joined) {
@@ -446,16 +413,11 @@ class UserCallController extends ChangeNotifier {
   }
 
   // ── User actions ──
-
   void toggleMute() {
     if (_disposed || _callState == UserCallState.ended) return;
     _isMuted = !_isMuted;
-    _agoraService.muteLocalAudio(_isMuted);
+    _livekitService.muteLocalAudio(_isMuted);
     notifyListeners();
-  }
-
-  void selectAudioRoute(UserAudioRoute route) {
-    audioDeviceManager.selectRoute(route);
   }
 
   /// End the call with a reason. Safe to call multiple times.
@@ -485,9 +447,9 @@ class UserCallController extends ChangeNotifier {
       // 2. Transition state → UI shows "Call Ended"
       _transitionTo(UserCallState.ended);
 
-      // 3. Disconnect Agora FIRST — stops audio instantly for both sides
-      debugPrint('[CALL] Disconnecting Agora engine');
-      await _agoraService.reset();
+      // 3. Disconnect LiveKit FIRST — stops audio instantly for both sides
+      debugPrint('[CALL] Disconnecting LiveKit room');
+      await _livekitService.reset();
 
       // 4. Notify peer via socket IMMEDIATELY
       // Use _callId (DB call ID) as the primary identifier — _currentChannelName may
@@ -629,9 +591,7 @@ class UserCallController extends ChangeNotifier {
     _callBusySub?.cancel();
     _noAnswerTimer?.cancel();
     _callTimer?.cancel();
-    _audioPlayer.stop();
     _audioPlayer.dispose();
-    audioDeviceManager.dispose();
     if (_currentChannelName != null) {
       _socketService.leftChannel(channelName: _currentChannelName!);
     }

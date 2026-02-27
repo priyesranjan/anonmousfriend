@@ -69,6 +69,12 @@ app.get('/', (req, res) => {
 app.get('/api/health', async (req, res) => {
   try {
     const dbConnected = await testConnection();
+    // Try to ensure schema on health check for serverless environments
+    try {
+      await ensureSchema();
+    } catch (e) {
+      console.warn('ensureSchema failed during health check:', e.message);
+    }
     res.json({
       status: 'healthy',
       database: dbConnected ? 'connected' : 'disconnected',
@@ -122,7 +128,7 @@ app.use((req, res) => {
 // Global error handler
 app.use((err, req, res, next) => {
   console.error('Error:', err);
-  
+
   res.status(err.status || 500).json({
     error: err.message || 'Internal server error',
     ...(config.NODE_ENV === 'development' && { stack: err.stack })
