@@ -3,11 +3,9 @@ import axios from 'axios';
 const resolvedBase =
   typeof import.meta.env.VITE_API_BASE_URL === 'string' && import.meta.env.VITE_API_BASE_URL.length > 0
     ? import.meta.env.VITE_API_BASE_URL
-    // : 'https://call-to.onrender.com/api';
-    : 'http://localhost:3002/api';
+    : 'https://api.appdost.com/api';
 const localFallbacks = [
-  'http://localhost:3002/api',
-  'http://127.0.0.1:3002/api'
+  'https://api.appdost.com/api'
 ];
 const fallbackBases = [resolvedBase, ...localFallbacks.filter((b) => b !== resolvedBase)];
 const api = axios.create({ baseURL: resolvedBase });
@@ -91,7 +89,7 @@ export const deleteAppRatings = (ratingIds = []) =>
 export const getContactMessages = (params = {}) => api.get('/admin/contact-messages', { params });
 export const getDeleteRequests = (params = {}) => api.get('/admin/delete-requests', { params });
 export const deleteDeleteRequest = (request_id) => api.delete(`/admin/delete-requests/${request_id}`);
-export const updateListenerVerificationStatus = (listener_id, status, rejection_reason = null) => 
+export const updateListenerVerificationStatus = (listener_id, status, rejection_reason = null) =>
   api.put(`/admin/listeners/${listener_id}/verification-status`, { status, rejection_reason });
 export const setListenerRates = (payload) => api.post('/admin/listener/set-rates', payload);
 export const updateListenerRates = (listener_id, payload) =>
