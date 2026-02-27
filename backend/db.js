@@ -46,7 +46,7 @@ const poolConfig = {
 
 // Only enforce SSL if explicitly told to via environment variables 
 // (Self-hosted Postgres containers usually don't support SSL out of the box)
-if (process.env.DB_REQUIRE_SSL === 'true' || process.env.DATABASE_PUBLIC_URL) {
+if (process.env.DB_REQUIRE_SSL === 'true') {
   poolConfig.ssl = {
     rejectUnauthorized: false
   };
