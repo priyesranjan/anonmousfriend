@@ -582,6 +582,7 @@ async function ensureSchema() {
 
     // Add commonly used social auth columns if they don't exist yet
     const alterSql = `
+      ALTER TABLE admins ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE;
       ALTER TABLE users ADD COLUMN IF NOT EXISTS auth_provider VARCHAR(20) DEFAULT 'phone';
       ALTER TABLE users ADD COLUMN IF NOT EXISTS google_id VARCHAR(255);
       ALTER TABLE users ADD COLUMN IF NOT EXISTS facebook_id VARCHAR(255);
