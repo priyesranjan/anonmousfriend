@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:google_sign_in/google_sign_in.dart';
@@ -97,7 +98,9 @@ class _LoginScreenState extends State with TickerProviderStateMixin {
   void _initializeGoogleSignIn() {
     try {
       _googleSignIn = GoogleSignIn(
-        clientId: '21566908692-c9u79t06co3ve9qo5nujrdlq7kvpij3t.apps.googleusercontent.com',
+        clientId: kIsWeb || !Platform.isAndroid 
+            ? '21566908692-c9u79t06co3ve9qo5nujrdlq7kvpij3t.apps.googleusercontent.com' 
+            : null,
         scopes: ['email', 'profile'],
       );
       _googleSignInAvailable = true;

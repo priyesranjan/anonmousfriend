@@ -6,7 +6,16 @@ const calculateCallCharge = (durationSeconds, userRate, payoutRate) => {
   const seconds = Math.max(0, Math.floor(Number(durationSeconds) || 0));
   const minutes = Math.ceil(seconds / 60);
   const userCharge = roundMoney(minutes * Number(userRate || 0));
-  const listenerEarn = roundMoney(minutes * Number(payoutRate || 0));
+
+  // Time-Based Dynamic Earnings (Blueprint Section 7):
+  // Minutes 1-10: base payoutRate
+  // Minutes 11+: boosted rate (payoutRate * 1.33, i.e. ₹1.5 → ₹2.0)
+  const baseMinutes = Math.min(minutes, 10);
+  const boostedMinutes = Math.max(0, minutes - 10);
+  const boostedRate = roundMoney(Number(payoutRate || 0) * 1.33);
+  const listenerEarn = roundMoney(
+    (baseMinutes * Number(payoutRate || 0)) + (boostedMinutes * boostedRate)
+  );
 
   return { minutes, userCharge, listenerEarn };
 };
@@ -183,8 +192,8 @@ const finalizeCallBilling = async ({ callId, durationSeconds }) => {
     if (caller && caller.is_first_time_user && !caller.offer_used) {
       const rateConfig = await getRateConfig();
       if (rateConfig.first_time_offer_enabled
-          && rateConfig.offer_minutes_limit > 0
-          && Number(rateConfig.offer_flat_price) > 0) {
+        && rateConfig.offer_minutes_limit > 0
+        && Number(rateConfig.offer_flat_price) > 0) {
         const offerRate = Number(rateConfig.offer_flat_price) / rateConfig.offer_minutes_limit;
         console.log(`[BILLING] First-time offer applied for user ${call.caller_id}: ₹${offerRate}/min instead of ₹${userRate}/min`);
         userRate = offerRate;

@@ -311,15 +311,22 @@ io.on('connection', (socket) => {
   socket.on('call:initiate', async (data) => {
     const { listenerId, ...callData } = data || {};
     
-    // Check both maps for the listener's socket
-    const listenerSocketId = listenerSockets.get(listenerId) || connectedUsers.get(listenerId);
+    let listenerSocketId = listenerSockets.get(listenerId) || connectedUsers.get(listenerId);
     
     console.log(`[SOCKET] call:initiate: Looking for listener ${listenerId}`);
     console.log(`[SOCKET] call:initiate: Found socketId: ${listenerSocketId || 'NONE'}`);
     
-    if (!listenerSocketId) {
-      // Listener is not connected — notify caller immediately
-      console.log(`[SOCKET] call:initiate: ✗ Listener ${listenerId} NOT online (no socket found)`);
+    // Fetch listener user to check for FCM token
+    let listenerUser = null;
+    try {
+      listenerUser = await User.findById(listenerId);
+    } catch(e) {
+      console.error('[SOCKET] Error fetching listener user for FCM:', e);
+    }
+
+    if (!listenerSocketId && (!listenerUser || !listenerUser.fcm_token)) {
+      // Listener is completely unreachable (no socket AND no FCM token)
+      console.log(`[SOCKET] call:initiate: ✗ Listener ${listenerId} completely unreachable (no socket, no FCM)`);
       socket.emit('call:failed', { callId: callData.callId, reason: 'listener_offline' });
       return;
     }
@@ -376,6 +383,41 @@ io.on('connection', (socket) => {
     } catch (err) {
       console.error(`[SOCKET] call:initiate verification check failed:`, err);
       // Don't fail the call for a verification check error — call was already forwarded
+    }
+
+    // 🔴 SEND PUSH NOTIFICATION (FCM) TO WAKE UP APP
+    if (listenerUser && listenerUser.fcm_token) {
+      try {
+        console.log(`[SOCKET] call:initiate: Sending FCM Push to listener ${listenerId} (token: ${listenerUser.fcm_token.substring(0, 15)}...)`);
+        
+        // Fetch caller details for notification
+        const callerUser = await User.findById(socket.userId);
+        const callerName = callerUser ? (callerUser.display_name || callerUser.full_name) : 'User';
+        const callerAvatar = callerUser ? callerUser.avatar_url : '';
+
+        // The data payload explicitly matches what Flutter needs to trigger the incoming call UI
+        const pushData = {
+          type: 'incoming_call',
+          callId: String(callData.callId || ''),
+          callerId: String(socket.userId || ''),
+          callerName: String(callerName || 'Someone'),
+          callerAvatar: String(callerAvatar || ''),
+          channelName: String(callData.channelName || ''),
+          callType: String(callData.callType || 'audio'),
+          ratePerMinute: String(callData.ratePerMinute || '0')
+        };
+
+        // For CallKeep / background handling, data payload is the most important part
+        await sendPushFCM(
+          listenerUser.fcm_token, 
+          'Incoming Call', 
+          `${callerName} is calling you`, 
+          pushData
+        );
+        console.log(`[SOCKET] call:initiate: ✓ FCM Push sent successfully to listener ${listenerId}`);
+      } catch (fcmErr) {
+        console.error(`[SOCKET] call:initiate: ✗ FCM Push failed:`, fcmErr.message);
+      }
     }
   });
 

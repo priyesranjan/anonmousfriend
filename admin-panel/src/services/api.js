@@ -94,6 +94,8 @@ export const updateListenerVerificationStatus = (listener_id, status, rejection_
 export const setListenerRates = (payload) => api.post('/admin/listener/set-rates', payload);
 export const updateListenerRates = (listener_id, payload) =>
   api.put(`/admin/listener/update-rates/${listener_id}`, payload);
+export const updateAdminUserWallet = (user_id, payload) => api.put(`/admin/users/${user_id}/wallet`, payload);
+export const updateAdminListenerStats = (listener_id, payload) => api.put(`/admin/listeners/${listener_id}/stats`, payload);
 export const getRateConfig = () => api.get('/admin/rate-config');
 export const updateRateConfig = (payload) => api.put('/admin/rate-config', payload);
 
@@ -115,5 +117,9 @@ export const deleteRechargePack = (id) => api.delete(`/recharge-packs/${id}`);
 
 // User Transactions (admin)
 export const getUserTransactions = (user_id) => api.get(`/admin/users/${user_id}/transactions`);
+
+// Active Calls & Zombie Sweeper
+export const getAdminActiveCalls = () => api.get('/calls/admin/active');
+export const runZombieSweep = () => api.post('/calls/admin/zombie-sweep');
 
 export default api;

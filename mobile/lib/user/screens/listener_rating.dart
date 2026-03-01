@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 import '../widgets/bottom_nav_bar.dart';
+import '../widgets/post_call_report_dialog.dart';
 import '../../services/call_service.dart';
 
 class ListenerRatingScreen extends StatefulWidget {
   final String callId;
   final String listenerName;
   final String listenerAvatar;
+  final String? listenerId;
 
   const ListenerRatingScreen({
     super.key,
     required this.callId,
     required this.listenerName,
     required this.listenerAvatar,
+    this.listenerId,
   });
 
   @override
@@ -199,6 +202,26 @@ class _ListenerRatingScreenState extends State<ListenerRatingScreen>
                           onPressed: _isSubmitting ? null : _skipRating,
                           child: const Text('Skip'),
                         ),
+                        if (widget.listenerId != null) ...[
+                          const SizedBox(height: 4),
+                          TextButton.icon(
+                            onPressed: _isSubmitting
+                                ? null
+                                : () {
+                                    PostCallReportDialog.show(
+                                      context,
+                                      listenerId: widget.listenerId!,
+                                      callId: widget.callId,
+                                      listenerName: widget.listenerName,
+                                    );
+                                  },
+                            icon: const Icon(Icons.flag_outlined, size: 16, color: Colors.redAccent),
+                            label: const Text(
+                              'Report Issue',
+                              style: TextStyle(color: Colors.redAccent, fontSize: 13),
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ),

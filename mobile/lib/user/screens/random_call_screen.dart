@@ -7,6 +7,8 @@ import '../../services/socket_service.dart';
 import '../../services/storage_service.dart';
 import '../../services/call_service.dart';
 import '../../services/listener_service.dart';
+import '../../services/subscription_service.dart';
+import '../../services/ad_service.dart';
 import '../../models/listener_model.dart' as model;
 
 class RandomCallScreen extends StatefulWidget {
@@ -27,7 +29,16 @@ class _RandomCallScreenState extends State<RandomCallScreen>
   final SocketService _socketService = SocketService();
   final StorageService _storage = StorageService();
   final ListenerService _listenerService = ListenerService();
+  final SubscriptionService _subscriptionService = SubscriptionService();
+  final AdService _adService = AdService();
   final AudioPlayer _searchAudioPlayer = AudioPlayer();
+
+  // Subscription state
+  bool _isPremium = false;
+  bool _adRequired = false;
+  int _freeCallsUsed = 0;
+  int _freeCallsLimit = 2;
+  int? _maxMinutes;
 
   late AnimationController _pulseController;
   late AnimationController _orbitController;
@@ -84,6 +95,29 @@ class _RandomCallScreenState extends State<RandomCallScreen>
   }
 
   void findRandomPerson() async {
+    // ===== SUBSCRIPTION GATE =====
+    final gateResult = await _subscriptionService.checkRandomCall();
+    if (gateResult['allowed'] != true) {
+      if (mounted) {
+        _showDailyLimitDialog(gateResult['message'] ?? 'Daily limit reached');
+      }
+      return;
+    }
+
+    setState(() {
+      _isPremium = gateResult['isPremium'] == true;
+      _adRequired = gateResult['adRequired'] == true;
+      _maxMinutes = gateResult['maxMinutes'];
+      _freeCallsUsed = gateResult['freeCallsUsed'] ?? 0;
+      _freeCallsLimit = gateResult['freeCallsLimit'] ?? 2;
+    });
+
+    // Free user must watch rewarded ad before proceeding
+    if (_adRequired && mounted) {
+      final adWatched = await _showAdDialog();
+      if (adWatched != true) return;
+    }
+
     setState(() {
       isSearching = true;
       matchedUser = null;
@@ -104,12 +138,17 @@ class _RandomCallScreenState extends State<RandomCallScreen>
 
       // Retry logic to find online listeners
       while (retryCount < maxRetries && onlineListeners.isEmpty) {
-        // Fetch listeners marked as online from API
-        final result = await _listenerService.getListeners(
-          isOnline: true,
-          isBusy: false,
-          limit: 50, // Fetch more to increase chances
-        );
+        // Use Smart Matching API for ranked listener results
+        var result = await _listenerService.getSmartMatchListeners();
+
+        // Fallback to basic fetch if smart-match fails
+        if (!result.success || result.listeners.isEmpty) {
+          result = await _listenerService.getListeners(
+            isOnline: true,
+            isBusy: false,
+            limit: 50,
+          );
+        }
 
         if (result.success && result.listeners.isNotEmpty) {
           // Get real-time online status from socket
@@ -305,6 +344,156 @@ class _RandomCallScreenState extends State<RandomCallScreen>
         onDismiss: () => Navigator.of(ctx).pop(),
       ),
     );
+  }
+
+  /// Shows the daily limit reached dialog with premium upgrade CTA
+  void _showDailyLimitDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF1F2937),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Row(
+          children: [
+            Icon(Icons.timer_off, color: Colors.orangeAccent, size: 28),
+            SizedBox(width: 8),
+            Text('Daily Limit Reached', style: TextStyle(color: Colors.white, fontSize: 18)),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(message, style: const TextStyle(color: Colors.white70, fontSize: 14)),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(colors: [Color(0xFFEC4899), Color(0xFF8B5CF6)]),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.workspace_premium, color: Colors.yellowAccent, size: 24),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Premium — ₹999/year\nUnlimited calls • Gender filter • No ads',
+                      style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Later', style: TextStyle(color: Colors.white54)),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.of(ctx).pop();
+              _purchasePremium();
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFEC4899)),
+            child: const Text('Upgrade Now'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Shows the ad dialog and triggers rewarded ad via AdService
+  Future<bool?> _showAdDialog() async {
+    return showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF1F2937),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Row(
+          children: [
+            Icon(Icons.play_circle_fill, color: Colors.greenAccent, size: 28),
+            SizedBox(width: 8),
+            Flexible(child: Text('Free Call', style: TextStyle(color: Colors.white, fontSize: 18))),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Watch a short ad to unlock your free call (${_freeCallsUsed}/${_freeCallsLimit} used today).\n\nFree calls are limited to $_maxMinutes minutes.',
+              style: const TextStyle(color: Colors.white70, fontSize: 14),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.green.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Colors.greenAccent.withOpacity(0.3)),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.smart_display, color: Colors.greenAccent, size: 20),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Tap "Watch Ad" to start the rewarded video',
+                      style: TextStyle(color: Colors.greenAccent, fontSize: 12),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
+          ),
+          ElevatedButton.icon(
+            onPressed: () async {
+              // Trigger rewarded ad via AdService
+              final rewarded = await _adService.showRewardedAd();
+              if (ctx.mounted) {
+                Navigator.of(ctx).pop(rewarded);
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+            icon: const Icon(Icons.play_arrow, size: 18),
+            label: const Text('Watch Ad'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Purchase the premium subscription from wallet
+  Future<void> _purchasePremium() async {
+    final result = await _subscriptionService.purchaseSubscription();
+    if (!mounted) return;
+
+    if (result['success'] == true) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('🎉 Premium activated! Unlimited random calls unlocked.'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      setState(() => _isPremium = true);
+    } else {
+      final error = result['error'] ?? 'Purchase failed';
+      if (error.toString().contains('Insufficient')) {
+        _showLowBalanceDialog(error.toString());
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(error.toString()), backgroundColor: Colors.red),
+        );
+      }
+    }
   }
 
   void _handleBack() {
@@ -599,6 +788,58 @@ class _RandomCallScreenState extends State<RandomCallScreen>
                   ),
                 ),
               ),
+              SizedBox(height: size.height * 0.02),
+
+              // Premium Upgrade CTA
+              if (!_isPremium)
+                GestureDetector(
+                  onTap: _purchasePremium,
+                  child: Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: size.width * 0.04,
+                      vertical: size.height * 0.015,
+                    ),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      gradient: LinearGradient(
+                        colors: [Colors.amber.shade800, Colors.orange.shade700],
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.workspace_premium, color: Colors.yellowAccent, size: 20),
+                        SizedBox(width: size.width * 0.02),
+                        Text(
+                          "Unlock Premium — ₹999/year",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: size.width * 0.035,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              if (_isPremium)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.greenAccent.withOpacity(0.3)),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.workspace_premium, color: Colors.greenAccent, size: 16),
+                      SizedBox(width: 6),
+                      Text('Premium Active', style: TextStyle(color: Colors.greenAccent, fontSize: 13, fontWeight: FontWeight.w600)),
+                    ],
+                  ),
+                ),
               SizedBox(height: size.height * 0.03),
             ],
           ),

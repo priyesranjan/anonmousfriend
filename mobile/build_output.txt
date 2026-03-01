@@ -1,0 +1,85 @@
+﻿Running Gradle task 'assembleRelease'...                        
+flutter : Warning: Flutter support for your project's Android 
+Gradle Plugin version (Android Gradle Plugin version 8.2.1) will 
+soon be dropped. Please upgrade your Android Gradle Plugin 
+version to a version of at least Android Gradle Plugin version 
+8.6.0 soon.
+At line:1 char:1
++ flutter build apk 2>&1 | Out-File -FilePath build_output.txt 
+-Encodin ...
++ ~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Warning: Flutte...i 
+   on 8.6.0 soon.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+Alternatively, use the flag 
+"--android-skip-build-dependency-validation" to bypass this 
+check.
+
+Potential fix: Your project's AGP version is typically defined 
+in the plugins block of the `settings.gradle` file 
+(C:\Help\callto-19-02-26-main\mobile\android/settings.gradle), 
+by a plugin with the id of com.android.application. 
+If you don't see a plugins block, your project was likely 
+created with an older template version. In this case it is most 
+likely defined in the top-level build.gradle file 
+(C:\Help\callto-19-02-26-main\mobile\android/build.gradle) by 
+the following line in the dependencies block of the buildscript: 
+"classpath 'com.android.tools.build:gradle:<version>'".
+
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task 
+':shared_preferences_android:generateReleaseLintModel'.
+> Could not resolve all files for configuration 
+':shared_preferences_android:releaseUnitTestRuntimeClasspath'.
+   > Failed to transform bcprov-jdk18on-1.81.jar 
+(org.bouncycastle:bcprov-jdk18on:1.81) to match attributes 
+{artifactType=processed-jar, org.gradle.category=library, 
+org.gradle.libraryelements=jar, org.gradle.status=release, 
+org.gradle.usage=java-runtime}.
+      > Execution failed for JetifyTransform: C:\Users\cofee\.gra
+dle\caches\modules-2\files-2.1\org.bouncycastle\bcprov-jdk18on\1.
+81\d17c094daef57dbd80af71687a475aa6df7cbe54\bcprov-jdk18on-1.81.j
+ar.
+         > Failed to transform 'C:\Users\cofee\.gradle\caches\mod
+ules-2\files-2.1\org.bouncycastle\bcprov-jdk18on\1.81\d17c094daef
+57dbd80af71687a475aa6df7cbe54\bcprov-jdk18on-1.81.jar' using 
+Jetifier. Reason: IllegalArgumentException, message: Unsupported 
+class file major version 65. (Run with --stacktrace for more 
+details.)
+           Suggestions:
+            - Check out existing issues at https://issuetracker.g
+oogle.com/issues?q=componentid:460323&s=modified_time:desc, it's 
+possible that this issue has already been filed there.
+            - If this issue has not been filed, please report it 
+at https://issuetracker.google.com/issues/new?component=460323 
+(run with --stacktrace and provide a stack trace if possible).
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 42s
+Running Gradle task 'assembleRelease'...                           44.0s
+
+ΓöîΓöÇ Flutter Fix ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÉ
+Γöé [!] Your project's Gradle version is incompatible with the Java version that Flutter is using Γöé
+Γöé for Gradle.                                                                                   Γöé
+Γöé                                                                                               Γöé
+Γöé To fix this issue, first, check the Java version used by Flutter by running `flutter doctor   Γöé
+Γöé --verbose`.                                                                                   Γöé
+Γöé                                                                                               Γöé
+Γöé Then, update the Gradle version specified in                                                  Γöé
+Γöé C:\Help\callto-19-02-26-main\mobile\android\gradle\wrapper\gradle-wrapper.properties to be    Γöé
+Γöé compatible with that Java version. See the link below for more information on compatible      Γöé
+Γöé Java/Gradle versions:                                                                         Γöé
+Γöé https://docs.gradle.org/current/userguide/compatibility.html#java                             Γöé
+Γöé                                                                                               Γöé
+Γöé                                                                                               Γöé
+ΓööΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÿ
+Gradle task assembleRelease failed with exit code 1

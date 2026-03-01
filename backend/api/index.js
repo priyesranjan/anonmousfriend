@@ -16,6 +16,10 @@ import chatRoutes from '../routes/chats.js';
 import adminRoutes from '../routes/admin.js';
 import notificationsRoutes from '../routes/notifications.js';
 import accountRoutes from '../routes/account.js';
+import subscriptionRoutes from '../routes/subscriptions.js';
+import reportRoutes from '../routes/reports.js';
+import paymentRoutes from '../routes/payments.js';
+import rechargePackRoutes from '../routes/rechargePacks.js';
 
 // Initialize Express app
 const app = express();
@@ -112,6 +116,10 @@ app.use('/api/chats', chatRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/notifications', notificationsRoutes);
 app.use('/api/account', accountRoutes);
+app.use('/api/subscriptions', subscriptionRoutes);
+app.use('/api/reports', reportRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/recharge-packs', rechargePackRoutes);
 
 // ============================================
 // ERROR HANDLING

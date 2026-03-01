@@ -67,10 +67,11 @@ class LiveKitService {
     }
   }
 
+  Room? get room => _room;
+
   Future<bool> connectToRoom({
     required String url,
     required String token,
-    RoomListener? listener,
   }) async {
     if (_isInRoom) {
       debugPrint('LiveKitService: Already in room, leaving first...');
@@ -80,10 +81,6 @@ class LiveKitService {
     try {
       debugPrint('LiveKitService: Connecting to LiveKit room...');
       _room = Room();
-
-      if (listener != null) {
-        _room!.addListener(listener);
-      }
 
       await _room!.connect(
         url,

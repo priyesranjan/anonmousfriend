@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:livekit_client/livekit_client.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../../services/livekit_service.dart';
 import '../../services/socket_service.dart';
@@ -218,31 +219,30 @@ class CallController extends ChangeNotifier {
       return;
     }
 
-    // Register LiveKit event handler
-    final listener = RoomListener(
-      onParticipantConnected: (participant) {
-        debugPrint('CallController: remote user joined');
-        _transitionTo(CallState.connected);
-      },
-      onParticipantDisconnected: (participant) {
-        debugPrint('CallController: remote user left');
-        endCall();
-      },
-      onDisconnected: (reason) {
-        debugPrint('CallController: room disconnected $reason');
-        if (_callState != CallState.connected && !_disposed) {
-          _setError('Call error: Disconnected');
-          endCall();
-        }
-      },
-    );
-
     // Join room
     final joined = await _livekitService.connectToRoom(
       url: tokenResult.url!,
       token: tokenResult.token!,
-      listener: listener,
     );
+
+    if (joined) {
+      // Register LiveKit event handler
+      _livekitService.room?.events.listen((event) {
+        if (event is ParticipantConnectedEvent) {
+          debugPrint('CallController: remote user joined');
+          _transitionTo(CallState.connected);
+        } else if (event is ParticipantDisconnectedEvent) {
+          debugPrint('CallController: remote user left');
+          endCall();
+        } else if (event is RoomDisconnectedEvent) {
+          debugPrint('CallController: room disconnected ${event.reason}');
+          if (_callState != CallState.connected && !_disposed) {
+            _setError('Call error: Disconnected');
+            endCall();
+          }
+        }
+      });
+    }
 
     if (!joined) {
       _setError('Failed to join call');

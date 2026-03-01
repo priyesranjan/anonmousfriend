@@ -3,6 +3,7 @@ import '../nav/profile.dart';
 import '../../services/storage_service.dart';
 import '../../services/listener_service.dart';
 import '../../services/call_service.dart';
+import '../screens/leaderboard_screen.dart';
 
 class TopBar extends StatefulWidget {
   const TopBar({super.key});
@@ -165,11 +166,25 @@ class _TopBarState extends State<TopBar> {
               ],
             ),
 
-            /// RIGHT SIDE → Logo
-            Image.asset(
-              'assets/login/logo.png',
-              height: 36,
-              fit: BoxFit.contain,
+            /// RIGHT SIDE → Leaderboard + Logo
+            Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.leaderboard, color: Colors.pinkAccent, size: 28),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const LeaderboardScreen()),
+                    );
+                  },
+                ),
+                const SizedBox(width: 8),
+                Image.asset(
+                  'assets/login/logo.png',
+                  height: 36,
+                  fit: BoxFit.contain,
+                ),
+              ],
             ),
           ],
         ),

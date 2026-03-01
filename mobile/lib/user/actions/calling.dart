@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'call_controller.dart';
-import 'audio_device_manager.dart';
 import 'call_action_button.dart';
-import 'audio_route_bottom_sheet.dart';
 import '../nav/profile/wallet.dart';
 import '../screens/listener_rating.dart';
 import '../../services/active_call_service.dart';
+import '../../services/ad_service.dart';
 import '../../services/app_task_service.dart';
 
 /// ──────────────────────────────────────────────────────────────────
@@ -82,7 +81,6 @@ class _CallingState extends State<Calling>
     );
 
     _controller.addListener(_onControllerChanged);
-    _controller.audioDeviceManager.addListener(_onAudioChanged);
 
     _pulseController = AnimationController(
       duration: const Duration(milliseconds: 1500),
@@ -144,19 +142,21 @@ class _CallingState extends State<Calling>
     setState(() {});
   }
 
-  void _onAudioChanged() {
-    if (mounted) setState(() {});
-  }
-
   bool _shouldOpenRating() {
     return !_handledBalanceError && _hadConnected && !_ratingShown;
   }
 
-  void _openRatingOrClose() {
+  void _openRatingOrClose() async {
+    // Post-call interstitial ad (Section 13: after call ends)
+    try {
+      await AdService().showInterstitialAd();
+    } catch (_) {}
+
     if (_shouldOpenRating()) {
       _ratingShown = true;
       final callId = _controller.callId;
       if (callId != null && callId.isNotEmpty) {
+        if (!mounted) return;
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -164,6 +164,7 @@ class _CallingState extends State<Calling>
               callId: callId,
               listenerName: widget.callerName,
               listenerAvatar: widget.callerAvatar,
+              listenerId: widget.listenerId,
             ),
           ),
         );
@@ -216,7 +217,6 @@ class _CallingState extends State<Calling>
   void dispose() {
     _activeCallService.setCallScreenVisible(false);
     WidgetsBinding.instance.removeObserver(this);
-    _controller.audioDeviceManager.removeListener(_onAudioChanged);
     _controller.removeListener(_onControllerChanged);
     _controller.dispose();
     _pulseController.dispose();
@@ -234,21 +234,6 @@ class _CallingState extends State<Calling>
     return null;
   }
 
-  // ── Audio route icon ──
-
-  IconData _audioRouteIcon(UserAudioRoute route) {
-    switch (route) {
-      case UserAudioRoute.earpiece:
-        return Icons.phone_in_talk;
-      case UserAudioRoute.speaker:
-        return Icons.volume_up;
-      case UserAudioRoute.bluetooth:
-        return Icons.bluetooth_audio;
-      case UserAudioRoute.wiredHeadset:
-        return Icons.headset;
-    }
-  }
-
   // ══════════════════════════════════════════════════════════════
   //  BUILD
   // ══════════════════════════════════════════════════════════════
@@ -263,7 +248,6 @@ class _CallingState extends State<Calling>
     final callState = _controller.callState;
     final isConnected = callState == UserCallState.connected;
     final isEnded = callState == UserCallState.ended;
-    final audioMgr = _controller.audioDeviceManager;
 
     return PopScope(
       canPop: false,
@@ -284,7 +268,7 @@ class _CallingState extends State<Calling>
             child: Column(
               children: [
               // ── Top bar ──
-              _buildTopBar(primary, audioMgr),
+              _buildTopBar(primary),
 
               const Spacer(flex: 3),
 
@@ -312,7 +296,7 @@ class _CallingState extends State<Calling>
               const Spacer(flex: 2),
 
               // ── Bottom action bar (always visible, always tappable) ──
-              _buildActionBar(primary, isEnded, audioMgr),
+              _buildActionBar(primary, isEnded),
 
               const SizedBox(height: 28),
               ],
@@ -325,14 +309,10 @@ class _CallingState extends State<Calling>
 
   // ── Top bar with audio device chip ──
 
-  Widget _buildTopBar(Color primary, UserAudioDeviceManager audioMgr) {
-    final route = audioMgr.currentRoute;
-    final Color chipColor = _chipColorFor(route);
+  Widget _buildTopBar(Color primary) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isSmallScreen = screenWidth < 360;
     final topBarPadding = isSmallScreen ? 12.0 : 16.0;
-    final chipPaddingH = isSmallScreen ? 14.0 : 18.0;
-    final chipFontSize = isSmallScreen ? 11.0 : 13.0;
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: topBarPadding, vertical: 12),
@@ -350,77 +330,12 @@ class _CallingState extends State<Calling>
             ),
           ),
           const Spacer(),
-          // Audio device chip — auto updates icon on device change
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 300),
-            transitionBuilder: (child, animation) =>
-                ScaleTransition(scale: animation, child: child),
-            child: GestureDetector(
-              key: ValueKey(route),
-              onTap: () =>
-                  UserAudioRouteBottomSheet.show(context, audioMgr),
-              child: Container(
-                padding:
-                    EdgeInsets.symmetric(horizontal: chipPaddingH, vertical: 10),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.08),
-                  borderRadius: BorderRadius.circular(25),
-                  border: Border.all(color: chipColor.withOpacity(0.25)),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(_audioRouteIcon(route),
-                        color: chipColor, size: isSmallScreen ? 16 : 18),
-                    SizedBox(width: isSmallScreen ? 6 : 8),
-                    Flexible(
-                      child: Text(
-                        _chipTextFor(route),
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                        style: TextStyle(
-                          fontSize: chipFontSize,
-                          color: chipColor,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
+          // Audio device routing is handled natively by LiveKit 
           const Spacer(),
           const SizedBox(width: 48),
         ],
       ),
     );
-  }
-
-  String _chipTextFor(UserAudioRoute route) {
-    switch (route) {
-      case UserAudioRoute.bluetooth:
-        return 'Bluetooth Connected';
-      case UserAudioRoute.wiredHeadset:
-        return 'Using Headphones';
-      case UserAudioRoute.speaker:
-        return 'Using Speaker';
-      case UserAudioRoute.earpiece:
-        return 'Earpiece';
-    }
-  }
-
-  Color _chipColorFor(UserAudioRoute route) {
-    switch (route) {
-      case UserAudioRoute.bluetooth:
-        return Colors.blueAccent;
-      case UserAudioRoute.wiredHeadset:
-        return Colors.greenAccent;
-      case UserAudioRoute.speaker:
-        return Colors.white70;
-      case UserAudioRoute.earpiece:
-        return Colors.white70;
-    }
   }
 
   // ── Brand name ──
@@ -882,9 +797,8 @@ class _CallingState extends State<Calling>
   // ══════════════════════════════════════════════════════════════
 
   Widget _buildActionBar(
-      Color primary, bool isEnded, UserAudioDeviceManager audioMgr) {
+      Color primary, bool isEnded) {
     final isMuted = _controller.isMuted;
-    final currentRoute = audioMgr.currentRoute;
     final screenWidth = MediaQuery.of(context).size.width;
     final isSmallScreen = screenWidth < 360;
     final actionBarPadding = isSmallScreen ? 20.0 : 32.0;
@@ -906,16 +820,6 @@ class _CallingState extends State<Calling>
           // ── End call ──
           UserEndCallButton(
             onTap: isEnded ? () {} : () => _handleCallEnd(reason: 'user_end'),
-          ),
-
-          // ── Audio route selector (replaces old speaker toggle) ──
-          UserCallActionButton(
-            icon: _audioRouteIcon(currentRoute),
-            label: audioMgr.routeLabel,
-            isActive: currentRoute == UserAudioRoute.speaker,
-            onTap: isEnded
-                ? () {}
-                : () => UserAudioRouteBottomSheet.show(context, audioMgr),
           ),
         ],
       ),

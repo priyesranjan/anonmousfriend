@@ -1,0 +1,680 @@
+﻿Starting a Gradle Daemon, 1 incompatible Daemon could not be reused, use --status for details
+> Task :gradle:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :gradle:pluginDescriptors UP-TO-DATE
+> Task :gradle:processResources
+> Task :gradle:compileKotlin
+w: file:///C:/Users/cofee/Downloads/flutter_windows_3.41.2-stable/flutter/packages/flutter_tools/gradle/src/main/kotlin/FlutterPlugin.kt:11:37 'ApkVariant' is deprecated. Deprecated in Java
+w: file:///C:/Users/cofee/Downloads/flutter_windows_3.41.2-stable/flutter/packages/flutter_tools/gradle/src/main/kotlin/FlutterPlugin.kt:614:69 'ApkVariant' is deprecated. Deprecated in Java
+w: file:///C:/Users/cofee/Downloads/flutter_windows_3.41.2-stable/flutter/packages/flutter_tools/gradle/src/main/kotlin/plugins/PluginHandler.kt:186:64 Unchecked cast: NamedDomainObjectContainer<out BuildType> to NamedDomainObjectContainer<BuildType>
+w: file:///C:/Users/cofee/Downloads/flutter_windows_3.41.2-stable/flutter/packages/flutter_tools/gradle/src/main/kotlin/plugins/PluginHandler.kt:187:69 Unchecked cast: NamedDomainObjectContainer<out BuildType> to NamedDomainObjectContainer<BuildType>
+
+> Task :gradle:compileJava NO-SOURCE
+> Task :gradle:compileGroovy NO-SOURCE
+> Task :gradle:classes
+> Task :gradle:jar
+
+> Configure project :app
+.\gradlew : Warning: Flutter support for your project's Android 
+Gradle Plugin version (Android Gradle Plugin version 8.2.1) will 
+soon be dropped. Please upgrade your Android Gradle Plugin 
+version to a version of at least Android Gradle Plugin version 
+8.6.0 soon.
+At line:1 char:1
++ .\gradlew app:assembleDebug 2>&1 | Out-File -FilePath 
+gradle_debug.tx ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Warning: Flutte...i 
+   on 8.6.0 soon.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+Alternatively, use the flag 
+"--android-skip-build-dependency-validation" to bypass this 
+check.
+
+Potential fix: Your project's AGP version is typically defined 
+in the plugins block of the `settings.gradle` file 
+(C:\Help\callto-19-02-26-main\mobile\android/settings.gradle), 
+by a plugin with the id of com.android.application. 
+If you don't see a plugins block, your project was likely 
+created with an older template version. In this case it is most 
+likely defined in the top-level build.gradle file 
+(C:\Help\callto-19-02-26-main\mobile\android/build.gradle) by 
+the following line in the dependencies block of the buildscript: 
+"classpath 'com.android.tools.build:gradle:<version>'".
+
+w: file:///C:/Help/callto-19-02-26-main/mobile/android/app/build.gradle.kts:33:9: 'jvmTarget: String' is deprecated. Please migrate to the compilerOptions DSL. More details are here: https://kotl.in/u1r8ln
+Warning: SDK processing. This version only understands SDK XML 
+versions up to 3 but an SDK XML file of version 4 was 
+encountered. This can happen if you use versions of Android 
+Studio and the command-line tools that were released at 
+different times.
+WARNING: We recommend using a newer Android Gradle plugin to use compileSdk = 36
+
+This Android Gradle plugin (8.2.1) was tested up to compileSdk = 34.
+
+You are strongly encouraged to update your project to use a newer
+Android Gradle plugin that has been tested with compileSdk = 36.
+
+If you are already using the latest version of the Android Gradle plugin,
+you may need to wait until a newer version with support for compileSdk = 36 is available.
+
+To suppress this warning, add/update
+    android.suppressUnsupportedCompileSdk=36
+to this project's gradle.properties.
+
+> Task :app:DebugMinSdkCheck
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:compileFlutterBuildDebug
+> Task :app:packJniLibsflutterBuildDebug
+> Task :audioplayers_android:preBuild UP-TO-DATE
+> Task :audioplayers_android:preDebugBuild UP-TO-DATE
+> Task :connectivity_plus:preBuild UP-TO-DATE
+> Task :connectivity_plus:preDebugBuild UP-TO-DATE
+> Task :audioplayers_android:writeDebugAarMetadata
+> Task :device_info_plus:preBuild UP-TO-DATE
+> Task :device_info_plus:preDebugBuild UP-TO-DATE
+> Task :connectivity_plus:writeDebugAarMetadata
+> Task :device_info_plus:writeDebugAarMetadata
+> Task :flutter_background_service_android:preBuild UP-TO-DATE
+> Task :flutter_background_service_android:preDebugBuild UP-TO-DATE
+> Task :flutter_facebook_auth:preBuild UP-TO-DATE
+> Task :flutter_facebook_auth:preDebugBuild UP-TO-DATE
+> Task :flutter_background_service_android:writeDebugAarMetadata
+> Task :flutter_local_notifications:preBuild UP-TO-DATE
+> Task :flutter_local_notifications:preDebugBuild UP-TO-DATE
+> Task :flutter_facebook_auth:writeDebugAarMetadata
+> Task :flutter_secure_storage:preBuild UP-TO-DATE
+> Task :flutter_secure_storage:preDebugBuild UP-TO-DATE
+> Task :flutter_local_notifications:writeDebugAarMetadata
+> Task :flutter_webrtc:preBuild UP-TO-DATE
+> Task :flutter_webrtc:preDebugBuild UP-TO-DATE
+> Task :flutter_secure_storage:writeDebugAarMetadata
+> Task :fluttertoast:preBuild UP-TO-DATE
+> Task :fluttertoast:preDebugBuild UP-TO-DATE
+> Task :flutter_webrtc:writeDebugAarMetadata
+> Task :google_sign_in_android:preBuild UP-TO-DATE
+> Task :google_sign_in_android:preDebugBuild UP-TO-DATE
+> Task :fluttertoast:writeDebugAarMetadata
+> Task :livekit_client:preBuild UP-TO-DATE
+> Task :livekit_client:preDebugBuild UP-TO-DATE
+> Task :google_sign_in_android:writeDebugAarMetadata
+> Task :open_filex:preBuild UP-TO-DATE
+> Task :open_filex:preDebugBuild UP-TO-DATE
+> Task :livekit_client:writeDebugAarMetadata
+> Task :path_provider_android:preBuild UP-TO-DATE
+> Task :path_provider_android:preDebugBuild UP-TO-DATE
+> Task :open_filex:writeDebugAarMetadata
+> Task :path_provider_android:writeDebugAarMetadata
+> Task :permission_handler_android:preBuild UP-TO-DATE
+> Task :permission_handler_android:preDebugBuild UP-TO-DATE
+> Task :razorpay_flutter:preBuild UP-TO-DATE
+> Task :razorpay_flutter:preDebugBuild UP-TO-DATE
+> Task :permission_handler_android:writeDebugAarMetadata
+> Task :record_android:preBuild UP-TO-DATE
+> Task :record_android:preDebugBuild UP-TO-DATE
+> Task :razorpay_flutter:writeDebugAarMetadata
+> Task :share_plus:preBuild UP-TO-DATE
+> Task :share_plus:preDebugBuild UP-TO-DATE
+> Task :record_android:writeDebugAarMetadata
+> Task :shared_preferences_android:preBuild UP-TO-DATE
+> Task :shared_preferences_android:preDebugBuild UP-TO-DATE
+> Task :share_plus:writeDebugAarMetadata
+> Task :sqflite_android:preBuild UP-TO-DATE
+> Task :sqflite_android:preDebugBuild UP-TO-DATE
+> Task :shared_preferences_android:writeDebugAarMetadata
+> Task :video_player_android:preBuild UP-TO-DATE
+> Task :sqflite_android:writeDebugAarMetadata
+> Task :video_player_android:preDebugBuild UP-TO-DATE
+> Task :video_player_android:writeDebugAarMetadata
+> Task :app:cleanMergeDebugAssets UP-TO-DATE
+> Task :app:checkDebugAarMetadata
+> Task :app:mergeDebugShaders
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :audioplayers_android:mergeDebugShaders
+> Task :audioplayers_android:compileDebugShaders NO-SOURCE
+> Task :audioplayers_android:generateDebugAssets UP-TO-DATE
+> Task :audioplayers_android:packageDebugAssets
+> Task :connectivity_plus:mergeDebugShaders
+> Task :connectivity_plus:compileDebugShaders NO-SOURCE
+> Task :connectivity_plus:generateDebugAssets UP-TO-DATE
+> Task :connectivity_plus:packageDebugAssets
+> Task :device_info_plus:mergeDebugShaders
+> Task :device_info_plus:compileDebugShaders NO-SOURCE
+> Task :device_info_plus:generateDebugAssets UP-TO-DATE
+> Task :device_info_plus:packageDebugAssets
+> Task :flutter_background_service_android:mergeDebugShaders
+> Task :flutter_background_service_android:compileDebugShaders NO-SOURCE
+> Task :flutter_background_service_android:generateDebugAssets UP-TO-DATE
+> Task :flutter_background_service_android:packageDebugAssets
+> Task :flutter_facebook_auth:mergeDebugShaders
+> Task :flutter_facebook_auth:compileDebugShaders NO-SOURCE
+> Task :flutter_facebook_auth:generateDebugAssets UP-TO-DATE
+> Task :flutter_facebook_auth:packageDebugAssets
+> Task :flutter_local_notifications:mergeDebugShaders
+> Task :flutter_local_notifications:compileDebugShaders NO-SOURCE
+> Task :flutter_local_notifications:generateDebugAssets UP-TO-DATE
+> Task :flutter_local_notifications:packageDebugAssets
+> Task :flutter_secure_storage:mergeDebugShaders
+> Task :flutter_secure_storage:compileDebugShaders NO-SOURCE
+> Task :flutter_secure_storage:generateDebugAssets UP-TO-DATE
+> Task :flutter_secure_storage:packageDebugAssets
+> Task :flutter_webrtc:mergeDebugShaders
+> Task :flutter_webrtc:compileDebugShaders NO-SOURCE
+> Task :flutter_webrtc:generateDebugAssets UP-TO-DATE
+> Task :flutter_webrtc:packageDebugAssets
+> Task :fluttertoast:mergeDebugShaders
+> Task :fluttertoast:compileDebugShaders NO-SOURCE
+> Task :fluttertoast:generateDebugAssets UP-TO-DATE
+> Task :fluttertoast:packageDebugAssets
+> Task :google_sign_in_android:mergeDebugShaders
+> Task :google_sign_in_android:compileDebugShaders NO-SOURCE
+> Task :google_sign_in_android:generateDebugAssets UP-TO-DATE
+> Task :google_sign_in_android:packageDebugAssets
+> Task :livekit_client:mergeDebugShaders
+> Task :livekit_client:compileDebugShaders NO-SOURCE
+> Task :livekit_client:generateDebugAssets UP-TO-DATE
+> Task :livekit_client:packageDebugAssets
+> Task :open_filex:mergeDebugShaders
+> Task :open_filex:compileDebugShaders NO-SOURCE
+> Task :open_filex:generateDebugAssets UP-TO-DATE
+> Task :open_filex:packageDebugAssets
+> Task :path_provider_android:mergeDebugShaders
+> Task :path_provider_android:compileDebugShaders NO-SOURCE
+> Task :path_provider_android:generateDebugAssets UP-TO-DATE
+> Task :path_provider_android:packageDebugAssets
+> Task :permission_handler_android:mergeDebugShaders
+> Task :permission_handler_android:compileDebugShaders NO-SOURCE
+> Task :permission_handler_android:generateDebugAssets UP-TO-DATE
+> Task :permission_handler_android:packageDebugAssets
+> Task :razorpay_flutter:mergeDebugShaders
+> Task :razorpay_flutter:compileDebugShaders NO-SOURCE
+> Task :razorpay_flutter:generateDebugAssets UP-TO-DATE
+> Task :razorpay_flutter:packageDebugAssets
+> Task :record_android:mergeDebugShaders
+> Task :record_android:compileDebugShaders NO-SOURCE
+> Task :record_android:generateDebugAssets UP-TO-DATE
+> Task :record_android:packageDebugAssets
+> Task :share_plus:mergeDebugShaders
+> Task :share_plus:compileDebugShaders NO-SOURCE
+> Task :share_plus:generateDebugAssets UP-TO-DATE
+> Task :share_plus:packageDebugAssets
+> Task :shared_preferences_android:mergeDebugShaders
+> Task :shared_preferences_android:compileDebugShaders NO-SOURCE
+> Task :shared_preferences_android:generateDebugAssets UP-TO-DATE
+> Task :shared_preferences_android:packageDebugAssets
+> Task :sqflite_android:mergeDebugShaders
+> Task :sqflite_android:compileDebugShaders NO-SOURCE
+> Task :sqflite_android:generateDebugAssets UP-TO-DATE
+> Task :sqflite_android:packageDebugAssets
+> Task :video_player_android:mergeDebugShaders
+> Task :video_player_android:compileDebugShaders NO-SOURCE
+> Task :video_player_android:generateDebugAssets UP-TO-DATE
+> Task :video_player_android:packageDebugAssets
+> Task :app:mergeDebugAssets
+> Task :app:copyFlutterAssetsDebug
+> Task :app:generateDebugResValues
+> Task :audioplayers_android:generateDebugResValues
+> Task :audioplayers_android:generateDebugResources
+> Task :audioplayers_android:packageDebugResources
+> Task :connectivity_plus:generateDebugResValues
+> Task :connectivity_plus:generateDebugResources
+> Task :connectivity_plus:packageDebugResources
+> Task :device_info_plus:generateDebugResValues
+> Task :device_info_plus:generateDebugResources
+> Task :device_info_plus:packageDebugResources
+> Task :flutter_background_service_android:generateDebugResValues
+> Task :flutter_background_service_android:generateDebugResources
+> Task :flutter_background_service_android:packageDebugResources
+> Task :flutter_facebook_auth:generateDebugResValues
+> Task :flutter_facebook_auth:generateDebugResources
+> Task :flutter_facebook_auth:packageDebugResources
+> Task :flutter_local_notifications:generateDebugResValues
+> Task :flutter_local_notifications:generateDebugResources
+> Task :flutter_local_notifications:packageDebugResources
+> Task :flutter_secure_storage:generateDebugResValues
+> Task :flutter_secure_storage:generateDebugResources
+> Task :flutter_secure_storage:packageDebugResources
+> Task :flutter_webrtc:generateDebugResValues
+> Task :flutter_webrtc:generateDebugResources
+> Task :flutter_webrtc:packageDebugResources
+> Task :fluttertoast:generateDebugResValues
+> Task :fluttertoast:generateDebugResources
+> Task :fluttertoast:packageDebugResources
+> Task :google_sign_in_android:generateDebugResValues
+> Task :google_sign_in_android:generateDebugResources
+> Task :google_sign_in_android:packageDebugResources
+> Task :livekit_client:generateDebugResValues
+> Task :livekit_client:generateDebugResources
+> Task :livekit_client:packageDebugResources
+> Task :open_filex:generateDebugResValues
+> Task :open_filex:generateDebugResources
+> Task :open_filex:packageDebugResources
+> Task :path_provider_android:generateDebugResValues
+> Task :path_provider_android:generateDebugResources
+> Task :path_provider_android:packageDebugResources
+> Task :permission_handler_android:generateDebugResValues
+> Task :permission_handler_android:generateDebugResources
+> Task :permission_handler_android:packageDebugResources
+> Task :razorpay_flutter:generateDebugResValues
+> Task :razorpay_flutter:generateDebugResources
+> Task :razorpay_flutter:packageDebugResources
+> Task :record_android:generateDebugResValues
+> Task :record_android:generateDebugResources
+> Task :record_android:packageDebugResources
+> Task :share_plus:generateDebugResValues
+> Task :share_plus:generateDebugResources
+> Task :share_plus:packageDebugResources
+> Task :shared_preferences_android:generateDebugResValues
+> Task :shared_preferences_android:generateDebugResources
+> Task :shared_preferences_android:packageDebugResources
+> Task :sqflite_android:generateDebugResValues
+> Task :sqflite_android:generateDebugResources
+> Task :sqflite_android:packageDebugResources
+> Task :video_player_android:generateDebugResValues
+> Task :video_player_android:generateDebugResources
+> Task :video_player_android:packageDebugResources
+> Task :app:mapDebugSourceSetPaths
+> Task :app:generateDebugResources
+> Task :app:packageDebugResources
+> Task :app:createDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksDebug
+> Task :audioplayers_android:extractDeepLinksDebug
+> Task :connectivity_plus:extractDeepLinksDebug
+> Task :app:mergeDebugResources
+> Task :device_info_plus:extractDeepLinksDebug
+
+> Task :connectivity_plus:processDebugManifest
+package="dev.fluttercommunity.plus.connectivity" found in source AndroidManifest.xml: C:\Users\cofee\AppData\Local\Pub\Cache\hosted\pub.dev\connectivity_plus-7.0.0\android\src\main\AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="dev.fluttercommunity.plus.connectivity" from the source AndroidManifest.xml: C:\Users\cofee\AppData\Local\Pub\Cache\hosted\pub.dev\connectivity_plus-7.0.0\android\src\main\AndroidManifest.xml.
+
+> Task :device_info_plus:processDebugManifest
+package="dev.fluttercommunity.plus.device_info" found in source AndroidManifest.xml: C:\Users\cofee\AppData\Local\Pub\Cache\hosted\pub.dev\device_info_plus-12.3.0\android\src\main\AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="dev.fluttercommunity.plus.device_info" from the source AndroidManifest.xml: C:\Users\cofee\AppData\Local\Pub\Cache\hosted\pub.dev\device_info_plus-12.3.0\android\src\main\AndroidManifest.xml.
+
+> Task :audioplayers_android:processDebugManifest
+package="xyz.luan.audioplayers" found in source AndroidManifest.xml: C:\Users\cofee\AppData\Local\Pub\Cache\hosted\pub.dev\audioplayers_android-4.0.3\android\src\main\AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="xyz.luan.audioplayers" from the source AndroidManifest.xml: C:\Users\cofee\AppData\Local\Pub\Cache\hosted\pub.dev\audioplayers_android-4.0.3\android\src\main\AndroidManifest.xml.
+
+> Task :app:parseDebugLocalResources
+> Task :flutter_background_service_android:extractDeepLinksDebug
+> Task :flutter_facebook_auth:extractDeepLinksDebug
+> Task :flutter_local_notifications:extractDeepLinksDebug
+
+> Task :flutter_background_service_android:processDebugManifest
+package="id.flutter.flutter_background_service" found in source AndroidManifest.xml: C:\Users\cofee\AppData\Local\Pub\Cache\hosted\pub.dev\flutter_background_service_android-6.3.1\android\src\main\AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="id.flutter.flutter_background_service" from the source AndroidManifest.xml: C:\Users\cofee\AppData\Local\Pub\Cache\hosted\pub.dev\flutter_background_service_android-6.3.1\android\src\main\AndroidManifest.xml.
+
+> Task :flutter_facebook_auth:processDebugManifest
+package="app.meedu.flutter_facebook_auth" found in source AndroidManifest.xml: C:\Users\cofee\AppData\Local\Pub\Cache\hosted\pub.dev\flutter_facebook_auth-7.1.5\android\src\main\AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="app.meedu.flutter_facebook_auth" from the source AndroidManifest.xml: C:\Users\cofee\AppData\Local\Pub\Cache\hosted\pub.dev\flutter_facebook_auth-7.1.5\android\src\main\AndroidManifest.xml.
+
+> Task :flutter_secure_storage:extractDeepLinksDebug
+
+> Task :flutter_local_notifications:processDebugManifest
+package="com.dexterous.flutterlocalnotifications" found in source AndroidManifest.xml: C:\Users\cofee\AppData\Local\Pub\Cache\hosted\pub.dev\flutter_local_notifications-17.2.4\android\src\main\AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="com.dexterous.flutterlocalnotifications" from the source AndroidManifest.xml: C:\Users\cofee\AppData\Local\Pub\Cache\hosted\pub.dev\flutter_local_notifications-17.2.4\android\src\main\AndroidManifest.xml.
+
+> Task :flutter_webrtc:extractDeepLinksDebug
+
+> Task :flutter_secure_storage:processDebugManifest
+package="com.it_nomads.fluttersecurestorage" found in source AndroidManifest.xml: C:\Users\cofee\AppData\Local\Pub\Cache\hosted\pub.dev\flutter_secure_storage-9.2.4\android\src\main\AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="com.it_nomads.fluttersecurestorage" from the source AndroidManifest.xml: C:\Users\cofee\AppData\Local\Pub\Cache\hosted\pub.dev\flutter_secure_storage-9.2.4\android\src\main\AndroidManifest.xml.
+
+> Task :fluttertoast:extractDeepLinksDebug
+
+> Task :flutter_webrtc:processDebugManifest
+package="com.cloudwebrtc.webrtc" found in source AndroidManifest.xml: C:\Users\cofee\AppData\Local\Pub\Cache\hosted\pub.dev\flutter_webrtc-1.3.0\android\src\main\AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="com.cloudwebrtc.webrtc" from the source AndroidManifest.xml: C:\Users\cofee\AppData\Local\Pub\Cache\hosted\pub.dev\flutter_webrtc-1.3.0\android\src\main\AndroidManifest.xml.
+
+> Task :google_sign_in_android:extractDeepLinksDebug
+> Task :fluttertoast:processDebugManifest
+> Task :livekit_client:extractDeepLinksDebug
+
+> Task :google_sign_in_android:processDebugManifest
+package="io.flutter.plugins.googlesignin" found in source AndroidManifest.xml: C:\Users\cofee\AppData\Local\Pub\Cache\hosted\pub.dev\google_sign_in_android-6.2.1\android\src\main\AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="io.flutter.plugins.googlesignin" from the source AndroidManifest.xml: C:\Users\cofee\AppData\Local\Pub\Cache\hosted\pub.dev\google_sign_in_android-6.2.1\android\src\main\AndroidManifest.xml.
+
+> Task :open_filex:extractDeepLinksDebug
+> Task :livekit_client:processDebugManifest
+> Task :path_provider_android:extractDeepLinksDebug
+
+> Task :open_filex:processDebugManifest
+package="com.crazecoder.openfile" found in source AndroidManifest.xml: C:\Users\cofee\AppData\Local\Pub\Cache\hosted\pub.dev\open_filex-4.7.0\android\src\main\AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="com.crazecoder.openfile" from the source AndroidManifest.xml: C:\Users\cofee\AppData\Local\Pub\Cache\hosted\pub.dev\open_filex-4.7.0\android\src\main\AndroidManifest.xml.
+C:\Users\cofee\AppData\Local\Pub\Cache\hosted\pub.dev\open_filex-4.7.0\android\src\main\AndroidManifest.xml:14:9-24:20 Warning:
+	provider#com.crazecoder.openfile.FileProvider@android:authorities was tagged at AndroidManifest.xml:14 to replace other declarations but no other declaration present
+
+> Task :permission_handler_android:extractDeepLinksDebug
+
+> Task :path_provider_android:processDebugManifest
+package="io.flutter.plugins.pathprovider" found in source AndroidManifest.xml: C:\Users\cofee\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider_android-2.2.20\android\src\main\AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="io.flutter.plugins.pathprovider" from the source AndroidManifest.xml: C:\Users\cofee\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider_android-2.2.20\android\src\main\AndroidManifest.xml.
+
+> Task :razorpay_flutter:extractDeepLinksDebug
+
+> Task :permission_handler_android:processDebugManifest
+package="com.baseflow.permissionhandler" found in source AndroidManifest.xml: C:\Users\cofee\AppData\Local\Pub\Cache\hosted\pub.dev\permission_handler_android-12.1.0\android\src\main\AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="com.baseflow.permissionhandler" from the source AndroidManifest.xml: C:\Users\cofee\AppData\Local\Pub\Cache\hosted\pub.dev\permission_handler_android-12.1.0\android\src\main\AndroidManifest.xml.
+
+> Task :record_android:extractDeepLinksDebug
+
+> Task :razorpay_flutter:processDebugManifest
+package="com.razorpay.razorpay_flutter" found in source AndroidManifest.xml: C:\Users\cofee\AppData\Local\Pub\Cache\hosted\pub.dev\razorpay_flutter-1.4.0\android\src\main\AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="com.razorpay.razorpay_flutter" from the source AndroidManifest.xml: C:\Users\cofee\AppData\Local\Pub\Cache\hosted\pub.dev\razorpay_flutter-1.4.0\android\src\main\AndroidManifest.xml.
+
+> Task :share_plus:extractDeepLinksDebug
+
+> Task :record_android:processDebugManifest
+package="com.llfbandit.record" found in source AndroidManifest.xml: C:\Users\cofee\AppData\Local\Pub\Cache\hosted\pub.dev\record_android-1.5.0\android\src\main\AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="com.llfbandit.record" from the source AndroidManifest.xml: C:\Users\cofee\AppData\Local\Pub\Cache\hosted\pub.dev\record_android-1.5.0\android\src\main\AndroidManifest.xml.
+
+> Task :shared_preferences_android:extractDeepLinksDebug
+> Task :sqflite_android:extractDeepLinksDebug
+
+> Task :shared_preferences_android:processDebugManifest
+package="io.flutter.plugins.sharedpreferences" found in source AndroidManifest.xml: C:\Users\cofee\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences_android-2.4.18\android\src\main\AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="io.flutter.plugins.sharedpreferences" from the source AndroidManifest.xml: C:\Users\cofee\AppData\Local\Pub\Cache\hosted\pub.dev\shared_preferences_android-2.4.18\android\src\main\AndroidManifest.xml.
+
+> Task :share_plus:processDebugManifest
+package="dev.fluttercommunity.plus.share" found in source AndroidManifest.xml: C:\Users\cofee\AppData\Local\Pub\Cache\hosted\pub.dev\share_plus-10.1.4\android\src\main\AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="dev.fluttercommunity.plus.share" from the source AndroidManifest.xml: C:\Users\cofee\AppData\Local\Pub\Cache\hosted\pub.dev\share_plus-10.1.4\android\src\main\AndroidManifest.xml.
+
+> Task :video_player_android:extractDeepLinksDebug
+
+> Task :sqflite_android:processDebugManifest
+package="com.tekartik.sqflite" found in source AndroidManifest.xml: C:\Users\cofee\AppData\Local\Pub\Cache\hosted\pub.dev\sqflite_android-2.4.2+2\android\src\main\AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="com.tekartik.sqflite" from the source AndroidManifest.xml: C:\Users\cofee\AppData\Local\Pub\Cache\hosted\pub.dev\sqflite_android-2.4.2+2\android\src\main\AndroidManifest.xml.
+
+> Task :video_player_android:processDebugManifest
+package="io.flutter.plugins.videoplayer" found in source AndroidManifest.xml: C:\Users\cofee\AppData\Local\Pub\Cache\hosted\pub.dev\video_player_android-2.9.1\android\src\main\AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="io.flutter.plugins.videoplayer" from the source AndroidManifest.xml: C:\Users\cofee\AppData\Local\Pub\Cache\hosted\pub.dev\video_player_android-2.9.1\android\src\main\AndroidManifest.xml.
+
+> Task :audioplayers_android:compileDebugLibraryResources
+
+> Task :app:processDebugMainManifest
+[com.razorpay:standard-core:1.7.8] C:\Users\cofee\.gradle\caches\8.14\transforms\b1a99472841c866e85885c14ccee0491\transformed\jetified-standard-core-1.7.8\AndroidManifest.xml Warning:
+	Namespace 'com.razorpay' is used in multiple modules and/or libraries: com.razorpay:standard-core:1.7.8, com.razorpay:core:1.0.8. Please ensure that all modules and libraries have a unique namespace. For more information, See https://developer.android.com/studio/build/configure-app-module#set-namespace
+C:\Help\callto-19-02-26-main\mobile\android\app\src\main\AndroidManifest.xml:19:9-41 Warning:
+	android:extractNativeLibs should not be specified in this source AndroidManifest.xml file. See https://d.android.com/guide/topics/manifest/application-element#extractNativeLibs for more information.
+The AGP Upgrade Assistant can remove the attribute from the AndroidManifest.xml file and update the build file accordingly. See https://d.android.com/studio/build/agp-upgrade-assistant for more information.
+C:\Help\callto-19-02-26-main\mobile\android\app\src\debug\AndroidManifest.xml Warning:
+	provider#com.crazecoder.openfile.FileProvider@android:authorities was tagged at AndroidManifest.xml:0 to replace other declarations but no other declaration present
+
+> Task :app:outputDebugAppLinkSettings
+> Task :app:processDebugManifest
+> Task :audioplayers_android:parseDebugLocalResources
+> Task :connectivity_plus:compileDebugLibraryResources
+> Task :connectivity_plus:parseDebugLocalResources
+> Task :device_info_plus:compileDebugLibraryResources
+> Task :app:processDebugManifestForPackage
+> Task :connectivity_plus:generateDebugRFile
+> Task :audioplayers_android:generateDebugRFile
+> Task :device_info_plus:parseDebugLocalResources
+> Task :flutter_background_service_android:compileDebugLibraryResources
+> Task :device_info_plus:generateDebugRFile
+> Task :flutter_background_service_android:parseDebugLocalResources
+> Task :flutter_facebook_auth:compileDebugLibraryResources
+> Task :flutter_facebook_auth:parseDebugLocalResources
+> Task :flutter_local_notifications:compileDebugLibraryResources
+> Task :flutter_background_service_android:generateDebugRFile
+> Task :flutter_facebook_auth:generateDebugRFile
+> Task :flutter_local_notifications:parseDebugLocalResources
+> Task :flutter_secure_storage:compileDebugLibraryResources
+> Task :flutter_local_notifications:generateDebugRFile
+> Task :flutter_secure_storage:parseDebugLocalResources
+> Task :flutter_webrtc:compileDebugLibraryResources
+> Task :flutter_secure_storage:generateDebugRFile
+> Task :flutter_webrtc:parseDebugLocalResources
+> Task :flutter_webrtc:generateDebugRFile
+> Task :google_sign_in_android:compileDebugLibraryResources
+> Task :fluttertoast:parseDebugLocalResources
+> Task :google_sign_in_android:parseDebugLocalResources
+> Task :google_sign_in_android:generateDebugRFile
+> Task :fluttertoast:compileDebugLibraryResources
+> Task :livekit_client:compileDebugLibraryResources
+> Task :fluttertoast:generateDebugRFile
+> Task :livekit_client:parseDebugLocalResources
+> Task :open_filex:compileDebugLibraryResources
+> Task :livekit_client:generateDebugRFile
+> Task :open_filex:parseDebugLocalResources
+> Task :path_provider_android:compileDebugLibraryResources
+> Task :open_filex:generateDebugRFile
+> Task :path_provider_android:parseDebugLocalResources
+> Task :permission_handler_android:compileDebugLibraryResources
+> Task :path_provider_android:generateDebugRFile
+> Task :razorpay_flutter:compileDebugLibraryResources
+> Task :permission_handler_android:parseDebugLocalResources
+> Task :razorpay_flutter:parseDebugLocalResources
+> Task :permission_handler_android:generateDebugRFile
+> Task :razorpay_flutter:generateDebugRFile
+> Task :record_android:compileDebugLibraryResources
+> Task :record_android:parseDebugLocalResources
+> Task :share_plus:compileDebugLibraryResources
+> Task :record_android:generateDebugRFile
+> Task :share_plus:parseDebugLocalResources
+> Task :shared_preferences_android:compileDebugLibraryResources
+> Task :share_plus:generateDebugRFile
+> Task :shared_preferences_android:parseDebugLocalResources
+> Task :sqflite_android:compileDebugLibraryResources
+> Task :sqflite_android:parseDebugLocalResources
+> Task :shared_preferences_android:generateDebugRFile
+> Task :video_player_android:compileDebugLibraryResources
+> Task :sqflite_android:generateDebugRFile
+> Task :audioplayers_android:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :video_player_android:parseDebugLocalResources
+> Task :video_player_android:generateDebugRFile
+> Task :audioplayers_android:javaPreCompileDebug
+> Task :audioplayers_android:compileDebugKotlin
+> Task :audioplayers_android:compileDebugJavaWithJavac NO-SOURCE
+> Task :device_info_plus:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :connectivity_plus:javaPreCompileDebug
+> Task :audioplayers_android:bundleLibCompileToJarDebug
+> Task :app:processDebugResources
+> Task :device_info_plus:compileDebugKotlin
+> Task :connectivity_plus:compileDebugJavaWithJavac
+> Task :device_info_plus:javaPreCompileDebug
+> Task :connectivity_plus:bundleLibCompileToJarDebug
+> Task :flutter_background_service_android:javaPreCompileDebug
+> Task :device_info_plus:compileDebugJavaWithJavac NO-SOURCE
+> Task :device_info_plus:bundleLibCompileToJarDebug
+
+> Task :flutter_background_service_android:compileDebugJavaWithJavac
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :flutter_background_service_android:bundleLibCompileToJarDebug
+> Task :flutter_facebook_auth:javaPreCompileDebug
+> Task :flutter_local_notifications:javaPreCompileDebug
+> Task :flutter_facebook_auth:compileDebugJavaWithJavac
+> Task :flutter_facebook_auth:bundleLibCompileToJarDebug
+> Task :flutter_local_notifications:compileDebugJavaWithJavac
+> Task :flutter_secure_storage:generateDebugBuildConfig
+> Task :flutter_local_notifications:bundleLibCompileToJarDebug
+> Task :flutter_webrtc:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :flutter_secure_storage:javaPreCompileDebug
+> Task :flutter_secure_storage:compileDebugJavaWithJavac
+> Task :flutter_webrtc:compileDebugKotlin
+> Task :fluttertoast:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :flutter_webrtc:javaPreCompileDebug
+> Task :flutter_secure_storage:bundleLibCompileToJarDebug
+
+> Task :fluttertoast:compileDebugKotlin
+w: file:///C:/Users/cofee/AppData/Local/Pub/Cache/hosted/pub.dev/fluttertoast-8.2.14/android/src/main/kotlin/io/github/ponnamkarthik/toast/fluttertoast/MethodCallHandlerImpl.kt:59:40 'fun setColorFilter(p0: Int, p1: PorterDuff.Mode): Unit' is deprecated. Deprecated in Java.
+w: file:///C:/Users/cofee/AppData/Local/Pub/Cache/hosted/pub.dev/fluttertoast-8.2.14/android/src/main/kotlin/io/github/ponnamkarthik/toast/fluttertoast/MethodCallHandlerImpl.kt:77:29 'var view: View?' is deprecated. Deprecated in Java.
+w: file:///C:/Users/cofee/AppData/Local/Pub/Cache/hosted/pub.dev/fluttertoast-8.2.14/android/src/main/kotlin/io/github/ponnamkarthik/toast/fluttertoast/MethodCallHandlerImpl.kt:82:58 'var view: View?' is deprecated. Deprecated in Java.
+
+> Task :flutter_webrtc:compileDebugJavaWithJavac
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+
+> Task :fluttertoast:javaPreCompileDebug
+> Task :google_sign_in_android:javaPreCompileDebug
+> Task :fluttertoast:compileDebugJavaWithJavac NO-SOURCE
+> Task :fluttertoast:bundleLibCompileToJarDebug
+> Task :flutter_webrtc:bundleLibCompileToJarDebug
+> Task :google_sign_in_android:compileDebugJavaWithJavac
+> Task :livekit_client:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :google_sign_in_android:bundleLibCompileToJarDebug
+> Task :livekit_client:javaPreCompileDebug
+> Task :open_filex:javaPreCompileDebug
+> Task :path_provider_android:javaPreCompileDebug
+> Task :open_filex:compileDebugJavaWithJavac
+> Task :open_filex:bundleLibCompileToJarDebug
+> Task :path_provider_android:compileDebugJavaWithJavac
+> Task :permission_handler_android:javaPreCompileDebug
+> Task :path_provider_android:bundleLibCompileToJarDebug
+> Task :razorpay_flutter:javaPreCompileDebug
+> Task :livekit_client:compileDebugKotlin
+> Task :permission_handler_android:compileDebugJavaWithJavac
+> Task :livekit_client:compileDebugJavaWithJavac NO-SOURCE
+> Task :permission_handler_android:bundleLibCompileToJarDebug
+> Task :livekit_client:bundleLibCompileToJarDebug
+
+> Task :razorpay_flutter:compileDebugJavaWithJavac
+Note: C:\Users\cofee\AppData\Local\Pub\Cache\hosted\pub.dev\razor
+pay_flutter-1.4.0\android\src\main\java\com\razorpay\razorpay_flu
+tter\RazorpayDelegate.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :record_android:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :razorpay_flutter:bundleLibCompileToJarDebug
+> Task :share_plus:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :record_android:javaPreCompileDebug
+> Task :shared_preferences_android:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :share_plus:javaPreCompileDebug
+> Task :shared_preferences_android:javaPreCompileDebug
+> Task :sqflite_android:javaPreCompileDebug
+> Task :share_plus:compileDebugKotlin
+> Task :sqflite_android:compileDebugJavaWithJavac
+> Task :share_plus:compileDebugJavaWithJavac NO-SOURCE
+> Task :share_plus:bundleLibCompileToJarDebug
+> Task :video_player_android:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :sqflite_android:bundleLibCompileToJarDebug
+> Task :video_player_android:javaPreCompileDebug
+> Task :app:javaPreCompileDebug
+> Task :record_android:compileDebugKotlin
+> Task :shared_preferences_android:compileDebugKotlin
+
+> Task :record_android:compileDebugKotlin
+w: file:///C:/Users/cofee/AppData/Local/Pub/Cache/hosted/pub.dev/record_android-1.5.0/android/src/main/kotlin/com/llfbandit/record/record/format/Format.kt:121:21 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'MediaCodecInfo.AudioCapabilities?'.
+w: file:///C:/Users/cofee/AppData/Local/Pub/Cache/hosted/pub.dev/record_android-1.5.0/android/src/main/kotlin/com/llfbandit/record/record/format/Format.kt:123:11 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'MediaCodecInfo.AudioCapabilities?'.
+w: file:///C:/Users/cofee/AppData/Local/Pub/Cache/hosted/pub.dev/record_android-1.5.0/android/src/main/kotlin/com/llfbandit/record/record/format/Format.kt:127:13 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'MediaCodecInfo.AudioCapabilities?'.
+w: file:///C:/Users/cofee/AppData/Local/Pub/Cache/hosted/pub.dev/record_android-1.5.0/android/src/main/kotlin/com/llfbandit/record/record/format/Format.kt:135:25 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'MediaCodecInfo.AudioCapabilities?'.
+
+> Task :video_player_android:compileDebugKotlin
+> Task :shared_preferences_android:compileDebugJavaWithJavac
+> Task :record_android:compileDebugJavaWithJavac
+> Task :shared_preferences_android:bundleLibCompileToJarDebug
+> Task :record_android:bundleLibCompileToJarDebug
+> Task :app:compressDebugAssets
+> Task :video_player_android:compileDebugJavaWithJavac
+> Task :video_player_android:bundleLibCompileToJarDebug
+> Task :app:compileDebugKotlin FAILED
+> Task :app:l8DexDesugarLibDebug
+
+[Incubating] Problems report is available at: file:///C:/Help/callto-19-02-26-main/mobile/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:compileDebugKotlin'.
+> Error while evaluating property 
+'friendPathsSet$kotlin_gradle_plugin_common' of task 
+':app:compileDebugKotlin'.
+   > Could not resolve all files for configuration 
+':app:debugCompileClasspath'.
+      > Failed to transform armeabi_v7a_debug-1.0.0-6c0baaebf70e0
+148f485f27d5616b3d3382da7bf.jar (io.flutter:armeabi_v7a_debug:1.0
+.0-6c0baaebf70e0148f485f27d5616b3d3382da7bf) to match attributes 
+{artifactType=android-classes-jar, org.gradle.category=library, 
+org.gradle.libraryelements=jar, org.gradle.status=release, 
+org.gradle.usage=java-api}.
+         > Could not download armeabi_v7a_debug-1.0.0-6c0baaebf70
+e0148f485f27d5616b3d3382da7bf.jar (io.flutter:armeabi_v7a_debug:1
+.0.0-6c0baaebf70e0148f485f27d5616b3d3382da7bf)
+            > Could not get resource 'https://storage.googleapis.
+com/download.flutter.io/io/flutter/armeabi_v7a_debug/1.0.0-6c0baa
+ebf70e0148f485f27d5616b3d3382da7bf/armeabi_v7a_debug-1.0.0-6c0baa
+ebf70e0148f485f27d5616b3d3382da7bf.jar'.
+               > Could not GET 'https://storage.googleapis.com/do
+wnload.flutter.io/io/flutter/armeabi_v7a_debug/1.0.0-6c0baaebf70e
+0148f485f27d5616b3d3382da7bf/armeabi_v7a_debug-1.0.0-6c0baaebf70e
+0148f485f27d5616b3d3382da7bf.jar'.
+                  > No such host is known 
+(storage.googleapis.com)
+      > Failed to transform arm64_v8a_debug-1.0.0-6c0baaebf70e014
+8f485f27d5616b3d3382da7bf.jar (io.flutter:arm64_v8a_debug:1.0.0-6
+c0baaebf70e0148f485f27d5616b3d3382da7bf) to match attributes 
+{artifactType=android-classes-jar, org.gradle.category=library, 
+org.gradle.libraryelements=jar, org.gradle.status=release, 
+org.gradle.usage=java-api}.
+         > Could not download arm64_v8a_debug-1.0.0-6c0baaebf70e0
+148f485f27d5616b3d3382da7bf.jar (io.flutter:arm64_v8a_debug:1.0.0
+-6c0baaebf70e0148f485f27d5616b3d3382da7bf)
+            > Could not get resource 'https://storage.googleapis.
+com/download.flutter.io/io/flutter/arm64_v8a_debug/1.0.0-6c0baaeb
+f70e0148f485f27d5616b3d3382da7bf/arm64_v8a_debug-1.0.0-6c0baaebf7
+0e0148f485f27d5616b3d3382da7bf.jar'.
+               > Could not GET 'https://storage.googleapis.com/do
+wnload.flutter.io/io/flutter/arm64_v8a_debug/1.0.0-6c0baaebf70e01
+48f485f27d5616b3d3382da7bf/arm64_v8a_debug-1.0.0-6c0baaebf70e0148
+f485f27d5616b3d3382da7bf.jar'.
+                  > storage.googleapis.com
+      > Failed to transform 
+x86_64_debug-1.0.0-6c0baaebf70e0148f485f27d5616b3d3382da7bf.jar (
+io.flutter:x86_64_debug:1.0.0-6c0baaebf70e0148f485f27d5616b3d3382
+da7bf) to match attributes {artifactType=android-classes-jar, 
+org.gradle.category=library, org.gradle.libraryelements=jar, 
+org.gradle.status=release, org.gradle.usage=java-api}.
+         > Could not download 
+x86_64_debug-1.0.0-6c0baaebf70e0148f485f27d5616b3d3382da7bf.jar (
+io.flutter:x86_64_debug:1.0.0-6c0baaebf70e0148f485f27d5616b3d3382
+da7bf)
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.14/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+293 actionable tasks: 291 executed, 2 up-to-date
+            > Could not get resource 'https://storage.googleapis.
+com/download.flutter.io/io/flutter/x86_64_debug/1.0.0-6c0baaebf70
+e0148f485f27d5616b3d3382da7bf/x86_64_debug-1.0.0-6c0baaebf70e0148
+f485f27d5616b3d3382da7bf.jar'.
+               > Could not GET 'https://storage.googleapis.com/do
+wnload.flutter.io/io/flutter/x86_64_debug/1.0.0-6c0baaebf70e0148f
+485f27d5616b3d3382da7bf/x86_64_debug-1.0.0-6c0baaebf70e0148f485f2
+7d5616b3d3382da7bf.jar'.
+                  > storage.googleapis.com
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 9m 34s

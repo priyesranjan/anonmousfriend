@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import '../user/user_form/intro_screen.dart';
-import '../listener/listener_form/intro_screen.dart';
 import '../services/storage_service.dart';
 
 class GenderSelectionPage extends StatefulWidget {
@@ -45,17 +44,12 @@ class _GenderSelectionPageState extends State<GenderSelectionPage> {
     await storageService.saveIsListener(false);
 
     if (!mounted) return;
-    if (selectedGender == 'Male') {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const OnboardingScreen()),
-      );
-    } else {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => BecomeHostOnboarding()),
-      );
-    }
+
+    // Gender-neutral: Both Male and Female go to normal user onboarding
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const OnboardingScreen()),
+    );
   }
 
   @override

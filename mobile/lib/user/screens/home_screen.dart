@@ -1,6 +1,7 @@
 ﻿import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/expert_card.dart';
 import '../widgets/offer_banner.dart';
 import '../widgets/top_bar.dart';
@@ -13,6 +14,9 @@ import '../../services/user_service.dart';
 import '../../models/listener_model.dart' as listener_model;
 import '../../models/user_model.dart';
 import '../../ui/skeleton_loading_ui/listener_card_skeleton.dart';
+import '../../listener/listener_form/intro_screen.dart';
+import '../../services/ad_service.dart';
+import '../../services/subscription_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -40,6 +44,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   bool _hasCompletedOfferCall = false;
   int? _offerMinutesLimitOverride;
 
+  // Chat & Earn banner for female users
+  bool _showChatEarnBanner = false;
+  bool _isFemaleUser = false;
+
+  // Ad banner state
+  bool _showBannerAd = true; // Shown for free users by default
+
   // Stream subscriptions for cleanup
   StreamSubscription<Map<String, bool>>? _onlineStatusSub;
   StreamSubscription<Map<String, bool>>? _busyStatusSub;
@@ -58,6 +69,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     selectedTopic = 'All';
+    _checkChatEarnBanner();
 
     _loadOfferEligibility();
     _loadRateConfig();
@@ -405,6 +417,125 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     );
   }
 
+  /// Check if we should show the "Chat & Earn" banner for female users
+  Future<void> _checkChatEarnBanner() async {
+    final gender = await _storageService.getGender();
+    final prefs = await SharedPreferences.getInstance();
+    final dismissCount = prefs.getInt('chat_earn_dismiss_count') ?? 0;
+    final isListener = await _storageService.getIsListener();
+
+    if (mounted) {
+      setState(() {
+        _isFemaleUser = (gender?.toLowerCase() == 'female');
+        _showChatEarnBanner = _isFemaleUser && dismissCount < 2 && !isListener;
+      });
+    }
+  }
+
+  Future<void> _dismissChatEarnBanner() async {
+    final prefs = await SharedPreferences.getInstance();
+    final current = prefs.getInt('chat_earn_dismiss_count') ?? 0;
+    await prefs.setInt('chat_earn_dismiss_count', current + 1);
+    if (mounted) {
+      setState(() => _showChatEarnBanner = false);
+    }
+  }
+
+  Widget _buildChatEarnBanner() {
+    if (!_showChatEarnBanner) return const SizedBox.shrink();
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFFAD1457), Color(0xFFE91E63)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.pink.withOpacity(0.3),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                const Icon(Icons.monetization_on, color: Colors.yellowAccent, size: 40),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Chat & Earn \u20B9',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      const Text(
+                        'Become a listener and earn \u20B92/min by helping others!',
+                        style: TextStyle(color: Colors.white70, fontSize: 13),
+                      ),
+                      const SizedBox(height: 8),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => BecomeHostOnboarding()),
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: const Text(
+                            'Apply Now',
+                            style: TextStyle(
+                              color: Color(0xFFAD1457),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Positioned(
+            top: 4,
+            right: 4,
+            child: GestureDetector(
+              onTap: _dismissChatEarnBanner,
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.close, color: Colors.white, size: 16),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -414,6 +545,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const TopBar(),
+            _buildChatEarnBanner(),
             if (_offerCtrl.shouldShow)
               Flexible(
                 flex: 0,
@@ -579,6 +711,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                           final offerRateText = _buildOfferRateText();
                           final normalRateText =
                               '\u20B9${listener.ratePerMinute.toStringAsFixed(0)}/min';
+
+                          // Compute dynamic tags
+                          final List<String> tags = [];
+                          if (listener.rating >= 4.5) tags.add('star');
+                          if (listener.totalCalls > 50) tags.add('popular');
+                          if (listener.totalCalls < 5) tags.add('new');
+
                           return ExpertCard(
                             name: listener.professionalName ?? 'Unknown',
                             age: listener.age ?? 20,
@@ -597,11 +736,37 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                             listenerUserId: listener.userId,
                             isOnline: isOnline,
                             isBusy: isBusy,
+                            tags: tags,
                           );
                         },
                       ),
                     ),
             ),
+
+            // Banner Ad — bottom of home screen for free users (Section 13)
+            if (_showBannerAd)
+              Container(
+                width: double.infinity,
+                height: 50,
+                margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF0F0F0),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey.shade300),
+                ),
+                alignment: Alignment.center,
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.ad_units, color: Colors.grey, size: 18),
+                    SizedBox(width: 6),
+                    Text(
+                      'Ad Banner — AdMob',
+                      style: TextStyle(color: Colors.grey, fontSize: 12, fontStyle: FontStyle.italic),
+                    ),
+                  ],
+                ),
+              ),
           ],
         ),
       ),

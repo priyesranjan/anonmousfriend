@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:livekit_client/livekit_client.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../../services/livekit_service.dart';
 import '../../services/socket_service.dart';
@@ -360,30 +361,28 @@ class UserCallController extends ChangeNotifier {
 
     _transitionTo(UserCallState.connecting);
 
-    // Join room
-    final listener = RoomListener(
-      onParticipantConnected: (participant) {
-        debugPrint('UserCallController: listener joined call');
-        _transitionTo(UserCallState.connected);
-      },
-      onParticipantDisconnected: (participant) {
-        debugPrint('UserCallController: listener left');
-        endCall(reason: 'remote_end');
-      },
-      onDisconnected: (reason) {
-        debugPrint('UserCallController: room disconnected $reason');
-        if (_callState != UserCallState.ended && !_disposed) {
-           _setError('Call disconnected');
-           endCall(reason: 'network_drop');
-        }
-      },
-    );
-
     final joined = await _livekitService.connectToRoom(
       url: tokenResult.url!,
       token: tokenResult.token!,
-      listener: listener,
     );
+
+    if (joined) {
+      _livekitService.room?.events.listen((event) {
+        if (event is ParticipantConnectedEvent) {
+          debugPrint('UserCallController: listener joined call');
+          _transitionTo(UserCallState.connected);
+        } else if (event is ParticipantDisconnectedEvent) {
+          debugPrint('UserCallController: listener left');
+          endCall(reason: 'remote_end');
+        } else if (event is RoomDisconnectedEvent) {
+          debugPrint('UserCallController: room disconnected ${event.reason}');
+          if (_callState != UserCallState.ended && !_disposed) {
+             _setError('Call disconnected');
+             endCall(reason: 'network_drop');
+          }
+        }
+      });
+    }
 
     if (!joined) {
       _setError('Failed to join call');

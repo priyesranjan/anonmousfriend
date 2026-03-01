@@ -1,10 +1,10 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { getUsers, getAdminListeners } from '../services/api';
-import { 
-  Users, Headphones, Activity, Star, UserPlus, Bell, Download, TrendingUp, 
+import { getUsers, getAdminListeners, getAdminActiveCalls, runZombieSweep } from '../services/api';
+import {
+  Users, Headphones, Activity, Star, UserPlus, Bell, Download, TrendingUp,
   BarChart3, PieChart, Activity as ActivityIcon, Wifi, WifiOff, RefreshCw,
-  Clock, Calendar, Phone, Mail, MapPin, CheckCircle, XCircle, UserCheck
+  Clock, Calendar, Phone, Mail, MapPin, CheckCircle, XCircle, UserCheck, Trash2, ShieldAlert
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart as RechartsPieChart, Pie, Cell, Legend, AreaChart, Area } from 'recharts';
 
@@ -18,8 +18,10 @@ const AdminDashboard = () => {
     newUsersToday: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [sweepingZombies, setSweepingZombies] = useState(false);
   const [error, setError] = useState(null);
   const [recentActivities, setRecentActivities] = useState([]);
+  const [activeCalls, setActiveCalls] = useState([]);
   const [chartData, setChartData] = useState({
     userGrowth: [],
     listenerPerformance: [],
@@ -38,15 +40,21 @@ const AdminDashboard = () => {
   const fetchStats = useCallback(async () => {
     try {
       setLoading(true);
-      const [usersRes, listenersRes] = await Promise.all([getUsers(), getAdminListeners()]);
+      const [usersRes, listenersRes, activeCallsRes] = await Promise.all([
+        getUsers(),
+        getAdminListeners(),
+        getAdminActiveCalls().catch(() => ({ data: { active_calls: [] } }))
+      ]);
       const usersData = usersRes.data || [];
       const listenersData = listenersRes.data?.listeners || [];
+      const activeCallsData = activeCallsRes.data?.active_calls || [];
+      setActiveCalls(activeCallsData);
 
       const totalUsers = usersData.length;
       const totalListeners = listenersData.length;
       const activeListeners = listenersData.filter(l => l.is_online).length;
       const approvedListeners = listenersData.filter(l => (l.verification_status || 'pending') === 'approved').length;
-      
+
       // Calculate average rating from listeners
       const listenersWithRating = listenersData.filter(l => l.average_rating && l.average_rating > 0);
       const averageRating = listenersWithRating.length > 0
@@ -81,15 +89,15 @@ const AdminDashboard = () => {
       // Generate user growth data from actual created_at dates
       const userGrowthMap = {};
       const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      
+
       // Get last 6 months
       const now = new Date();
       for (let i = 5; i >= 0; i--) {
         const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
         const key = `${date.getFullYear()}-${date.getMonth()}`;
-        userGrowthMap[key] = { 
-          month: monthNames[date.getMonth()], 
-          users: 0, 
+        userGrowthMap[key] = {
+          month: monthNames[date.getMonth()],
+          users: 0,
           listeners: 0,
           year: date.getFullYear()
         };
@@ -177,12 +185,12 @@ const AdminDashboard = () => {
 
       // Recent activities from actual data
       const activities = [];
-      
+
       // Get recent user signups
       const recentUsers = [...usersData]
         .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
         .slice(0, 3);
-      
+
       recentUsers.forEach(u => {
         activities.push({
           id: `user-${u.user_id}`,
@@ -197,7 +205,7 @@ const AdminDashboard = () => {
       const recentListeners = [...listenersData]
         .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
         .slice(0, 2);
-      
+
       recentListeners.forEach(l => {
         activities.push({
           id: `listener-${l.listener_id}`,
@@ -229,6 +237,24 @@ const AdminDashboard = () => {
 
     return () => clearInterval(refreshInterval);
   }, [fetchStats]);
+
+  const handleZombieSweep = async () => {
+    if (!window.confirm('Are you sure you want to forcibly terminate ALL stuck/zombie calls? This will clear the busy status of all stranded listeners.')) return;
+
+    try {
+      setSweepingZombies(true);
+      const res = await runZombieSweep();
+      if (res.data) {
+        alert(res.data.message || 'Zombie swept successfully.');
+        fetchStats();
+      }
+    } catch (err) {
+      console.error('Sweep err:', err);
+      alert('Failed to sweep zombies.');
+    } finally {
+      setSweepingZombies(false);
+    }
+  };
 
   const formatTimeAgo = (date) => {
     const now = new Date();
@@ -269,7 +295,7 @@ const AdminDashboard = () => {
     return (
       <div className="flex flex-col items-center justify-center min-h-[40vh] gap-4">
         <div className="text-lg text-red-500 font-semibold">{error}</div>
-        <button 
+        <button
           onClick={fetchStats}
           className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
         >
@@ -427,6 +453,77 @@ const AdminDashboard = () => {
           </div>
         </div>
 
+        {/* ACTIVE CALLS & ZOMBIE SWEEPER TABLE */}
+        <div className="bg-white dark:bg-gray-800 shadow-2xl rounded-2xl p-8 mb-10 border-2 border-red-100 dark:border-red-900/30 hover:border-red-200 transition-all">
+          <div className="flex flex-col sm:flex-row items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="bg-gradient-to-br from-red-500 to-rose-600 p-3 rounded-xl shadow-lg">
+                <ShieldAlert className="w-6 h-6 text-white" strokeWidth={2.5} />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-gray-800 dark:text-white">Active Calls Management</h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Live monitoring & emergency recovery</p>
+              </div>
+            </div>
+
+            <button
+              onClick={handleZombieSweep}
+              disabled={sweepingZombies}
+              className="mt-4 sm:mt-0 flex items-center gap-2 px-5 py-2.5 bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400 rounded-xl hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors font-semibold border border-red-200 dark:border-red-800/30 disabled:opacity-50"
+            >
+              {sweepingZombies ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+              Force Sweep Zombies (Older than 2h)
+            </button>
+          </div>
+
+          <div className="overflow-x-auto rounded-xl border border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/20">
+            <table className="min-w-full">
+              <thead className="bg-gray-100 dark:bg-gray-800">
+                <tr>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Type</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Caller</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Listener</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Started</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                {activeCalls.length > 0 ? (
+                  activeCalls.map((call) => (
+                    <tr key={call.call_id} className="hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800">
+                          <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                          {call.status.toUpperCase()}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-700 dark:text-gray-300 capitalize">
+                        {call.call_type}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-semibold text-gray-900 dark:text-white">{call.caller_name || 'Anonymous'}</div>
+                        <div className="text-xs text-gray-500">{call.caller_phone || 'N/A'}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-semibold text-gray-900 dark:text-white">{call.listener_name || 'Expert'}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                        {formatTimeAgo(new Date(call.created_at))}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="5" className="px-6 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+                      No active calls right now. System is quiet.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
         {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
           <div className="bg-white dark:bg-gray-800 shadow-2xl rounded-2xl p-8 border-2 border-gray-100 dark:border-gray-700 hover:border-blue-200 dark:hover:border-blue-800/40 transition-all">
@@ -446,18 +543,18 @@ const AdminDashboard = () => {
                 <AreaChart data={chartData.userGrowth}>
                   <defs>
                     <linearGradient id="colorUsers" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                     </linearGradient>
                     <linearGradient id="colorListeners" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                   <XAxis dataKey="month" stroke="#9ca3af" />
                   <YAxis stroke="#9ca3af" />
-                  <Tooltip 
+                  <Tooltip
                     contentStyle={{ backgroundColor: '#1f2937', border: 'none', borderRadius: '8px' }}
                     labelStyle={{ color: '#fff' }}
                   />
@@ -489,7 +586,7 @@ const AdminDashboard = () => {
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                   <XAxis dataKey="name" stroke="#9ca3af" fontSize={12} />
                   <YAxis stroke="#9ca3af" />
-                  <Tooltip 
+                  <Tooltip
                     contentStyle={{ backgroundColor: '#1f2937', border: 'none', borderRadius: '8px' }}
                     labelStyle={{ color: '#fff' }}
                   />
@@ -607,7 +704,7 @@ const AdminDashboard = () => {
 
         {/* Quick Actions Panel */}
         <div className="fixed bottom-6 right-6 flex flex-col space-y-3">
-          <button 
+          <button
             onClick={fetchStats}
             className="bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-full shadow-lg transition-colors duration-200 flex items-center justify-center"
             title="Refresh Data"

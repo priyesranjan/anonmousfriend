@@ -19,6 +19,7 @@ class ExpertCard extends StatefulWidget {
   final String? listenerUserId; // The user_id for socket communication
   final bool isOnline; // Online status from parent (API + socket)
   final bool isBusy; // Busy status from parent (API + socket)
+  final List<String> tags; // Dynamic tags: 'star', 'popular', 'new'
 
   const ExpertCard({
     super.key,
@@ -35,6 +36,7 @@ class ExpertCard extends StatefulWidget {
     this.listenerUserId,
     this.isOnline = false,
     this.isBusy = false,
+    this.tags = const [],
   });
 
   @override
@@ -237,6 +239,35 @@ class _ExpertCardState extends State<ExpertCard> with SingleTickerProviderStateM
     super.dispose();
   }
 
+  Map<String, dynamic> _getTagConfig(String tag) {
+    switch (tag) {
+      case 'star':
+        return {
+          'emoji': '⭐',
+          'label': 'Star',
+          'colors': [const Color(0xFFFFB300), const Color(0xFFFF8F00)],
+        };
+      case 'popular':
+        return {
+          'emoji': '🔥',
+          'label': 'Popular',
+          'colors': [const Color(0xFFFF5252), const Color(0xFFFF1744)],
+        };
+      case 'new':
+        return {
+          'emoji': '✨',
+          'label': 'New',
+          'colors': [const Color(0xFF42A5F5), const Color(0xFF1E88E5)],
+        };
+      default:
+        return {
+          'emoji': '',
+          'label': tag,
+          'colors': [Colors.grey, Colors.grey.shade700],
+        };
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
@@ -423,6 +454,47 @@ class _ExpertCardState extends State<ExpertCard> with SingleTickerProviderStateM
                           size: iconSize,
                           color: Colors.blue.shade400,
                         ),
+                        // Dynamic Tag Badges
+                        ...widget.tags.map((tag) {
+                          final config = _getTagConfig(tag);
+                          return Padding(
+                            padding: const EdgeInsets.only(left: 4),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: config['colors'] as List<Color>,
+                                ),
+                                borderRadius: BorderRadius.circular(8),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: (config['colors'] as List<Color>).first.withOpacity(0.4),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    config['emoji'] as String,
+                                    style: TextStyle(fontSize: isSmallScreen ? 8 : 10),
+                                  ),
+                                  const SizedBox(width: 2),
+                                  Text(
+                                    config['label'] as String,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: isSmallScreen ? 8 : 9,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }),
                       ],
                     ),
                     SizedBox(height: isSmallScreen ? 2 : 3),

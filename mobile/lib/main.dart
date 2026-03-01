@@ -20,6 +20,8 @@ import 'services/call_foreground_service.dart';
 import 'listener/actions/calling.dart' as listener_calling;
 import 'user/actions/calling.dart' as user_calling;
 import 'models/user_model.dart';
+import 'services/background_service.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 /// Global navigator key for showing incoming call overlay anywhere in the app
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -34,6 +36,34 @@ void ensureGlobalCallHandler() {
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: '.env');
+  
+  // Initialize Android Foreground Service
+  await initializeBackgroundService();
+  
+  // Request notification permissions for incoming calls
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+  
+  await flutterLocalNotificationsPlugin.initialize(
+    const InitializationSettings(
+      android: AndroidInitializationSettings('@mipmap/homelogo'),
+      iOS: DarwinInitializationSettings(),
+    ),
+    onDidReceiveNotificationResponse: (NotificationResponse response) async {
+      // User tapped the Heads-up Notification
+      // Use the payload to figure out Call details if available
+      final String? payload = response.payload;
+      if (payload != null) {
+        debugPrint('[MAIN] Notification tapped with payload: $payload');
+      }
+    },
+  );
+
+  await flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
+      ?.requestNotificationsPermission();
+
   runApp(const ConnectoApp());
 }
 

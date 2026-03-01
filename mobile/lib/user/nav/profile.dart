@@ -9,6 +9,7 @@ import 'profile/language.dart';
 import '../../services/storage_service.dart';
 import '../../services/user_service.dart';
 import '../../ui/skeleton_loading_ui/profile_skeleton.dart';
+import '../../listener/listener_form/intro_screen.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -595,6 +596,18 @@ class _ProfilePageState extends State<ProfilePage> {
             },
           ),
 
+          _buildListTile(
+            Icons.mic_none,
+            "Apply as Speaker",
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const BecomeHostOnboarding(),
+                ),
+              );
+            },
+          ),
           _buildListTile(
             Icons.mail_outline,
             "Contact Us",

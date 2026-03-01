@@ -63,6 +63,142 @@ router.get('/', async (req, res) => {
   }
 });
 
+// GET /api/listeners/smart-match
+// Smart Matching Algorithm — returns ranked listeners based on user type
+router.get('/smart-match', authenticate, async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { gender_filter, language_filter } = req.query;
+
+    // 1. Determine user type (trial, free, low-balance, high-balance, premium)
+    const userResult = await pool.query(
+      `SELECT u.wallet_balance, u.is_first_time_user, u.offer_used,
+        EXISTS(SELECT 1 FROM subscriptions WHERE user_id = u.user_id AND is_active = TRUE AND expires_at > CURRENT_TIMESTAMP) as is_premium
+       FROM users u WHERE u.user_id = $1`,
+      [userId]
+    );
+
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const user = userResult.rows[0];
+    const balance = Number(user.wallet_balance || 0);
+    const isPremium = user.is_premium;
+    const isTrial = user.is_first_time_user && !user.offer_used;
+
+    let userType = 'free';
+    if (isPremium) userType = 'premium';
+    else if (isTrial) userType = 'trial';
+    else if (balance >= 100) userType = 'high_balance';
+    else if (balance >= 1 && balance < 50) userType = 'low_balance';
+
+    // 2. Build smart query based on user type
+    let query = '';
+    let params = [];
+    let paramIndex = 1;
+
+    if (userType === 'trial' || userType === 'free') {
+      // Trial / Free Random → New (Probation) + Casual Talkers
+      query = `
+        SELECT l.*, u.display_name, u.gender,
+          CASE
+            WHEN l.quality_status = 'probation' THEN 1
+            WHEN l.listener_type = 'casual' THEN 2
+            ELSE 3
+          END as match_rank
+        FROM listeners l
+        JOIN users u ON l.user_id = u.user_id
+        WHERE l.is_active = TRUE
+          AND l.verification_status = 'approved'
+          AND (l.quality_status IN ('probation', 'active', 'warning'))
+          AND l.is_online = TRUE AND l.is_busy = FALSE
+        ORDER BY match_rank ASC, l.average_rating DESC
+        LIMIT 50
+      `;
+    } else if (userType === 'low_balance') {
+      // Low Balance (<₹50) → Casual Talkers + Rated Listeners
+      query = `
+        SELECT l.*, u.display_name, u.gender,
+          CASE
+            WHEN l.listener_type = 'casual' THEN 1
+            WHEN l.average_rating >= 3.5 THEN 2
+            ELSE 3
+          END as match_rank
+        FROM listeners l
+        JOIN users u ON l.user_id = u.user_id
+        WHERE l.is_active = TRUE
+          AND l.verification_status = 'approved'
+          AND l.quality_status IN ('active', 'warning')
+          AND l.is_online = TRUE AND l.is_busy = FALSE
+        ORDER BY match_rank ASC, l.average_rating DESC
+        LIMIT 50
+      `;
+    } else if (userType === 'high_balance') {
+      // High Balance (₹100+) → 4.0+ Rated Listeners first
+      query = `
+        SELECT l.*, u.display_name, u.gender,
+          CASE
+            WHEN l.average_rating >= 4.0 THEN 1
+            WHEN l.average_rating >= 3.5 THEN 2
+            ELSE 3
+          END as match_rank
+        FROM listeners l
+        JOIN users u ON l.user_id = u.user_id
+        WHERE l.is_active = TRUE
+          AND l.verification_status = 'approved'
+          AND l.quality_status = 'active'
+          AND l.is_online = TRUE AND l.is_busy = FALSE
+        ORDER BY match_rank ASC, l.average_rating DESC, l.total_calls DESC
+        LIMIT 50
+      `;
+    } else if (userType === 'premium') {
+      // ₹999 Premium → Filtered by gender/language preference
+      let filters = [];
+      if (gender_filter && gender_filter !== 'any') {
+        params.push(gender_filter);
+        filters.push(`u.gender = $${paramIndex++}`);
+      }
+      if (language_filter) {
+        params.push(`%${language_filter}%`);
+        filters.push(`l.languages::text ILIKE $${paramIndex++}`);
+      }
+      const whereFilter = filters.length > 0 ? `AND ${filters.join(' AND ')}` : '';
+
+      query = `
+        SELECT l.*, u.display_name, u.gender
+        FROM listeners l
+        JOIN users u ON l.user_id = u.user_id
+        WHERE l.is_active = TRUE
+          AND l.verification_status = 'approved'
+          AND l.quality_status = 'active'
+          AND l.is_online = TRUE AND l.is_busy = FALSE
+          ${whereFilter}
+        ORDER BY l.average_rating DESC, l.total_calls DESC
+        LIMIT 50
+      `;
+    }
+
+    const result = await pool.query(query, params);
+
+    const listeners = result.rows.map(listener => ({
+      ...listener,
+      avatar_url: listener.profile_image || null,
+      rating: listener.average_rating || 0
+    }));
+
+    res.json({
+      success: true,
+      userType,
+      listeners,
+      count: listeners.length,
+    });
+  } catch (error) {
+    console.error('Smart match error:', error);
+    res.status(500).json({ error: 'Failed to run smart matching' });
+  }
+});
+
 // GET /api/listeners/search
 // Search listeners
 router.get('/search', async (req, res) => {
@@ -102,6 +238,57 @@ router.post('/heartbeat', authenticate, async (req, res) => {
   } catch (error) {
     console.error('Heartbeat error:', error);
     res.status(500).json({ error: 'Failed to update heartbeat' });
+  }
+});
+
+// GET /api/listeners/stats/leaderboard
+// Get the top listeners for the week
+router.get('/stats/leaderboard', authenticate, async (req, res) => {
+  try {
+    // Top 10 by total_minutes + total_calls. 
+    // Usually a leaderboard would look at weekly stats specifically, but here we can just query the listeners table
+    // based on total calls and total minutes for simplicity.
+    const query = `
+      SELECT listener_id, user_id, professional_name, profile_image, total_calls, total_minutes, daily_streak_days
+      FROM listeners
+      WHERE is_active = TRUE
+      ORDER BY (total_calls * 5 + total_minutes) DESC
+      LIMIT 10
+    `;
+    const result = await pool.query(query);
+    const leaderboard = result.rows;
+
+    // Output formatting for my rank
+    let myStats = null;
+    try {
+      // Find my position
+      const myListenerResult = await pool.query('SELECT listener_id FROM listeners WHERE user_id = $1', [req.userId]);
+      if (myListenerResult.rows.length > 0) {
+        const myListenerId = myListenerResult.rows[0].listener_id;
+
+        // Use CTE to get rank
+        const rankQuery = `
+          WITH RankedListeners AS (
+            SELECT listener_id, total_calls, total_minutes, daily_streak_days,
+                   RANK() OVER (ORDER BY (total_calls * 5 + total_minutes) DESC) as rank
+            FROM listeners
+            WHERE is_active = TRUE
+          )
+          SELECT * FROM RankedListeners WHERE listener_id = $1
+        `;
+        const myRankResult = await pool.query(rankQuery, [myListenerId]);
+        if (myRankResult.rows.length > 0) {
+          myStats = myRankResult.rows[0];
+        }
+      }
+    } catch (e) {
+      console.error('Error getting my rank:', e);
+    }
+
+    res.json({ success: true, leaderboard, myStats });
+  } catch (error) {
+    console.error('Get leaderboard error:', error);
+    res.status(500).json({ error: 'Failed to fetch leaderboard' });
   }
 });
 

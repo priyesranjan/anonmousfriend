@@ -75,6 +75,43 @@ class ListenerService {
     }
   }
 
+  /// Get smart-matched listeners based on user type (trial, free, low-balance, high-balance, premium)
+  Future<ListenerResult> getSmartMatchListeners({
+    String? genderFilter,
+    String? languageFilter,
+  }) async {
+    final queryParams = <String, String>{};
+    if (genderFilter != null) queryParams['gender_filter'] = genderFilter;
+    if (languageFilter != null) queryParams['language_filter'] = languageFilter;
+
+    final response = await _api.get(
+      '${ApiConfig.listeners}/smart-match',
+      queryParams: queryParams,
+    );
+
+    if (response.isSuccess) {
+      final List<dynamic> listenersJson = response.data['listeners'] ?? [];
+      final listeners = <Listener>[];
+      for (var json in listenersJson) {
+        try {
+          listeners.add(Listener.fromJson(json));
+        } catch (e) {
+          print('[LISTENER_SERVICE] Smart-match parse error: $e');
+        }
+      }
+      return ListenerResult(
+        success: true,
+        listeners: listeners,
+        count: response.data['count'] ?? listeners.length,
+      );
+    } else {
+      return ListenerResult(
+        success: false,
+        error: response.error ?? 'Smart matching failed',
+      );
+    }
+  }
+
   /// Search listeners by query
   Future<ListenerResult> searchListeners(String query) async {
     final response = await _api.get(
@@ -370,6 +407,24 @@ class ListenerService {
         success: false,
         error: response.error ?? 'Failed to submit reapplication',
       );
+    }
+  }
+
+  /// Get the listener leaderboard
+  Future<Map<String, dynamic>> getLeaderboard() async {
+    final response = await _api.get('${ApiConfig.listeners}/stats/leaderboard');
+
+    if (response.isSuccess) {
+      return {
+        'success': true,
+        'leaderboard': response.data['leaderboard'],
+        'myStats': response.data['myStats'],
+      };
+    } else {
+      return {
+        'success': false,
+        'error': response.error ?? 'Failed to fetch leaderboard',
+      };
     }
   }
 }

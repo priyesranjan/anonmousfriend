@@ -8,7 +8,7 @@ import User from '../models/User.js';
 import { authenticate } from '../middleware/auth.js';
 import config from '../config/config.js';
 import { finalizeCallBilling } from '../services/callBillingService.js';
-import { getRateConfig } from '../db.js';
+import { getRateConfig, pool } from '../db.js';
 
 const resolveDurationSeconds = (call, durationSeconds) => {
   const endedAt = new Date();
@@ -110,6 +110,20 @@ router.post('/', authenticate, async (req, res) => {
       rate_per_minute: effectiveRate
     });
 
+    // AUTO-DISCONNECT: If call is not answered within 45 seconds, automatically fail it
+    setTimeout(async () => {
+      try {
+        const checkCall = await Call.findById(call.call_id);
+        if (checkCall && checkCall.status === 'initiated') {
+          console.log(`[CALLS] Call ${call.call_id} timed out after 45s. Forcing fail.`);
+          await Call.updateStatus(call.call_id, 'failed');
+          try { await Listener.clearBusy(listener_id); } catch (e) { }
+        }
+      } catch (err) {
+        console.error('[CALLS] Auto-timeout error:', err);
+      }
+    }, 45000);
+
     res.status(201).json({
       message: 'Call initiated',
       call
@@ -185,6 +199,15 @@ router.put('/:call_id/status', authenticate, async (req, res) => {
       if (!billing.alreadyBilled) {
         await Listener.incrementCallStats(call.listener_id, billing.minutes);
       }
+
+      // PROBATION: Decrement remaining probation calls
+      try {
+        await pool.query(
+          `UPDATE listeners SET probation_calls_remaining = GREATEST(probation_calls_remaining - 1, 0)
+           WHERE listener_id = $1 AND quality_status = 'probation'`,
+          [call.listener_id]
+        );
+      } catch (e) { console.error('[CALLS] probation tracking error:', e.message); }
 
       // BUSY: Clear busy when call completes
       try { await Listener.clearBusy(call.listener_id); } catch (e) { console.error('[CALLS] clearBusy error:', e.message); }
@@ -336,6 +359,87 @@ router.get('/history/listener', authenticate, async (req, res) => {
   } catch (error) {
     console.error('Get listener call history error:', error);
     res.status(500).json({ error: 'Failed to fetch call history' });
+  }
+});
+
+// ==========================================
+// ADMIN REAL-TIME OVERSIGHT & ZOMBIE SWEEPER
+// ==========================================
+
+// GET /api/calls/admin/active
+// Get all currently active/ongoing calls in the system (Admin only)
+router.get('/admin/active', authenticate, async (req, res) => {
+  try {
+    const userRoleQuery = await pool.query('SELECT role FROM users WHERE user_id = $1', [req.userId]);
+    if (userRoleQuery.rows.length === 0 || userRoleQuery.rows[0].role !== 'admin') {
+      return res.status(403).json({ error: 'Admin access required' });
+    }
+
+    const query = `
+      SELECT 
+        c.call_id, c.call_type, c.status, c.created_at, c.rate_per_minute, c.duration_seconds,
+        u.name as caller_name, u.mobile_number as caller_phone,
+        l.name as listener_name, l.total_calls as listener_calls
+      FROM calls c
+      JOIN users u ON c.caller_id = u.user_id
+      JOIN listeners l ON c.listener_id = l.listener_id
+      WHERE c.status IN ('ongoing', 'initiated', 'ringing')
+      ORDER BY c.created_at DESC
+    `;
+
+    const result = await pool.query(query);
+    res.json({ active_calls: result.rows });
+  } catch (error) {
+    console.error('[ADMIN] Fetch active calls error:', error);
+    res.status(500).json({ error: 'Failed to fetch active calls' });
+  }
+});
+
+// POST /api/calls/admin/zombie-sweep
+// Forcibly clean up stuck calls (ongoing for > 2 hours) and un-brick listeners (Admin only)
+router.post('/admin/zombie-sweep', authenticate, async (req, res) => {
+  try {
+    const userRoleQuery = await pool.query('SELECT role FROM users WHERE user_id = $1', [req.userId]);
+    if (userRoleQuery.rows.length === 0 || userRoleQuery.rows[0].role !== 'admin') {
+      return res.status(403).json({ error: 'Admin access required' });
+    }
+
+    // Find calls stuck for > 2 hours
+    const zombieQuery = `
+      SELECT call_id, listener_id, status, created_at
+      FROM calls 
+      WHERE status IN ('ongoing', 'initiated', 'ringing')
+        AND created_at < NOW() - INTERVAL '2 hours'
+    `;
+    const zombies = await pool.query(zombieQuery);
+
+    if (zombies.rows.length === 0) {
+      return res.json({ message: 'No zombie calls found. System is clean.', swept: 0 });
+    }
+
+    const sweptIds = [];
+    for (const z of zombies.rows) {
+      // Mark call as failed (it never naturally ended)
+      await Call.updateStatus(z.call_id, 'failed');
+
+      // CRITICAL: Unbrick the listener by forcefully clearing is_busy
+      try {
+        await Listener.clearBusy(z.listener_id);
+      } catch (e) {
+        console.error(`[ZOMBIE SWEEPER] Failed to clear busy for listener ${z.listener_id}:`, e.message);
+      }
+
+      sweptIds.push(z.call_id);
+    }
+
+    res.json({
+      message: `Successfully swept ${sweptIds.length} zombie call(s). Listeners un-bricked.`,
+      swept_count: sweptIds.length,
+      swept_call_ids: sweptIds
+    });
+  } catch (error) {
+    console.error('[ZOMBIE SWEEPER] Error:', error);
+    res.status(500).json({ error: 'Failed to run zombie sweep' });
   }
 });
 

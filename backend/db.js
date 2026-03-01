@@ -206,6 +206,7 @@ async function ensureSchema() {
         verification_status VARCHAR(20) DEFAULT 'pending',
         voice_verified BOOLEAN DEFAULT FALSE,
         voice_verification_url TEXT,
+        listener_type VARCHAR(20) DEFAULT 'full',
         profile_image TEXT,
         background_image TEXT,
         experience_years INTEGER,
@@ -339,6 +340,42 @@ async function ensureSchema() {
         currency VARCHAR(3) DEFAULT 'INR',
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS subscriptions (
+        subscription_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(user_id),
+        plan_type VARCHAR(30) NOT NULL DEFAULT 'random_premium',
+        price DECIMAL(10, 2) NOT NULL DEFAULT 999.00,
+        starts_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        expires_at TIMESTAMP NOT NULL,
+        is_active BOOLEAN DEFAULT TRUE,
+        payment_id VARCHAR(100),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE INDEX IF NOT EXISTS idx_subscriptions_user_active
+      ON subscriptions(user_id, is_active)
+      WHERE is_active = TRUE;
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS listener_reports (
+        report_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        listener_id UUID NOT NULL REFERENCES listeners(listener_id),
+        reporter_user_id UUID NOT NULL REFERENCES users(user_id),
+        call_id UUID REFERENCES calls(call_id),
+        report_type VARCHAR(20) NOT NULL,
+        description TEXT,
+        strike_applied BOOLEAN DEFAULT FALSE,
+        reviewed BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE INDEX IF NOT EXISTS idx_listener_reports_listener
+      ON listener_reports(listener_id, created_at DESC);
+      CREATE INDEX IF NOT EXISTS idx_listeners_quality_status
+      ON listeners(quality_status);
     `);
 
     await pool.query(`
@@ -555,6 +592,8 @@ async function ensureSchema() {
       ALTER TABLE users ADD COLUMN IF NOT EXISTS last_seen TIMESTAMP;
       ALTER TABLE users ADD COLUMN IF NOT EXISTS is_first_time_user BOOLEAN DEFAULT FALSE;
       ALTER TABLE users ADD COLUMN IF NOT EXISTS offer_used BOOLEAN DEFAULT FALSE;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS random_calls_today INTEGER DEFAULT 0;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS last_random_call_date DATE;
       ALTER TABLE users ADD COLUMN IF NOT EXISTS offer_minutes_limit INTEGER;
       ALTER TABLE users ADD COLUMN IF NOT EXISTS offer_flat_price DECIMAL(10, 2);
       ALTER TABLE users ADD COLUMN IF NOT EXISTS wallet_balance DECIMAL(10, 2) DEFAULT 0.0;
@@ -572,6 +611,16 @@ async function ensureSchema() {
       ALTER TABLE listeners ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE;
       ALTER TABLE listeners ADD COLUMN IF NOT EXISTS rejection_reason TEXT;
       ALTER TABLE listeners ADD COLUMN IF NOT EXISTS reapply_attempts INTEGER DEFAULT 0;
+      ALTER TABLE listeners ADD COLUMN IF NOT EXISTS listener_type VARCHAR(20) DEFAULT 'full';
+      ALTER TABLE listeners ADD COLUMN IF NOT EXISTS quality_status VARCHAR(20) DEFAULT 'probation';
+      ALTER TABLE listeners ADD COLUMN IF NOT EXISTS probation_calls_remaining INTEGER DEFAULT 10;
+      ALTER TABLE listeners ADD COLUMN IF NOT EXISTS warning_reason TEXT;
+      ALTER TABLE listeners ADD COLUMN IF NOT EXISTS suspension_reason TEXT;
+      ALTER TABLE listeners ADD COLUMN IF NOT EXISTS suspended_until TIMESTAMP;
+      ALTER TABLE listeners ADD COLUMN IF NOT EXISTS strike_count INTEGER DEFAULT 0;
+      ALTER TABLE listeners ADD COLUMN IF NOT EXISTS avg_call_duration_seconds INTEGER DEFAULT 0;
+      ALTER TABLE listeners ADD COLUMN IF NOT EXISTS hangup_rate DECIMAL(5, 2) DEFAULT 0.0;
+      ALTER TABLE listeners ADD COLUMN IF NOT EXISTS short_calls_streak INTEGER DEFAULT 0;
       
       ALTER TABLE calls ADD COLUMN IF NOT EXISTS billed_minutes INTEGER;
       ALTER TABLE calls ADD COLUMN IF NOT EXISTS offer_applied BOOLEAN DEFAULT FALSE;

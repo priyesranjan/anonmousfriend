@@ -427,6 +427,117 @@ router.post('/listener/set-rates', authenticateAdmin, async (req, res) => {
   }
 });
 
+// GET /api/admin/quality-overview
+// View all listeners with quality status for admin management (Section 12)
+router.get('/quality-overview', authenticateAdmin, async (req, res) => {
+  try {
+    const { status } = req.query; // filter by quality_status
+    let query = `
+      SELECT l.listener_id, l.user_id, l.professional_name, l.quality_status,
+             l.strike_count, l.probation_calls_remaining, l.warning_reason,
+             l.suspension_reason, l.suspended_until, l.average_rating,
+             l.total_calls, l.listener_type, l.avg_call_duration_seconds,
+             l.hangup_rate, l.is_active, l.verification_status,
+             u.display_name, u.phone
+      FROM listeners l
+      JOIN users u ON l.user_id = u.user_id
+    `;
+    const params = [];
+    if (status) {
+      params.push(status);
+      query += ` WHERE l.quality_status = $1`;
+    }
+    query += ` ORDER BY l.strike_count DESC, l.quality_status ASC, l.created_at DESC`;
+
+    const result = await pool.query(query, params);
+
+    // Count summary
+    const summaryResult = await pool.query(`
+      SELECT quality_status, COUNT(*) as count
+      FROM listeners
+      GROUP BY quality_status
+    `);
+    const summary = {};
+    for (const row of summaryResult.rows) {
+      summary[row.quality_status || 'unknown'] = Number(row.count);
+    }
+
+    res.json({
+      success: true,
+      summary,
+      listeners: result.rows,
+      count: result.rows.length,
+    });
+  } catch (error) {
+    console.error('Quality overview error:', error);
+    res.status(500).json({ error: 'Failed to fetch quality overview' });
+  }
+});
+
+// PUT /api/admin/quality-status
+// Update a listener's quality status (promote, warn, suspend, ban, clear strikes)
+router.put('/quality-status', authenticateAdmin, async (req, res) => {
+  try {
+    const { listener_id, action, reason } = req.body;
+
+    if (!listener_id || !action) {
+      return res.status(400).json({ error: 'listener_id and action are required' });
+    }
+
+    const validActions = ['promote', 'warn', 'suspend', 'ban', 'unsuspend', 'clear_strikes', 'reset_probation'];
+    if (!validActions.includes(action)) {
+      return res.status(400).json({ error: `action must be one of: ${validActions.join(', ')}` });
+    }
+
+    let updateQuery = '';
+    let updateParams = [listener_id];
+
+    switch (action) {
+      case 'promote':
+        updateQuery = `UPDATE listeners SET quality_status = 'active', warning_reason = NULL, suspension_reason = NULL, is_active = TRUE WHERE listener_id = $1 RETURNING *`;
+        break;
+      case 'warn':
+        updateQuery = `UPDATE listeners SET quality_status = 'warning', warning_reason = $2 WHERE listener_id = $1 RETURNING *`;
+        updateParams.push(reason || 'Admin warning');
+        break;
+      case 'suspend':
+        updateQuery = `UPDATE listeners SET quality_status = 'suspended', suspension_reason = $2, is_active = FALSE WHERE listener_id = $1 RETURNING *`;
+        updateParams.push(reason || 'Suspended by admin');
+        break;
+      case 'ban':
+        updateQuery = `UPDATE listeners SET quality_status = 'banned', suspension_reason = $2, is_active = FALSE WHERE listener_id = $1 RETURNING *`;
+        updateParams.push(reason || 'Banned by admin');
+        break;
+      case 'unsuspend':
+        updateQuery = `UPDATE listeners SET quality_status = 'active', suspension_reason = NULL, suspended_until = NULL, is_active = TRUE WHERE listener_id = $1 RETURNING *`;
+        break;
+      case 'clear_strikes':
+        updateQuery = `UPDATE listeners SET strike_count = 0 WHERE listener_id = $1 RETURNING *`;
+        break;
+      case 'reset_probation':
+        updateQuery = `UPDATE listeners SET quality_status = 'probation', probation_calls_remaining = 10, warning_reason = NULL, suspension_reason = NULL, is_active = TRUE WHERE listener_id = $1 RETURNING *`;
+        break;
+    }
+
+    const result = await pool.query(updateQuery, updateParams);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Listener not found' });
+    }
+
+    console.log(`[ADMIN] Quality action '${action}' applied to listener ${listener_id}`);
+
+    res.json({
+      success: true,
+      message: `Action '${action}' applied successfully`,
+      listener: result.rows[0],
+    });
+  } catch (error) {
+    console.error('Quality status update error:', error);
+    res.status(500).json({ error: 'Failed to update quality status' });
+  }
+});
+
 // PUT /api/admin/listener/update-rates/:listenerId
 // Update listener rates (admin only)
 router.put('/listener/update-rates/:listenerId', authenticateAdmin, async (req, res) => {
@@ -466,6 +577,100 @@ router.put('/listener/update-rates/:listenerId', authenticateAdmin, async (req, 
   } catch (error) {
     console.error('Update listener rates error:', error);
     res.status(500).json({ error: 'Failed to update listener rates' });
+  }
+});
+
+// PUT /api/admin/users/:user_id/wallet
+// Manually edit a user's wallet balance (God Mode)
+router.put('/users/:user_id/wallet', authenticateAdmin, async (req, res) => {
+  try {
+    const { balance } = req.body;
+    const parsedBalance = Number(balance);
+
+    if (!Number.isFinite(parsedBalance) || parsedBalance < 0) {
+      return res.status(400).json({ error: 'Balance must be a non-negative number' });
+    }
+
+    // Ensure wallet exists before updating
+    await pool.query(
+      `INSERT INTO wallets (user_id, balance) VALUES ($1, 0.0) ON CONFLICT (user_id) DO NOTHING`,
+      [req.params.user_id]
+    );
+
+    await pool.query(
+      `UPDATE wallets SET balance = $1, updated_at = CURRENT_TIMESTAMP WHERE user_id = $2`,
+      [parsedBalance, req.params.user_id]
+    );
+
+    // Also update denormalized field in users
+    await pool.query(
+      `UPDATE users SET wallet_balance = $1 WHERE user_id = $2`,
+      [parsedBalance, req.params.user_id]
+    );
+
+    // Record audit transaction
+    await pool.query(
+      `INSERT INTO transactions (user_id, transaction_type, amount, currency, description, status)
+       VALUES ($1, 'credit', $2, 'INR', 'Admin Manual Balance Adjustment', 'completed')`,
+      [req.params.user_id, parsedBalance]
+    );
+
+    res.json({ message: 'Wallet balance updated successfully', balance: parsedBalance });
+  } catch (error) {
+    console.error('Update user wallet error:', error);
+    res.status(500).json({ error: 'Failed to update user wallet' });
+  }
+});
+
+// PUT /api/admin/listeners/:listener_id/stats
+// Manually override listener statistics (God Mode)
+router.put('/listeners/:listener_id/stats', authenticateAdmin, async (req, res) => {
+  try {
+    const { average_rating, total_calls, total_minutes } = req.body;
+
+    const updates = [];
+    const values = [];
+    let paramIndex = 1;
+
+    if (average_rating !== undefined) {
+      updates.push(`average_rating = $${paramIndex++}`);
+      values.push(Number(average_rating));
+    }
+    if (total_calls !== undefined) {
+      updates.push(`total_calls = $${paramIndex++}`);
+      values.push(Number(total_calls));
+    }
+    if (total_minutes !== undefined) {
+      updates.push(`total_minutes = $${paramIndex++}`);
+      values.push(Number(total_minutes));
+    }
+
+    if (updates.length === 0) {
+      return res.status(400).json({ error: 'No stats provided to update' });
+    }
+
+    values.push(req.params.listener_id);
+
+    // Add updated_at
+    updates.push(`updated_at = CURRENT_TIMESTAMP`);
+
+    const query = `
+      UPDATE listeners 
+      SET ${updates.join(', ')} 
+      WHERE listener_id = $${paramIndex}
+      RETURNING listener_id, average_rating, total_calls, total_minutes
+    `;
+
+    const result = await pool.query(query, values);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Listener not found' });
+    }
+
+    res.json({ message: 'Listener stats updated successfully', listener: result.rows[0] });
+  } catch (error) {
+    console.error('Update listener stats error:', error);
+    res.status(500).json({ error: 'Failed to update listener stats' });
   }
 });
 
@@ -710,8 +915,8 @@ router.put('/listeners/:listener_id/verification-status', authenticateAdmin, asy
     console.log(`[ADMIN] Updating verification status for listener ${listener_id} to: ${status}${rejection_reason ? ` (reason: ${rejection_reason})` : ''}`);
 
     if (!status || !['pending', 'approved', 'rejected'].includes(status)) {
-      return res.status(400).json({ 
-        error: 'Invalid status. Must be one of: pending, approved, rejected' 
+      return res.status(400).json({
+        error: 'Invalid status. Must be one of: pending, approved, rejected'
       });
     }
 
