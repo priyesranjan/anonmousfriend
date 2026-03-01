@@ -374,8 +374,6 @@ async function ensureSchema() {
       );
       CREATE INDEX IF NOT EXISTS idx_listener_reports_listener
       ON listener_reports(listener_id, created_at DESC);
-      CREATE INDEX IF NOT EXISTS idx_listeners_quality_status
-      ON listeners(quality_status);
     `);
 
     await pool.query(`
@@ -621,6 +619,8 @@ async function ensureSchema() {
       ALTER TABLE listeners ADD COLUMN IF NOT EXISTS avg_call_duration_seconds INTEGER DEFAULT 0;
       ALTER TABLE listeners ADD COLUMN IF NOT EXISTS hangup_rate DECIMAL(5, 2) DEFAULT 0.0;
       ALTER TABLE listeners ADD COLUMN IF NOT EXISTS short_calls_streak INTEGER DEFAULT 0;
+      
+      CREATE INDEX IF NOT EXISTS idx_listeners_quality_status ON listeners(quality_status);
       
       ALTER TABLE calls ADD COLUMN IF NOT EXISTS billed_minutes INTEGER;
       ALTER TABLE calls ADD COLUMN IF NOT EXISTS offer_applied BOOLEAN DEFAULT FALSE;
