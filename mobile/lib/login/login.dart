@@ -99,7 +99,7 @@ class _LoginScreenState extends State with TickerProviderStateMixin {
     try {
       _googleSignIn = GoogleSignIn(
         clientId: kIsWeb || !Platform.isAndroid 
-            ? '21566908692-c9u79t06co3ve9qo5nujrdlq7kvpij3t.apps.googleusercontent.com' 
+            ? '21566908692-dbjt8f2fvdir69nv559vaod9hkshuidq.apps.googleusercontent.com' 
             : null,
         scopes: ['email', 'profile'],
       );
