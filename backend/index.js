@@ -1277,12 +1277,18 @@ const PORT = config.PORT;
 
 async function startServer() {
   try {
-    // Test database connection
+    // Test database connection — retry up to 10 times (30s apart) so the
+    // container doesn't crash-loop while waiting for Postgres to be ready.
     console.log('🔗 Connecting to PostgreSQL...');
-    const connected = await testConnection();
-    
+    let connected = false;
+    for (let attempt = 1; attempt <= 10; attempt++) {
+      connected = await testConnection();
+      if (connected) break;
+      console.error(`❌ DB connection attempt ${attempt}/10 failed. Retrying in 30s...`);
+      await new Promise(r => setTimeout(r, 30000));
+    }
     if (!connected) {
-      console.error('❌ Failed to connect to database. Exiting...');
+      console.error('❌ Could not connect to database after 10 attempts. Exiting...');
       process.exit(1);
     }
 
