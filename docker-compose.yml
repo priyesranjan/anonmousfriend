@@ -30,14 +30,13 @@ services:
       - NODE_ENV=production
       - PORT=5000
       - DB_USER=${DB_USER:-postgres}
-      - DB_PASSWORD=${DB_PASSWORD:-postgres}
-      # If Postgres is natively installed on Linux VPS, host.docker.internal works in newer Docker, 
-      # or you can use the static server IP.
-      - DB_HOST=${DB_HOST:-host.docker.internal}
+      - DB_PASSWORD=${DB_PASSWORD:-hGcIz9HHsj6bwkTbm1NLfzGYMV09wJB5U33TynV3yHdBSCHGuPEST28h9jCk7OiX}
+      - DB_HOST=${DB_HOST:-rksw88cskw0o8ssg04g8c008}
       - DB_PORT=${DB_PORT:-5432}
-      - DB_NAME=${DB_NAME:-calltodb}
-      - DATABASE_URL=postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-postgres}@${DB_HOST:-host.docker.internal}:${DB_PORT:-5432}/${DB_NAME:-calltodb}
-      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key-change-this-in-production}
+      - DB_NAME=${DB_NAME:-postgres}
+      # Internal Coolify network URL (used by default inside Docker)
+      - DATABASE_PUBLIC_URL=${DATABASE_PUBLIC_URL:-postgres://postgres:hGcIz9HHsj6bwkTbm1NLfzGYMV09wJB5U33TynV3yHdBSCHGuPEST28h9jCk7OiX@rksw88cskw0o8ssg04g8c008:5432/postgres}
+      - JWT_SECRET=${JWT_SECRET:-kJ8#mP2$vN5xQ9wL3rF7yT4uA6cE1bD0hG}
       # LiveKit credentials — must match livekit.yaml keys section
       - LIVEKIT_API_KEY=${LIVEKIT_API_KEY:-devkey}
       - LIVEKIT_API_SECRET=${LIVEKIT_API_SECRET:-secret}
