@@ -374,8 +374,8 @@ router.get('/admin/active', authenticateAdmin, async (req, res) => {
     const query = `
       SELECT 
         c.call_id, c.call_type, c.status, c.created_at, c.rate_per_minute, c.duration_seconds,
-        u.name as caller_name, u.mobile_number as caller_phone,
-        l.name as listener_name, l.total_calls as listener_calls
+        COALESCE(u.display_name, u.full_name) as caller_name, COALESCE(u.mobile_number, u.phone_number) as caller_phone,
+        COALESCE(l.professional_name, 'Unknown') as listener_name, l.total_calls as listener_calls
       FROM calls c
       JOIN users u ON c.caller_id = u.user_id
       JOIN listeners l ON c.listener_id = l.listener_id
