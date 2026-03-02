@@ -1,6 +1,19 @@
 version: '3.8'
 
 services:
+  # ======== LIVEKIT (WebRTC voice server) ========
+  livekit:
+    image: livekit/livekit-server:latest
+    container_name: livekit_server
+    restart: always
+    ports:
+      - "7880:7880"       # WebSocket / HTTP (primary connection port)
+      - "7881:7881/tcp"   # TCP RTC fallback
+      - "50000-60000:50000-60000/udp"  # WebRTC UDP media (open these in VPS firewall)
+    volumes:
+      - ./livekit.yaml:/etc/livekit.yaml
+    command: --config /etc/livekit.yaml
+
   # ======== BACKEND ========
   backend:
     build:
@@ -10,6 +23,8 @@ services:
     restart: always
     ports:
       - "${PORT:-5000}:5000"
+    depends_on:
+      - livekit
     environment:
       - NODE_ENV=production
       - PORT=5000
@@ -22,6 +37,11 @@ services:
       - DB_NAME=${DB_NAME:-calltodb}
       - DATABASE_URL=postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-postgres}@${DB_HOST:-host.docker.internal}:${DB_PORT:-5432}/${DB_NAME:-calltodb}
       - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key-change-this-in-production}
+      # LiveKit credentials — must match livekit.yaml keys section
+      - LIVEKIT_API_KEY=${LIVEKIT_API_KEY:-devkey}
+      - LIVEKIT_API_SECRET=${LIVEKIT_API_SECRET:-secret}
+      # Public WSS URL the MOBILE APP uses to connect (port 7880 exposed on VPS)
+      - LIVEKIT_URL=${LIVEKIT_URL:-wss://livekit.appdost.com:7880}
 
   # ======== ADMIN PANEL ========
   admin-panel:

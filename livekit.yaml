@@ -1,0 +1,23 @@
+port: 7880
+rtc:
+  tcp_port: 7881
+  port_range_start: 50000
+  port_range_end: 60000
+  use_external_ip: true
+  enable_loopback_candidate: true
+
+# Built-in TURN server — allows calls to work over TCP/TLS even if UDP is blocked
+turn:
+  enabled: true
+  domain: livekit.appdost.com
+  tls_port: 5349      # TURN over TLS (needs port 5349 open)
+  udp_port: 3478      # TURN over UDP (needs port 3478 open)
+  external_tls: false # Use internal TLS
+
+# Keys: format is "apiKey: apiSecret"
+# These must match LIVEKIT_API_KEY / LIVEKIT_API_SECRET in backend .env
+keys:
+  devkey: secret
+
+logging:
+  level: warn
