@@ -551,6 +551,16 @@ class Listener {
     await pool.query(query, [listener_id]);
   }
 
+  // Update last active timestamp by user_id (used from socket handler)
+  static async updateLastActiveByUserId(user_id) {
+    const query = `
+      UPDATE listeners 
+      SET last_active_at = CURRENT_TIMESTAMP
+      WHERE user_id = $1
+    `;
+    await pool.query(query, [user_id]);
+  }
+
   // Increment call statistics
   static async incrementCallStats(listener_id, duration_minutes) {
     const query = `

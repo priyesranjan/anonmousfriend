@@ -271,7 +271,7 @@ io.on('connection', (socket) => {
   // Listener specific join (for availability tracking)
   // CRITICAL: This is what makes a listener available to receive calls
   // Must be emitted when listener app is open (any page)
-  socket.on('listener:join', (listenerUserId) => {
+  socket.on('listener:join', async (listenerUserId) => {
     if (!listenerUserId) return;
     socket.userId = listenerUserId; // Sync with userId
     socket.listenerUserId = listenerUserId;
@@ -289,6 +289,28 @@ io.on('connection', (socket) => {
     // Register listener as available for calls
     listenerSockets.set(listenerUserId, socket.id);
     connectedUsers.set(listenerUserId, socket.id); // Also ensure in connectedUsers
+
+    // CRITICAL FIX: Update last_active_at in DB so the REST API call route
+    // can confirm listener is online (it checks last_active_at <= 2 min)
+    try {
+      await Listener.updateLastActiveByUserId(listenerUserId);
+      console.log(`[SOCKET] listener:join: ✓ Updated last_active_at for ${listenerUserId}`);
+    } catch (err) {
+      console.error(`[SOCKET] listener:join: Failed to update last_active_at:`, err.message);
+    }
+
+    // Keep last_active_at fresh every 90s so calls always work while listener is connected
+    const keepAliveInterval = setInterval(async () => {
+      if (!listenerSockets.has(listenerUserId) || listenerSockets.get(listenerUserId) !== socket.id) {
+        clearInterval(keepAliveInterval);
+        return;
+      }
+      try {
+        await Listener.updateLastActiveByUserId(listenerUserId);
+      } catch (_) {}
+    }, 90000);
+
+    socket.once('disconnect', () => clearInterval(keepAliveInterval));
     
     io.emit('listener_status', { listenerUserId, online: true, timestamp: Date.now() });
     console.log(`[SOCKET] listener:join: ✓ Listener ${listenerUserId} is now ONLINE (socket: ${socket.id})`);
