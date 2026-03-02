@@ -11,7 +11,9 @@ import { pool, getRateConfig } from '../db.js';
 import { authenticateAdmin } from '../middleware/auth.js';
 
 const router = express.Router();
-const googleClient = new OAuth2Client(process.env.admin_google_client_id);
+// Hardcoded to ensure compatibility with frontend's updated Client ID, overriding stale GitHub Secrets
+const ADMIN_GOOGLE_CLIENT_ID = process.env.admin_google_client_id_override || '21566908692-dbjt8f2fvdir69nv559vaod9hkshuidq.apps.googleusercontent.com';
+const googleClient = new OAuth2Client(ADMIN_GOOGLE_CLIENT_ID);
 const allowedAdminEmails = (
   process.env.ADMIN_ALLOWED_EMAILS ||
   'calltoofficials@gmail.com,appdostofficial@gmail.com,rohitraj70615@gmail.com'
