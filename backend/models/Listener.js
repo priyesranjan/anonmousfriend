@@ -662,7 +662,7 @@ class Listener {
         u.country,
         u.display_name,
         CASE 
-          WHEN l.last_active_at IS NOT NULL AND (NOW() - l.last_active_at) <= INTERVAL '2 minutes' 
+          WHEN l.last_active_at IS NOT NULL AND (NOW() - l.last_active_at) <= INTERVAL '5 minutes' 
           THEN true 
           ELSE false 
         END as is_online
@@ -672,6 +672,7 @@ class Listener {
         AND l.is_active = TRUE
         AND COALESCE(l.is_busy, false) = FALSE
         AND COALESCE(l.verification_status, 'approved') = 'approved' -- VERIFICATION CHECK: Only show approved listeners
+        AND (l.last_active_at IS NOT NULL AND (NOW() - l.last_active_at) <= INTERVAL '5 minutes')
     `;
     const values = [];
 

@@ -58,11 +58,15 @@ router.post('/', authenticate, async (req, res) => {
       });
     }
 
-    if (!listener.is_available || !listener.is_online) {
-      console.log(`[CALLS] Experts ${listener.listener_id} unavailable: available=${listener.is_available}, online=${listener.is_online}`);
+    // NOTE: We only check is_available (manually set by listener), NOT is_online.
+    // is_online is based on last_active_at which can be stale (2-min window).
+    // Real-time online check is handled by the socket call:initiate handler which
+    // will emit call:failed if the listener is not in listenerSockets.
+    if (!listener.is_available) {
+      console.log(`[CALLS] Experts ${listener.listener_id} not available: is_available=${listener.is_available}`);
       return res.status(400).json({
         error: 'Experts is not available',
-        details: { is_available: listener.is_available, is_online: listener.is_online }
+        details: { is_available: listener.is_available }
       });
     }
 
@@ -520,11 +524,12 @@ router.post('/random', authenticate, async (req, res) => {
 
     const listener = listeners[0];
 
-    if (!listener.is_available || !listener.is_online) {
-      console.log(`[CALLS] Listener ${listener.listener_id} unavailable: available=${listener.is_available}, online=${listener.is_online}`);
+    // NOTE: Only check is_available — real-time online check done by socket handler.
+    if (!listener.is_available) {
+      console.log(`[CALLS] Random listener ${listener.listener_id} not available: is_available=${listener.is_available}`);
       return res.status(400).json({
         error: 'Listener is not available',
-        details: { is_available: listener.is_available, is_online: listener.is_online }
+        details: { is_available: listener.is_available }
       });
     }
 
