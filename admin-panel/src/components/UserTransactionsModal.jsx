@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { getUserTransactions } from '../services/api';
-import { useTheme } from '../contexts/ThemeContext';
 import toast from 'react-hot-toast';
 
 const UserTransactionsModal = ({ user, onClose }) => {
-  const { isDark } = useTheme();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');

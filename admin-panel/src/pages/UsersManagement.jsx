@@ -4,11 +4,9 @@ import EditUserModal from '../components/EditUserModal';
 import ConfirmationModal from '../components/ConfirmationModal';
 import UserTransactionsModal from '../components/UserTransactionsModal';
 import SkeletonLoader from '../components/SkeletonLoader';
-import { useTheme } from '../contexts/ThemeContext';
 import toast from 'react-hot-toast';
 
 const UsersManagement = () => {
-  const { isDark } = useTheme();
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [loading, setLoading] = useState(true);

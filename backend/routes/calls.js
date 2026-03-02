@@ -5,7 +5,7 @@ import Call from '../models/Call.js';
 import Rating from '../models/Rating.js';
 import Listener from '../models/Listener.js';
 import User from '../models/User.js';
-import { authenticate } from '../middleware/auth.js';
+import { authenticate, authenticateAdmin } from '../middleware/auth.js';
 import config from '../config/config.js';
 import { finalizeCallBilling } from '../services/callBillingService.js';
 import { getRateConfig, pool } from '../db.js';
@@ -368,12 +368,8 @@ router.get('/history/listener', authenticate, async (req, res) => {
 
 // GET /api/calls/admin/active
 // Get all currently active/ongoing calls in the system (Admin only)
-router.get('/admin/active', authenticate, async (req, res) => {
+router.get('/admin/active', authenticateAdmin, async (req, res) => {
   try {
-    const userRoleQuery = await pool.query('SELECT role FROM users WHERE user_id = $1', [req.userId]);
-    if (userRoleQuery.rows.length === 0 || userRoleQuery.rows[0].role !== 'admin') {
-      return res.status(403).json({ error: 'Admin access required' });
-    }
 
     const query = `
       SELECT 
@@ -397,12 +393,8 @@ router.get('/admin/active', authenticate, async (req, res) => {
 
 // POST /api/calls/admin/zombie-sweep
 // Forcibly clean up stuck calls (ongoing for > 2 hours) and un-brick listeners (Admin only)
-router.post('/admin/zombie-sweep', authenticate, async (req, res) => {
+router.post('/admin/zombie-sweep', authenticateAdmin, async (req, res) => {
   try {
-    const userRoleQuery = await pool.query('SELECT role FROM users WHERE user_id = $1', [req.userId]);
-    if (userRoleQuery.rows.length === 0 || userRoleQuery.rows[0].role !== 'admin') {
-      return res.status(403).json({ error: 'Admin access required' });
-    }
 
     // Find calls stuck for > 2 hours
     const zombieQuery = `

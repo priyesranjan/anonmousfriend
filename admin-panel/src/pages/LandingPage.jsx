@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { 
   Phone, Shield, Users, Lock, ArrowRight, CheckCircle2, 
   UserCheck, MessageCircle, Sparkles, Clock, Shuffle, Headphones, Heart
@@ -9,8 +9,6 @@ import PublicNavbar from '../components/PublicNavbar';
 import downloadApp from '../assets/downloadApp.svg';
 
 const LandingPage = () => {
-  const navigate = useNavigate();
-
   // Animation variants
   const fadeInUp = {
     hidden: { opacity: 0, y: 60 },

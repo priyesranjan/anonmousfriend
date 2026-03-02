@@ -9,35 +9,6 @@ const TermsOfService = () => {
     visible: { opacity: 1, y: 0 }
   };
 
-  const staggerContainer = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  };
-
-  const sections = [
-    { id: 'intro', title: 'Introduction' },
-    { id: 'registration', title: 'Registration and Eligibility' },
-    { id: 'platform', title: 'Nature of the Platform' },
-    { id: 'conduct', title: 'User Conduct During Calls' },
-    { id: 'account', title: 'Account Responsibilities' },
-    { id: 'prohibited', title: 'Prohibited Activities' },
-    { id: 'privacy', title: 'Privacy and Data Handling' },
-    { id: 'payments', title: 'Payments and Premium Features' },
-    { id: 'ip', title: 'Intellectual Property Rights' },
-    { id: 'thirdparty', title: 'Third-Party Services' },
-    { id: 'availability', title: 'Service Availability' },
-    { id: 'modifications', title: 'Modifications to Terms' },
-    { id: 'liability', title: 'Limitations of Liability' },
-    { id: 'dispute', title: 'Dispute Resolution' },
-    { id: 'contact', title: 'Contact Information' },
-    { id: 'acceptance', title: 'Acceptance of Terms' },
-  ];
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <PublicNavbar />

@@ -495,7 +495,7 @@ const ListenerDetails = () => {
         </div>
 
         {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-6">
           <StatCard
             icon={Headphones}
             label="Completed Calls"
@@ -513,6 +513,12 @@ const ListenerDetails = () => {
             label="Total Earnings (Net)"
             value={`₹${netEarnings.toFixed(2)}`}
             color="emerald"
+          />
+          <StatCard
+            icon={IndianRupee}
+            label={`Platform Fee (${PLATFORM_COMMISSION_PERCENT}%)`}
+            value={`₹${platformFee.toFixed(2)}`}
+            color="violet"
           />
         </div>
 
