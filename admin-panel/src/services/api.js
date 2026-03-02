@@ -62,8 +62,12 @@ api.interceptors.response.use(
       }
     }
     if (error.response?.status === 401) {
-      localStorage.removeItem('adminToken');
-      window.location.href = '/admin-no-all-call';
+      // Don't intercept 401s on login routes; let the component handle them so it can show the error message.
+      const requestUrl = config?.url || '';
+      if (!requestUrl.includes('/login') && !requestUrl.includes('/google-login')) {
+        localStorage.removeItem('adminToken');
+        window.location.href = '/admin-no-all-call';
+      }
     }
     return Promise.reject(error);
   }
