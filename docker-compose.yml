@@ -7,9 +7,10 @@ services:
     container_name: livekit_server
     restart: always
     ports:
-      - "7880:7880"       # WebSocket / HTTP (primary connection port)
-      - "7881:7881/tcp"   # TCP RTC fallback
-      - "50000-60000:50000-60000/udp"  # WebRTC UDP media (open these in VPS firewall)
+      - "7880:7880"       # WebSocket / HTTP (primary connection port) — open in VPS firewall
+      - "7881:7881/tcp"   # TCP RTC fallback — open in VPS firewall
+      - "3478:3478/udp"   # TURN UDP — open in VPS firewall
+      - "5349:5349/tcp"   # TURN TLS — open in VPS firewall
     volumes:
       - ./livekit.yaml:/etc/livekit.yaml
     command: --config /etc/livekit.yaml
