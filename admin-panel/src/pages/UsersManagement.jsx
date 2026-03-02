@@ -99,8 +99,14 @@ const UsersManagement = () => {
       fetchUsers();
       toast.success('User updated successfully');
     } catch (error) {
-      setError('Failed to update user');
-      toast.error('Failed to update user');
+      const status = error?.response?.status;
+      if (status === 404) {
+        toast.error('User no longer exists. Refreshing list...');
+        setEditingUser(null);
+        fetchUsers();
+      } else {
+        toast.error('Failed to update user');
+      }
       console.error('Error updating user:', error);
     }
   };

@@ -19,7 +19,7 @@ router.get('/', async (req, res) => {
 router.get('/profile', authenticate, async (req, res) => {
   try {
     const user = await User.findById(req.userId);
-    
+
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -391,7 +391,7 @@ router.delete('/:user_id', authenticateAdmin, async (req, res) => {
 router.get('/:user_id', async (req, res) => {
   try {
     const user = await User.findById(req.params.user_id);
-    
+
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -410,6 +410,86 @@ router.get('/:user_id', async (req, res) => {
   } catch (error) {
     console.error('Get user error:', error);
     res.status(500).json({ error: 'Failed to fetch user' });
+  }
+});
+
+// PUT /api/users/:user_id
+// Update user by ID for admin
+router.put('/:user_id', authenticateAdmin, async (req, res) => {
+  try {
+    const {
+      is_active,
+      full_name,
+      display_name,
+      email,
+      city,
+      country,
+      bio,
+      mobile_number
+    } = req.body;
+
+    const updates = [];
+    const values = [];
+    let paramIndex = 1;
+
+    if (is_active !== undefined) {
+      updates.push(`is_active = $${paramIndex++}`);
+      values.push(is_active);
+    }
+    if (full_name !== undefined) {
+      updates.push(`full_name = $${paramIndex++}`);
+      values.push(full_name);
+    }
+    if (display_name !== undefined) {
+      updates.push(`display_name = $${paramIndex++}`);
+      values.push(display_name);
+    }
+    if (email !== undefined) {
+      updates.push(`email = $${paramIndex++}`);
+      values.push(email);
+    }
+    if (city !== undefined) {
+      updates.push(`city = $${paramIndex++}`);
+      values.push(city);
+    }
+    if (country !== undefined) {
+      updates.push(`country = $${paramIndex++}`);
+      values.push(country);
+    }
+    if (bio !== undefined) {
+      updates.push(`bio = $${paramIndex++}`);
+      values.push(bio);
+    }
+    if (mobile_number !== undefined) {
+      updates.push(`mobile_number = $${paramIndex++}`);
+      values.push(mobile_number);
+    }
+
+    if (updates.length === 0) {
+      return res.status(400).json({ error: 'No valid fields provided for update' });
+    }
+
+    values.push(req.params.user_id);
+    const query = `
+      UPDATE users 
+      SET ${updates.join(', ')}, updated_at = CURRENT_TIMESTAMP
+      WHERE user_id = $${paramIndex}
+      RETURNING user_id, email, full_name, display_name, city, country, bio, mobile_number, is_active
+    `;
+
+    const result = await pool.query(query, values);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({
+      message: 'User updated successfully',
+      user: result.rows[0]
+    });
+  } catch (error) {
+    console.error('Update user error (admin):', error);
+    res.status(500).json({ error: 'Failed to update user' });
   }
 });
 

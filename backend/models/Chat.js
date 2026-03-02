@@ -82,6 +82,12 @@ class Chat {
             WHERE m2.chat_id = c.chat_id
           )
         )
+        -- Hide chats with pending listeners
+        AND CASE 
+              WHEN c.user1_id != $1 AND l1.listener_id IS NOT NULL THEN COALESCE(l1.verification_status, 'approved') = 'approved'
+              WHEN c.user2_id != $1 AND l2.listener_id IS NOT NULL THEN COALESCE(l2.verification_status, 'approved') = 'approved'
+              ELSE TRUE
+            END
       ORDER BY c.last_message_at DESC NULLS LAST, c.created_at DESC
     `;
     const result = await pool.query(query, [user_id]);
@@ -199,22 +205,22 @@ class Message {
     // First verify the sender owns this message
     const verifyQuery = `SELECT sender_id, chat_id FROM messages WHERE message_id = $1`;
     const verifyResult = await pool.query(verifyQuery, [messageId]);
-    
+
     if (verifyResult.rows.length === 0) {
       return { success: false, error: 'Message not found' };
     }
-    
+
     const message = verifyResult.rows[0];
     if (message.sender_id !== senderId) {
       return { success: false, error: 'Not authorized to delete this message' };
     }
-    
+
     // Permanently delete the message
     const deleteQuery = `DELETE FROM messages WHERE message_id = $1 RETURNING *`;
     const deleteResult = await pool.query(deleteQuery, [messageId]);
-    
-    return { 
-      success: true, 
+
+    return {
+      success: true,
       deletedMessage: deleteResult.rows[0],
       chatId: message.chat_id
     };
