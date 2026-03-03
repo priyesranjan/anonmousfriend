@@ -5,8 +5,10 @@ import '../../services/socket_service.dart';
 import '../../services/chat_service.dart';
 import '../../services/storage_service.dart';
 import '../../services/chat_state_manager.dart';
+import '../../services/subscription_service.dart';
 import '../../models/chat_model.dart';
 import '../nav/profile/wallet.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ChatPage extends StatefulWidget {
   final String expertName;
@@ -1093,6 +1095,11 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
             ),
             child: Row(
               children: [
+                IconButton(
+                  icon: const Icon(Icons.attach_file, color: Colors.pinkAccent),
+                  onPressed: _onAttachPressed,
+                  tooltip: 'Attach Media',
+                ),
                 Expanded(
                   child: TextField(
                     controller: _controller,
@@ -1437,5 +1444,171 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
     if (avatar == null || avatar.isEmpty) return null;
     if (avatar.startsWith('http')) return NetworkImage(avatar);
     return AssetImage(avatar);
+  }
+
+  // ============================================
+  // Media Sharing & Premium Gating
+  // ============================================
+
+  Future<void> _onAttachPressed() async {
+    // 1. Check user permissions
+    final gender = await _storage.getGender() ?? 'male';
+    final isFemale = gender.toLowerCase() == 'female';
+
+    bool isPremium = false;
+    try {
+      final subResult = await SubscriptionService().checkRandomCall();
+      if (subResult['success'] == true && subResult['isPremium'] == true) {
+        isPremium = true;
+      }
+    } catch (_) {}
+
+    // 2. Evaluate gating logic
+    if (isFemale || isPremium) {
+      _showMediaPicker();
+    } else {
+      _showPremiumUpsellDialog();
+    }
+  }
+
+  void _showMediaPicker() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildMediaOption(
+                icon: Icons.image,
+                color: Colors.blue,
+                label: 'Image',
+                onTap: () async {
+                  Navigator.pop(ctx);
+                  // TODO: Implement image upload
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Image sharing coming soon!')),
+                  );
+                },
+              ),
+              _buildMediaOption(
+                icon: Icons.videocam,
+                color: Colors.pink,
+                label: 'Video',
+                onTap: () async {
+                  Navigator.pop(ctx);
+                  // TODO: Implement video upload
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Video sharing coming soon!')),
+                  );
+                },
+              ),
+              _buildMediaOption(
+                icon: Icons.mic,
+                color: Colors.orange,
+                label: 'Audio',
+                onTap: () async {
+                  Navigator.pop(ctx);
+                  // TODO: Implement audio upload
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Audio sharing coming soon!')),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMediaOption({
+    required IconData icon,
+    required Color color,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CircleAvatar(
+            radius: 30,
+            backgroundColor: color.withOpacity(0.1),
+            child: Icon(icon, color: color, size: 28),
+          ),
+          const SizedBox(height: 8),
+          Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
+        ],
+      ),
+    );
+  }
+
+  void _showPremiumUpsellDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF1F2937),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Row(
+          children: [
+            Icon(Icons.workspace_premium, color: Colors.yellowAccent, size: 28),
+            SizedBox(width: 8),
+            Text('Premium Feature', style: TextStyle(color: Colors.white, fontSize: 18)),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Sending images, videos, and audio is exclusively available to Premium members.',
+              style: TextStyle(color: Colors.white70, fontSize: 14),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(colors: [Color(0xFFEC4899), Color(0xFF8B5CF6)]),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.star, color: Colors.yellowAccent, size: 24),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Upgrade to Premium to unlock Media Sharing, Unlimited Calls, and Gender Filtering!',
+                      style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const WalletScreen()),
+              );
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFEC4899)),
+            child: const Text('Upgrade Now'),
+          ),
+        ],
+      ),
+    );
   }
 }

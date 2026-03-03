@@ -68,7 +68,7 @@ router.get('/', async (req, res) => {
 router.get('/smart-match', authenticate, async (req, res) => {
   try {
     const userId = req.userId;
-    const { gender_filter, language_filter } = req.query;
+    const { gender_filter, language_filter, is_verified_only } = req.query;
 
     // 1. Determine user type (trial, free, low-balance, high-balance, premium)
     const userResult = await pool.query(
@@ -98,6 +98,8 @@ router.get('/smart-match', authenticate, async (req, res) => {
     let params = [];
     let paramIndex = 1;
 
+    const verifiedFilter = is_verified_only === 'true' ? ' AND l.is_verified = TRUE' : '';
+
     if (userType === 'trial' || userType === 'free') {
       // Trial / Free Random → New (Probation) + Casual Talkers
       query = `
@@ -112,7 +114,7 @@ router.get('/smart-match', authenticate, async (req, res) => {
         WHERE l.is_active = TRUE
           AND l.verification_status = 'approved'
           AND (l.quality_status IN ('probation', 'active', 'warning'))
-          AND l.is_online = TRUE AND l.is_busy = FALSE
+          AND l.is_online = TRUE AND l.is_busy = FALSE${verifiedFilter}
         ORDER BY match_rank ASC, l.average_rating DESC
         LIMIT 50
       `;
@@ -130,7 +132,7 @@ router.get('/smart-match', authenticate, async (req, res) => {
         WHERE l.is_active = TRUE
           AND l.verification_status = 'approved'
           AND l.quality_status IN ('active', 'warning')
-          AND l.is_online = TRUE AND l.is_busy = FALSE
+          AND l.is_online = TRUE AND l.is_busy = FALSE${verifiedFilter}
         ORDER BY match_rank ASC, l.average_rating DESC
         LIMIT 50
       `;
@@ -148,7 +150,7 @@ router.get('/smart-match', authenticate, async (req, res) => {
         WHERE l.is_active = TRUE
           AND l.verification_status = 'approved'
           AND l.quality_status = 'active'
-          AND l.is_online = TRUE AND l.is_busy = FALSE
+          AND l.is_online = TRUE AND l.is_busy = FALSE${verifiedFilter}
         ORDER BY match_rank ASC, l.average_rating DESC, l.total_calls DESC
         LIMIT 50
       `;
@@ -172,7 +174,7 @@ router.get('/smart-match', authenticate, async (req, res) => {
         WHERE l.is_active = TRUE
           AND l.verification_status = 'approved'
           AND l.quality_status = 'active'
-          AND l.is_online = TRUE AND l.is_busy = FALSE
+          AND l.is_online = TRUE AND l.is_busy = FALSE${verifiedFilter}
           ${whereFilter}
         ORDER BY l.average_rating DESC, l.total_calls DESC
         LIMIT 50
@@ -252,9 +254,9 @@ router.get('/stats/leaderboard', authenticate, async (req, res) => {
       SELECT listener_id, user_id, professional_name, profile_image, total_calls, total_minutes, daily_streak_days
       FROM listeners
       WHERE is_active = TRUE
-      ORDER BY (total_calls * 5 + total_minutes) DESC
+      ORDER BY(total_calls * 5 + total_minutes) DESC
       LIMIT 10
-    `;
+        `;
     const result = await pool.query(query);
     const leaderboard = result.rows;
 
@@ -268,13 +270,13 @@ router.get('/stats/leaderboard', authenticate, async (req, res) => {
 
         // Use CTE to get rank
         const rankQuery = `
-          WITH RankedListeners AS (
-            SELECT listener_id, total_calls, total_minutes, daily_streak_days,
-                   RANK() OVER (ORDER BY (total_calls * 5 + total_minutes) DESC) as rank
+          WITH RankedListeners AS(
+          SELECT listener_id, total_calls, total_minutes, daily_streak_days,
+          RANK() OVER(ORDER BY(total_calls * 5 + total_minutes) DESC) as rank
             FROM listeners
             WHERE is_active = TRUE
-          )
-          SELECT * FROM RankedListeners WHERE listener_id = $1
+        )
+      SELECT * FROM RankedListeners WHERE listener_id = $1
         `;
         const myRankResult = await pool.query(rankQuery, [myListenerId]);
         if (myRankResult.rows.length > 0) {
@@ -662,11 +664,11 @@ router.post('/:listener_id/availability', authenticate, async (req, res) => {
     }
 
     const query = `
-      INSERT INTO listener_availability 
+      INSERT INTO listener_availability
         (listener_id, day_of_week, start_time, end_time, is_available)
-      VALUES ($1, $2, $3, $4, $5)
+      VALUES($1, $2, $3, $4, $5)
       RETURNING *
-    `;
+        `;
 
     const result = await pool.query(query, [
       req.params.listener_id,
@@ -694,7 +696,7 @@ router.get('/:listener_id/availability', async (req, res) => {
       SELECT * FROM listener_availability
       WHERE listener_id = $1
       ORDER BY day_of_week, start_time
-    `;
+        `;
     const result = await pool.query(query, [req.params.listener_id]);
 
     res.json({ availability: result.rows });
@@ -743,7 +745,7 @@ router.post('/me/reapply', authenticate, async (req, res) => {
 
     const result = await Listener.reapplyForVerification(listener.listener_id);
 
-    console.log(`[LISTENER] Listener ${listener.listener_id} reapplied for verification (attempt ${result.reapply_attempts})`);
+    console.log(`[LISTENER] Listener ${listener.listener_id} reapplied for verification(attempt ${result.reapply_attempts})`);
 
     res.json({
       message: 'Reapplication submitted successfully. Your profile will be reviewed again.',
@@ -818,10 +820,10 @@ router.put('/me/payment-details', authenticate, async (req, res) => {
     // Try to create the table if it doesn't exist (for Vercel compatibility)
     try {
       await pool.query(`
-        CREATE TABLE IF NOT EXISTS listener_payment_details (
+        CREATE TABLE IF NOT EXISTS listener_payment_details(
           payment_detail_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
           listener_id UUID UNIQUE REFERENCES listeners(listener_id) ON DELETE CASCADE,
-          payment_method VARCHAR(20) CHECK (payment_method IN ('upi', 'bank', 'both')),
+          payment_method VARCHAR(20) CHECK(payment_method IN('upi', 'bank', 'both')),
           mobile_number VARCHAR(15),
           upi_id VARCHAR(255),
           aadhaar_number VARCHAR(12),
@@ -836,24 +838,24 @@ router.put('/me/payment-details', authenticate, async (req, res) => {
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
-      `);
+        `);
     } catch (tableError) {
       console.log('Table already exists or error creating table:', tableError.message);
     }
 
     const query = `
-      INSERT INTO listener_payment_details (
-        listener_id, payment_method, mobile_number, upi_id, aadhaar_number, pan_number, 
-        name_as_per_pan, account_number, ifsc_code, bank_name, 
-        account_holder_name, pan_aadhaar_bank
-      )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-      ON CONFLICT (listener_id) DO UPDATE SET
-        payment_method = $2, mobile_number = $3, upi_id = $4, aadhaar_number = $5, pan_number = $6,
+      INSERT INTO listener_payment_details(
+          listener_id, payment_method, mobile_number, upi_id, aadhaar_number, pan_number,
+          name_as_per_pan, account_number, ifsc_code, bank_name,
+          account_holder_name, pan_aadhaar_bank
+        )
+      VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+      ON CONFLICT(listener_id) DO UPDATE SET
+      payment_method = $2, mobile_number = $3, upi_id = $4, aadhaar_number = $5, pan_number = $6,
         name_as_per_pan = $7, account_number = $8, ifsc_code = $9, bank_name = $10,
         account_holder_name = $11, pan_aadhaar_bank = $12, updated_at = CURRENT_TIMESTAMP
       RETURNING *
-    `;
+        `;
 
     const result = await pool.query(query, [
       listener.listener_id, payment_method, mobile_number || null, upi_id || null, aadhaar_number || null, pan_number || null,
@@ -952,7 +954,7 @@ router.post('/upload-voice', authenticate, voiceUpload.single('voiceFile'), asyn
       'callto/voice_verifications'
     );
 
-    console.log(`[UPLOAD_VOICE] MinIO upload success: ${result.secure_url}`);
+    console.log(`[UPLOAD_VOICE] MinIO upload success: ${result.secure_url} `);
 
     res.json({
       message: 'Voice uploaded successfully',
@@ -979,7 +981,7 @@ router.put('/:listener_id/voice-verification', authenticate, async (req, res) =>
     if (!finalVoiceUrl && voice_data) {
       // voice_data is base64-encoded audio — store as data URL
       const mimeType = mime_type || 'audio/ogg';
-      finalVoiceUrl = `data:${mimeType};base64,${voice_data}`;
+      finalVoiceUrl = `data:${mimeType}; base64, ${voice_data} `;
     }
 
     if (!finalVoiceUrl) {
@@ -1062,10 +1064,10 @@ router.post('/:listener_id/payment-details', authenticate, async (req, res) => {
     // Try to create the table if it doesn't exist (for Vercel compatibility)
     try {
       await pool.query(`
-        CREATE TABLE IF NOT EXISTS listener_payment_details (
+        CREATE TABLE IF NOT EXISTS listener_payment_details(
           payment_detail_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
           listener_id UUID UNIQUE REFERENCES listeners(listener_id) ON DELETE CASCADE,
-          payment_method VARCHAR(20) CHECK (payment_method IN ('upi', 'bank', 'both')),
+          payment_method VARCHAR(20) CHECK(payment_method IN('upi', 'bank', 'both')),
           mobile_number VARCHAR(15),
           upi_id VARCHAR(255),
           aadhaar_number VARCHAR(12),
@@ -1080,24 +1082,24 @@ router.post('/:listener_id/payment-details', authenticate, async (req, res) => {
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
-      `);
+  `);
     } catch (tableError) {
       console.log('Table already exists or error creating table:', tableError.message);
     }
 
     const query = `
-      INSERT INTO listener_payment_details (
-        listener_id, payment_method, mobile_number, upi_id, aadhaar_number, pan_number, 
-        name_as_per_pan, account_number, ifsc_code, bank_name, 
-        account_holder_name, pan_aadhaar_bank
-      )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-      ON CONFLICT (listener_id) DO UPDATE SET
-        payment_method = $2, mobile_number = $3, upi_id = $4, aadhaar_number = $5, pan_number = $6,
-        name_as_per_pan = $7, account_number = $8, ifsc_code = $9, bank_name = $10,
-        account_holder_name = $11, pan_aadhaar_bank = $12, updated_at = CURRENT_TIMESTAMP
-      RETURNING *
-    `;
+      INSERT INTO listener_payment_details(
+    listener_id, payment_method, mobile_number, upi_id, aadhaar_number, pan_number,
+    name_as_per_pan, account_number, ifsc_code, bank_name,
+    account_holder_name, pan_aadhaar_bank
+  )
+VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+      ON CONFLICT(listener_id) DO UPDATE SET
+payment_method = $2, mobile_number = $3, upi_id = $4, aadhaar_number = $5, pan_number = $6,
+  name_as_per_pan = $7, account_number = $8, ifsc_code = $9, bank_name = $10,
+  account_holder_name = $11, pan_aadhaar_bank = $12, updated_at = CURRENT_TIMESTAMP
+RETURNING *
+  `;
 
     const result = await pool.query(query, [
       req.params.listener_id, payment_method, mobile_number || null, upi_id || null, aadhaar_number || null, pan_number || null,

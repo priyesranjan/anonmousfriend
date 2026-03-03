@@ -79,10 +79,12 @@ class ListenerService {
   Future<ListenerResult> getSmartMatchListeners({
     String? genderFilter,
     String? languageFilter,
+    bool? isVerifiedOnly,
   }) async {
     final queryParams = <String, String>{};
     if (genderFilter != null) queryParams['gender_filter'] = genderFilter;
     if (languageFilter != null) queryParams['language_filter'] = languageFilter;
+    if (isVerifiedOnly == true) queryParams['is_verified_only'] = 'true';
 
     final response = await _api.get(
       '${ApiConfig.listeners}/smart-match',

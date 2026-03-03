@@ -201,6 +201,9 @@ class _WalletScreenState extends State<WalletScreen> {
                   ),
                 ),
 
+              // --- Premium Benefits Highlights ---
+              _buildPremiumBenefits(media),
+
               // --- Section Title ---
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 8),
@@ -570,6 +573,85 @@ class _WalletScreenState extends State<WalletScreen> {
           ],
         );
       },
+    );
+  }
+
+  // ===== Premium Benefits UI =====
+  Widget _buildPremiumBenefits(Size size) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.pink.withOpacity(0.1),
+              blurRadius: 15,
+              offset: const Offset(0, 5),
+            ),
+          ],
+          border: Border.all(color: Colors.pink.withOpacity(0.2)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.workspace_premium, color: Colors.amber, size: 24),
+                const SizedBox(width: 8),
+                Text(
+                  'Premium VIP Benefits',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey.shade800,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            _buildBenefitRow(Icons.no_cell, 'Ad-Free Experience', 'Zero interruptions during your calls'),
+            const SizedBox(height: 8),
+            _buildBenefitRow(Icons.perm_media, 'Media Sharing', 'Send images, videos, and audio in chat'),
+            const SizedBox(height: 8),
+            _buildBenefitRow(Icons.all_inclusive, 'Unlimited Calling', 'Call freely without worrying about minutes'),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBenefitRow(IconData icon, String title, String subtitle) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(6),
+          decoration: BoxDecoration(
+            color: Colors.pink.shade50,
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, color: Colors.pink, size: 18),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+              ),
+              Text(
+                subtitle,
+                style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

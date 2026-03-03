@@ -26,10 +26,12 @@ class SubscriptionService {
       if (response.isSuccess) {
         return response.data;
       }
-      return {'allowed': false, 'reason': 'error', 'message': 'Failed to check eligibility'};
+      // If backend returns an error, fail-open and allow the call
+      return {'allowed': true, 'isPremium': false, 'adRequired': false, 'maxMinutes': null};
     } catch (e) {
       print('Error checking random call: $e');
-      return {'allowed': false, 'reason': 'error', 'message': 'Network error. Please try again.'};
+      // Network error — fail-open instead of blocking the user
+      return {'allowed': true, 'isPremium': false, 'adRequired': false, 'maxMinutes': null};
     }
   }
 

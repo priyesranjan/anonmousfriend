@@ -10,6 +10,9 @@ import '../../services/listener_service.dart';
 import '../../services/subscription_service.dart';
 import '../../services/ad_service.dart';
 import '../../models/listener_model.dart' as model;
+import '../actions/charting.dart';
+
+enum CommMode { chat, audio, both }
 
 class RandomCallScreen extends StatefulWidget {
   const RandomCallScreen({super.key, this.onBackToHome});
@@ -39,6 +42,8 @@ class _RandomCallScreenState extends State<RandomCallScreen>
   int _freeCallsUsed = 0;
   int _freeCallsLimit = 2;
   int? _maxMinutes;
+  bool _matchWithVerified = false;
+  CommMode _commMode = CommMode.both;
 
   late AnimationController _pulseController;
   late AnimationController _orbitController;
@@ -125,8 +130,6 @@ class _RandomCallScreenState extends State<RandomCallScreen>
 
     _startSearchSound();
 
-    // Minimum search animation time for better UX
-    final minSearchTime = Future.delayed(const Duration(seconds: 2));
 
     try {
       // Ensure socket is connected to get real-time online status
@@ -139,7 +142,9 @@ class _RandomCallScreenState extends State<RandomCallScreen>
       // Retry logic to find online listeners
       while (retryCount < maxRetries && onlineListeners.isEmpty) {
         // Use Smart Matching API for ranked listener results
-        var result = await _listenerService.getSmartMatchListeners();
+        var result = await _listenerService.getSmartMatchListeners(
+          isVerifiedOnly: _matchWithVerified,
+        );
 
         // Fallback to basic fetch if smart-match fails
         if (!result.success || result.listeners.isEmpty) {
@@ -185,8 +190,6 @@ class _RandomCallScreenState extends State<RandomCallScreen>
         }
       }
 
-      // Wait for minimum search time
-      await minSearchTime;
 
       if (onlineListeners.isNotEmpty) {
         // Shuffle and pick random listener
@@ -229,7 +232,7 @@ class _RandomCallScreenState extends State<RandomCallScreen>
     } catch (e) {
       print('Error finding random listener: $e');
       await _stopSearchSound();
-      await minSearchTime;
+
       setState(() {
         isSearching = false;
         matchedUser = null;
@@ -710,37 +713,107 @@ class _RandomCallScreenState extends State<RandomCallScreen>
                 ),
               ),
               SizedBox(height: size.height * 0.02),
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: size.width * 0.04,
-                  vertical: size.height * 0.008,
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _matchWithVerified = !_matchWithVerified;
+                  });
+                },
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: size.width * 0.04,
+                    vertical: size.height * 0.008,
+                  ),
+                  decoration: BoxDecoration(
+                    color: _matchWithVerified
+                        ? Colors.pinkAccent.withOpacity(0.15)
+                        : Colors.white.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: _matchWithVerified
+                          ? Colors.pinkAccent.withOpacity(0.3)
+                          : Colors.white.withOpacity(0.08),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.verified_rounded,
+                        color: _matchWithVerified
+                            ? Colors.pinkAccent
+                            : Colors.white.withOpacity(0.8),
+                        size: size.width * 0.05,
+                      ),
+                      SizedBox(width: size.width * 0.03),
+                      Text(
+                        "Match with Verified Expert",
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.9),
+                          fontSize: size.width * 0.035,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      SizedBox(width: size.width * 0.03),
+                      SizedBox(
+                        height: 24,
+                        width: 40,
+                        child: FittedBox(
+                          fit: BoxFit.fill,
+                          child: Switch(
+                            value: _matchWithVerified,
+                            onChanged: (val) {
+                              setState(() {
+                                _matchWithVerified = val;
+                              });
+                            },
+                            activeColor: Colors.white,
+                            activeTrackColor: Colors.pinkAccent,
+                            inactiveThumbColor: Colors.white70,
+                            inactiveTrackColor: Colors.white24,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
+              ),
+              SizedBox(height: size.height * 0.02),
+              // Communication Mode Selector
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: size.width * 0.05),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.08),
+                  color: Colors.white.withOpacity(0.05),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: Colors.white.withOpacity(0.08)),
                 ),
                 child: Row(
-                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
-                      Icons.verified_rounded,
-                      color: Colors.white.withOpacity(0.8),
-                      size: size.width * 0.04,
+                    _buildCommModeChip(
+                      context,
+                      mode: CommMode.chat,
+                      label: "Chat",
+                      icon: Icons.chat_bubble_outline,
+                      size: size,
                     ),
-                    SizedBox(width: size.width * 0.02),
-                    Text(
-                      "Verified Experts only",
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.8),
-                        fontSize: size.width * 0.032,
-                        fontWeight: FontWeight.w500,
-                      ),
+                    _buildCommModeChip(
+                      context,
+                      mode: CommMode.audio,
+                      label: "Audio",
+                      icon: Icons.headset_mic_outlined,
+                      size: size,
+                    ),
+                    _buildCommModeChip(
+                      context,
+                      mode: CommMode.both,
+                      label: "Both",
+                      icon: Icons.all_inclusive,
+                      size: size,
                     ),
                   ],
                 ),
               ),
-              SizedBox(height: size.height * 0.05),
+              SizedBox(height: size.height * 0.04),
               // Start Matching Button
               Container(
                 height: size.height * 0.065,
@@ -1158,7 +1231,23 @@ class _RandomCallScreenState extends State<RandomCallScreen>
                 width: double.infinity,
                 height: size.height * 0.06,
                 child: ElevatedButton(
-                  onPressed: () => startCall(user),
+                  onPressed: () {
+                    if (_commMode == CommMode.chat) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ChatPage(
+                            expertName: user['name']!,
+                            imagePath: user['image']!, // Used as fallback if avatar is null
+                            otherUserId: user['id'],
+                            otherUserAvatar: user['image'],
+                          ),
+                        ),
+                      );
+                    } else {
+                      startCall(user);
+                    }
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFEC4899),
                     foregroundColor: Colors.white,
@@ -1172,7 +1261,7 @@ class _RandomCallScreenState extends State<RandomCallScreen>
                     shadowColor: const Color(0xFFEC4899).withOpacity(0.4),
                   ),
                   child: Text(
-                    "Start Call Now",
+                    _commMode == CommMode.chat ? "Start Chat Now" : "Start Call Now",
                     style: TextStyle(
                       fontSize: size.width * 0.041,
                       fontWeight: FontWeight.bold,
@@ -1190,6 +1279,54 @@ class _RandomCallScreenState extends State<RandomCallScreen>
                 child: Text(
                   "Find Another Match",
                   style: TextStyle(fontSize: size.width * 0.037),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCommModeChip(
+    BuildContext context, {
+    required CommMode mode,
+    required String label,
+    required IconData icon,
+    required Size size,
+  }) {
+    final isSelected = _commMode == mode;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => setState(() => _commMode = mode),
+        child: Container(
+          padding: EdgeInsets.symmetric(vertical: size.height * 0.012),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? const Color(0xFFEC4899).withOpacity(0.2)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: isSelected
+                  ? const Color(0xFFEC4899).withOpacity(0.5)
+                  : Colors.transparent,
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                color: isSelected ? Colors.white : Colors.white54,
+                size: size.width * 0.05,
+              ),
+              SizedBox(height: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  color: isSelected ? Colors.white : Colors.white54,
+                  fontSize: size.width * 0.028,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                 ),
               ),
             ],
