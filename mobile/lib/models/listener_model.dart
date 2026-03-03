@@ -27,6 +27,7 @@ class Listener {
   final String? verificationStatus;
   final String? rejectionReason;
   final int reapplyAttempts;
+  final bool isVerified;
 
   Listener({
     required this.listenerId,
@@ -56,6 +57,7 @@ class Listener {
     this.verificationStatus,
     this.rejectionReason,
     this.reapplyAttempts = 0,
+    this.isVerified = false,
   });
 
   factory Listener.fromJson(Map<String, dynamic> json) {
@@ -98,6 +100,7 @@ class Listener {
       verificationStatus: json['verification_status'],
       rejectionReason: json['rejection_reason'],
       reapplyAttempts: json['reapply_attempts'] ?? 0,
+      isVerified: json['is_verified'] ?? false,
     );
   }
 
@@ -146,6 +149,7 @@ class Listener {
       'verification_status': verificationStatus,
       'rejection_reason': rejectionReason,
       'reapply_attempts': reapplyAttempts,
+      'is_verified': isVerified,
     };
   }
 

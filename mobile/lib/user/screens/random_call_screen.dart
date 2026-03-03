@@ -153,6 +153,12 @@ class _RandomCallScreenState extends State<RandomCallScreen>
             isBusy: false,
             limit: 50,
           );
+          // Apply verified filter on fallback path too
+          if (_matchWithVerified && result.success) {
+            result = result.copyWithListeners(
+              result.listeners.where((l) => l.isVerified == true).toList(),
+            );
+          }
         }
 
         if (result.success && result.listeners.isNotEmpty) {
@@ -197,20 +203,43 @@ class _RandomCallScreenState extends State<RandomCallScreen>
         final randomListener = onlineListeners.first;
 
         await _stopSearchSound();
+
+        final matchedData = {
+          'id': randomListener.userId,
+          'listener_id': randomListener.listenerId,
+          'name': randomListener.professionalName ?? 'Unknown',
+          'city': randomListener.city ?? 'Unknown',
+          'topic': randomListener.specialties.isNotEmpty
+              ? randomListener.specialties.first
+              : 'General',
+          'image':
+              randomListener.avatarUrl ??
+              'assets/images/female_profile/avatar2.jpg',
+        };
+
+        // If user chose Chat-only mode, navigate directly to chat without
+        // showing the intermediate matched-card screen.
+        if (_commMode == CommMode.chat && mounted) {
+          setState(() {
+            isSearching = false;
+            matchedUser = null;
+          });
+          await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => ChatPage(
+                expertName: matchedData['name']!,
+                imagePath: matchedData['image']!,
+                otherUserId: matchedData['id'],
+              ),
+            ),
+          );
+          return;
+        }
+
         setState(() {
           isSearching = false;
-          matchedUser = {
-            'id': randomListener.userId,
-            'listener_id': randomListener.listenerId,
-            'name': randomListener.professionalName ?? 'Unknown',
-            'city': randomListener.city ?? 'Unknown',
-            'topic': randomListener.specialties.isNotEmpty
-                ? randomListener.specialties.first
-                : 'General',
-            'image':
-                randomListener.avatarUrl ??
-                'assets/images/female_profile/avatar2.jpg',
-          };
+          matchedUser = matchedData;
         });
       } else {
         await _stopSearchSound();

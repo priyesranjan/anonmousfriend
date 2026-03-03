@@ -444,6 +444,17 @@ class ListenerResult {
     this.count = 0,
     this.error,
   });
+
+  /// Returns a new [ListenerResult] with the given [listeners] list,
+  /// keeping all other fields the same.
+  ListenerResult copyWithListeners(List<Listener> newListeners) {
+    return ListenerResult(
+      success: success,
+      listeners: newListeners,
+      count: newListeners.length,
+      error: error,
+    );
+  }
 }
 
 /// Result class for single listener
