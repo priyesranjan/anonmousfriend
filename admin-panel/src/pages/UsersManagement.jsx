@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getUsers, updateUser, deleteUser } from '../services/api';
+import { getUsers, updateUser, updateUserStatus } from '../services/api';
 import EditUserModal from '../components/EditUserModal';
 import ConfirmationModal from '../components/ConfirmationModal';
 import UserTransactionsModal from '../components/UserTransactionsModal';
@@ -12,7 +12,7 @@ const UsersManagement = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [editingUser, setEditingUser] = useState(null);
-  const [deletingUser, setDeletingUser] = useState(null);
+  const [suspendUser, setSuspendUser] = useState(null);
   const [viewingUser, setViewingUser] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
@@ -63,32 +63,28 @@ const UsersManagement = () => {
     setEditingUser(user);
   };
 
-  const handleDeactivate = async (userId) => {
+  const handleToggleStatus = async (user) => {
     try {
-      await updateUser(userId, { is_active: false });
+      await updateUserStatus(user.user_id, !user.is_active);
       fetchUsers();
-      toast.success('User deactivated successfully');
+      toast.success(`User ${!user.is_active ? 'activated' : 'suspended'} successfully`);
     } catch (error) {
-      setError('Failed to deactivate user');
-      toast.error('Failed to deactivate user');
-      console.error('Error deactivating user:', error);
+      setError(`Failed to ${!user.is_active ? 'activate' : 'suspend'} user`);
+      toast.error(`Failed to ${!user.is_active ? 'activate' : 'suspend'} user`);
+      console.error('Error toggling user status:', error);
     }
   };
 
-  const handleDelete = (user) => {
-    setDeletingUser(user);
-  };
-
-  const confirmDelete = async () => {
+  const confirmSuspend = async () => {
     try {
-      await deleteUser(deletingUser.user_id);
-      setDeletingUser(null);
+      await updateUserStatus(suspendUser.user_id, false);
+      setSuspendUser(null);
       fetchUsers();
-      toast.success('User deleted successfully');
+      toast.success('User suspended successfully');
     } catch (error) {
-      setError('Failed to delete user');
-      toast.error('Failed to delete user');
-      console.error('Error deleting user:', error);
+      setError('Failed to suspend user');
+      toast.error('Failed to suspend user');
+      console.error('Error suspending user:', error);
     }
   };
 
@@ -202,10 +198,10 @@ const UsersManagement = () => {
                 className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
               />
             </div>
-            
-            <select 
-              value={statusFilter} 
-              onChange={(e) => setStatusFilter(e.target.value)} 
+
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
               className="px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             >
               <option value="">All Status</option>
@@ -213,7 +209,7 @@ const UsersManagement = () => {
               <option value="inactive">Inactive</option>
             </select>
           </div>
-          
+
           {filteredUsers.length !== users.length && (
             <div className="mt-4 text-sm text-gray-600 dark:text-gray-400">
               Showing {filteredUsers.length} of {users.length} users
@@ -253,18 +249,16 @@ const UsersManagement = () => {
                       <div className="text-sm text-gray-500 dark:text-gray-400">{user.city && user.country ? `${user.city}, ${user.country}` : 'N/A'}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                        user.account_type === 'user' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' :
-                        user.account_type === 'admin' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400' :
-                        'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
-                      }`}>
+                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${user.account_type === 'user' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' :
+                          user.account_type === 'admin' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400' :
+                            'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                        }`}>
                         {user.account_type || 'N/A'}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
-                        user.is_active ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
-                      }`}>
+                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${user.is_active ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+                        }`}>
                         {user.is_active ? 'Active' : 'Inactive'}
                       </span>
                     </td>
@@ -283,16 +277,10 @@ const UsersManagement = () => {
                         Edit
                       </button>
                       <button
-                        onClick={() => handleDeactivate(user.user_id)}
-                        className="text-yellow-600 hover:text-yellow-900 dark:text-yellow-400 dark:hover:text-yellow-300 mr-3"
+                        onClick={() => handleToggleStatus(user)}
+                        className={`mr-3 ${user.is_active ? 'text-yellow-600 hover:text-yellow-900 dark:text-yellow-400 dark:hover:text-yellow-300' : 'text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300'}`}
                       >
-                        Deactivate
-                      </button>
-                      <button
-                        onClick={() => handleDelete(user)}
-                        className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-                      >
-                        Delete
+                        {user.is_active ? 'Suspend' : 'Activate'}
                       </button>
                     </td>
                   </tr>
@@ -363,11 +351,11 @@ const UsersManagement = () => {
           onClose={() => setEditingUser(null)}
         />
       )}
-      {deletingUser && (
+      {suspendUser && (
         <ConfirmationModal
-          message={`Are you sure you want to permanently delete user ${deletingUser.email}?`}
-          onConfirm={confirmDelete}
-          onCancel={() => setDeletingUser(null)}
+          message={`Are you sure you want to suspend user ${suspendUser.email}? They will not be able to log in.`}
+          onConfirm={confirmSuspend}
+          onCancel={() => setSuspendUser(null)}
         />
       )}
     </div>

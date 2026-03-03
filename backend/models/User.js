@@ -118,7 +118,7 @@ class User {
              is_active, account_type, is_first_time_user, offer_used, offer_minutes_limit, offer_flat_price,
              created_at, updated_at
       FROM users 
-      WHERE user_id = $1 AND is_active = TRUE
+      WHERE user_id = $1
     `;
     const result = await pool.query(query, [user_id]);
     return result.rows[0];
@@ -199,6 +199,18 @@ class User {
   static async deactivate(user_id) {
     const query = 'UPDATE users SET is_active = FALSE WHERE user_id = $1';
     await pool.query(query, [user_id]);
+  }
+
+  // Update activation status (Soft Delete / Unsuspend)
+  static async updateStatus(user_id, isActive) {
+    const query = `
+      UPDATE users 
+      SET is_active = $1, updated_at = CURRENT_TIMESTAMP 
+      WHERE user_id = $2
+      RETURNING user_id, is_active
+    `;
+    const result = await pool.query(query, [isActive, user_id]);
+    return result.rows[0];
   }
 
   // Delete user and all related data

@@ -29,7 +29,9 @@ class _LoginScreenState extends State with TickerProviderStateMixin {
   bool _googleSignInAvailable = false;
   bool _isOtpSent = false;
   String? _sessionId;
-  
+  int _resendCountdown = 0;
+  bool _canResend = false;
+
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _otpController = TextEditingController();
 
@@ -94,9 +96,21 @@ class _LoginScreenState extends State with TickerProviderStateMixin {
     _phoneController.addListener(() {
       final text = _phoneController.text.trim();
       if (text.length == 10 && !_isOtpSent && !_isLoading) {
-        // Unfocus the keyboard to dismiss it
         FocusScope.of(context).unfocus();
         _handleOtpRequest();
+      }
+      // Enforce max 10 digits
+      if (text.length > 10) {
+        _phoneController.text = text.substring(0, 10);
+        _phoneController.selection = TextSelection.collapsed(offset: 10);
+      }
+    });
+
+    // Auto-submit OTP when 6 digits are entered
+    _otpController.addListener(() {
+      final otp = _otpController.text.trim();
+      if (otp.length == 6 && _isOtpSent && !_isLoading) {
+        _handleOtpVerify();
       }
     });
 
@@ -147,6 +161,38 @@ class _LoginScreenState extends State with TickerProviderStateMixin {
 
       controller.jumpTo(offset);
     }
+  }
+
+  void _startResendCountdown() {
+    _resendCountdown = 30;
+    _canResend = false;
+    Future.doWhile(() async {
+      await Future.delayed(const Duration(seconds: 1));
+      if (!mounted) return false;
+      setState(() {
+        _resendCountdown--;
+        if (_resendCountdown <= 0) {
+          _canResend = true;
+        }
+      });
+      return _resendCountdown > 0;
+    });
+  }
+
+  void _handleEditNumber() {
+    setState(() {
+      _isOtpSent = false;
+      _sessionId = null;
+      _otpController.clear();
+      _resendCountdown = 0;
+      _canResend = false;
+    });
+  }
+
+  Future<void> _handleResendOtp() async {
+    if (!_canResend || _isLoading) return;
+    _otpController.clear();
+    await _handleOtpRequest();
   }
 
   @override
@@ -259,9 +305,18 @@ class _LoginScreenState extends State with TickerProviderStateMixin {
           _sessionId = sessionId;
           _isOtpSent = true;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('OTP sent to phone number')),
-        );
+        _startResendCountdown();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('OTP sent to +91 $phone'),
+              backgroundColor: const Color(0xFF00C853),
+              behavior: SnackBarBehavior.floating,
+              margin: const EdgeInsets.all(16),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          );
+        }
       }
     } catch (e) {
       _showError(e.toString());
@@ -617,17 +672,21 @@ class _LoginScreenState extends State with TickerProviderStateMixin {
           SizedBox(height: screenHeight * 0.028),
 
           // Custom OTP Fields
-          _buildPhoneInput(screenHeight),
-
-          if (_isOtpSent) ...[
+          if (!_isOtpSent)
+            _buildPhoneInput(screenHeight)
+          else ...[
+            _buildOtpSentHeader(screenHeight),
             SizedBox(height: screenHeight * 0.02),
             _buildOtpInput(screenHeight),
+            SizedBox(height: screenHeight * 0.015),
+            _buildResendAndEditRow(screenHeight),
           ],
 
           SizedBox(height: screenHeight * 0.02),
 
           // Request/Verify OTP Button
-          _buildOtpActionButton(screenHeight),
+          if (!_isOtpSent) _buildOtpActionButton(screenHeight)
+          else _buildVerifyOtpButton(screenHeight),
 
           SizedBox(height: screenHeight * 0.02),
 
@@ -733,6 +792,69 @@ class _LoginScreenState extends State with TickerProviderStateMixin {
   );
 }
 
+  Widget _buildOtpSentHeader(double screenHeight) {
+    final phone = _phoneController.text.trim();
+    return Column(
+      children: [
+        const Icon(Icons.check_circle_outline, color: Color(0xFF00C853), size: 36),
+        SizedBox(height: screenHeight * 0.01),
+        Text(
+          'OTP sent to',
+          style: TextStyle(color: Colors.white54, fontSize: screenHeight * 0.014),
+        ),
+        SizedBox(height: 2),
+        Text(
+          '+91 $phone',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: screenHeight * 0.018,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildResendAndEditRow(double screenHeight) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        // Wrong number edit
+        GestureDetector(
+          onTap: _handleEditNumber,
+          child: Row(
+            children: [
+              const Icon(Icons.edit, color: Color(0xFF00D9FF), size: 14),
+              const SizedBox(width: 4),
+              Text(
+                'Wrong number?',
+                style: TextStyle(
+                  color: const Color(0xFF00D9FF),
+                  fontSize: screenHeight * 0.013,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+        // Resend OTP
+        GestureDetector(
+          onTap: _canResend ? _handleResendOtp : null,
+          child: Text(
+            _canResend
+                ? 'Resend OTP'
+                : 'Resend in ${_resendCountdown}s',
+            style: TextStyle(
+              color: _canResend ? const Color(0xFF00D9FF) : Colors.white38,
+              fontSize: screenHeight * 0.013,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildPhoneInput(double screenHeight) {
     return Container(
       decoration: BoxDecoration(
@@ -743,13 +865,17 @@ class _LoginScreenState extends State with TickerProviderStateMixin {
       child: TextField(
         controller: _phoneController,
         keyboardType: TextInputType.phone,
+        maxLength: 10,
         style: const TextStyle(color: Colors.white),
         enabled: !_isOtpSent && !_isLoading,
         decoration: InputDecoration(
-          hintText: 'Phone Number',
+          hintText: 'Enter 10-digit Phone Number',
           hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
           prefixIcon: const Icon(Icons.phone, color: Colors.white70),
+          prefixText: '+91  ',
+          prefixStyle: const TextStyle(color: Colors.white70, fontWeight: FontWeight.w600),
           border: InputBorder.none,
+          counterText: '',
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         ),
       ),
@@ -761,19 +887,74 @@ class _LoginScreenState extends State with TickerProviderStateMixin {
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.05),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
+        border: Border.all(color: const Color(0xFF00D9FF).withOpacity(0.4)),
       ),
       child: TextField(
         controller: _otpController,
         keyboardType: TextInputType.number,
-        style: const TextStyle(color: Colors.white),
+        maxLength: 6,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 8,
+        ),
+        textAlign: TextAlign.center,
         enabled: !_isLoading,
         decoration: InputDecoration(
-          hintText: 'Enter OTP',
-          hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
-          prefixIcon: const Icon(Icons.lock_outline, color: Colors.white70),
+          hintText: '------',
+          hintStyle: TextStyle(
+            color: Colors.white.withOpacity(0.3),
+            fontSize: 20,
+            letterSpacing: 8,
+          ),
+          prefixIcon: const Icon(Icons.lock_outline, color: Color(0xFF00D9FF)),
           border: InputBorder.none,
+          counterText: '',
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildVerifyOtpButton(double screenHeight) {
+    final double buttonHeight = screenHeight * 0.055;
+    return GestureDetector(
+      onTap: _isLoading ? null : _handleOtpVerify,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        width: double.infinity,
+        height: buttonHeight,
+        decoration: BoxDecoration(
+          color: const Color(0xFF00D9FF),
+          borderRadius: BorderRadius.circular(30),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF00D9FF).withOpacity(0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Center(
+          child: _isLoading
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                )
+              : Text(
+                  'Verify OTP',
+                  style: TextStyle(
+                    color: Colors.black87,
+                    fontSize: screenHeight * 0.016,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.5,
+                  ),
+                ),
         ),
       ),
     );

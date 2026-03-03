@@ -409,24 +409,28 @@ router.delete('/account', authenticate, async (req, res) => {
   }
 });
 
-// DELETE /api/users/:user_id
-// Delete user (admin only)
-router.delete('/:user_id', authenticateAdmin, async (req, res) => {
+// PUT /api/users/:user_id/status
+// Toggle user active status (admin only)
+router.put('/:user_id/status', authenticateAdmin, async (req, res) => {
   try {
+    const { is_active } = req.body;
+    if (typeof is_active !== 'boolean') {
+      return res.status(400).json({ error: 'is_active must be a boolean' });
+    }
+
     const user = await User.findById(req.params.user_id);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    const deleted = await User.delete(req.params.user_id);
-    if (!deleted) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    res.json({ message: 'User deleted successfully' });
+    const updated = await User.updateStatus(req.params.user_id, is_active);
+    res.json({
+      message: is_active ? 'User reactivated successfully' : 'User suspended successfully',
+      user: updated
+    });
   } catch (error) {
-    console.error('Delete user error:', error);
-    res.status(500).json({ error: 'Failed to delete user' });
+    console.error('Toggle user status error:', error);
+    res.status(500).json({ error: 'Failed to update user status' });
   }
 });
 

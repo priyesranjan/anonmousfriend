@@ -1191,4 +1191,74 @@ router.put('/chat-charge-config', authenticateAdmin, async (req, res) => {
   }
 });
 
+// ============================================
+// DASHBOARD ANALYTICS
+// ============================================
+
+// GET /api/admin/dashboard/stats
+router.get('/dashboard/stats', authenticateAdmin, async (req, res) => {
+  try {
+    // 1. Total & Daily Active Users
+    const usersRes = await pool.query(
+      `SELECT 
+        COUNT(*) as total_users,
+        COUNT(CASE WHEN last_login > NOW() - INTERVAL '24 hours' THEN 1 END) as daily_active_users
+       FROM users WHERE account_type = 'user'`
+    );
+
+    // 2. Active Listeners
+    const listenersRes = await pool.query(
+      `SELECT COUNT(*) as total_listeners FROM listeners WHERE is_active = TRUE AND verification_status = 'approved'`
+    );
+
+    // 3. Live Active Calls
+    const activeCallsRes = await pool.query(
+      `SELECT COUNT(*) as active_calls FROM calls WHERE status = 'in-progress'`
+    );
+
+    // 4. Conversion Rate (Recharged vs Total)
+    const conversionRes = await pool.query(
+      `SELECT 
+        COUNT(CASE WHEN offer_used = TRUE THEN 1 END) as recharged_users 
+       FROM users WHERE account_type = 'user'`
+    );
+    const totalUsers = parseInt(usersRes.rows[0].total_users) || 0;
+    const rechargedUsers = parseInt(conversionRes.rows[0].recharged_users) || 0;
+    const conversionRate = totalUsers > 0 ? ((rechargedUsers / totalUsers) * 100).toFixed(1) : 0;
+
+    // 5. Pending Support Messages
+    const supportRes = await pool.query(
+      `SELECT COUNT(*) as pending_messages FROM contact_messages WHERE source = 'support'` // Assuming they're unread by default, or just count today's
+    );
+
+    // 6. Total Sales / Revenue (Completed Transactions)
+    const salesRes = await pool.query(
+      `SELECT SUM(amount) as total_sales FROM transactions WHERE status = 'completed'`
+    );
+
+    // 7. Top 5 Listeners by Calls
+    const topListenersRes = await pool.query(
+      `SELECT l.listener_id, l.professional_name, l.total_calls, l.average_rating 
+       FROM listeners l 
+       WHERE l.is_active = TRUE 
+       ORDER BY l.total_calls DESC LIMIT 5`
+    );
+
+    res.json({
+      total_users: totalUsers,
+      daily_active_users: parseInt(usersRes.rows[0].daily_active_users) || 0,
+      total_listeners: parseInt(listenersRes.rows[0].total_listeners) || 0,
+      active_calls: parseInt(activeCallsRes.rows[0].active_calls) || 0,
+      conversion_rate: parseFloat(conversionRate),
+      pending_support_messages: parseInt(supportRes.rows[0].pending_messages) || 0,
+      total_sales: parseFloat(salesRes.rows[0].total_sales) || 0,
+      top_listeners: topListenersRes.rows || []
+    });
+
+  } catch (error) {
+    console.error('Fetch dashboard stats error:', error);
+    res.status(500).json({ error: 'Failed to fetch dashboard stats' });
+  }
+});
+
 export default router;

@@ -21,6 +21,7 @@ import ChatChargeConfig from './pages/ChatChargeConfig';
 import OfferBannerConfig from './pages/OfferBannerConfig';
 import SendNotification from './pages/SendNotification';
 import RechargePacks from './pages/RechargePacks';
+import Marketing from './pages/Marketing';
 import PrivateRoute from './components/PrivateRoute';
 import Layout from './components/Layout';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -135,6 +136,15 @@ function App() {
                   <PrivateRoute>
                     <Layout>
                       <ListenerDetails />
+                    </Layout>
+                  </PrivateRoute>
+                </ThemeProvider>
+              } />
+              <Route path="/admin-no-all-call/marketing" element={
+                <ThemeProvider>
+                  <PrivateRoute>
+                    <Layout>
+                      <Marketing />
                     </Layout>
                   </PrivateRoute>
                 </ThemeProvider>

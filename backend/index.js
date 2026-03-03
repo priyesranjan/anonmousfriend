@@ -34,6 +34,7 @@ import appRatingRoutes from './routes/appRatings.js';
 import rechargePackRoutes from './routes/rechargePacks.js';
 import subscriptionRoutes from './routes/subscriptions.js';
 import reportRoutes from './routes/reports.js';
+import marketingRoutes from './routes/marketing.js';
 import User from './models/User.js';
 import Listener from './models/Listener.js'; // Import for verification checks
 import Call from './models/Call.js';
@@ -149,6 +150,7 @@ app.use('/api/app-ratings', appRatingRoutes);
 app.use('/api/recharge-packs', rechargePackRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/marketing', marketingRoutes);
 
 // ============================================
 // SOCKET.IO - REAL-TIME FEATURES

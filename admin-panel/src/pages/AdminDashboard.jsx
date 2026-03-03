@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { getUsers, getAdminListeners, getAdminActiveCalls, runZombieSweep } from '../services/api';
+import { getUsers, getAdminListeners, getAdminActiveCalls, runZombieSweep, getDashboardStats } from '../services/api';
 import {
   Users, Headphones, Activity, Star, UserPlus, Bell, Download, TrendingUp,
   BarChart3, PieChart, Activity as ActivityIcon, Wifi, WifiOff, RefreshCw,
@@ -16,6 +16,10 @@ const AdminDashboard = () => {
     averageRating: 0,
     approvedListeners: 0,
     newUsersToday: 0,
+    dailyActiveUsers: 0,
+    conversionRate: 0,
+    totalSales: 0,
+    pendingSupportMessages: 0,
   });
   const [loading, setLoading] = useState(true);
   const [sweepingZombies, setSweepingZombies] = useState(false);
@@ -40,14 +44,17 @@ const AdminDashboard = () => {
   const fetchStats = useCallback(async () => {
     try {
       setLoading(true);
-      const [usersRes, listenersRes, activeCallsRes] = await Promise.all([
+      const [usersRes, listenersRes, activeCallsRes, statsRes] = await Promise.all([
         getUsers(),
         getAdminListeners(),
-        getAdminActiveCalls().catch(() => ({ data: { active_calls: [] } }))
+        getAdminActiveCalls().catch(() => ({ data: { active_calls: [] } })),
+        getDashboardStats().catch(() => ({ data: {} }))
       ]);
       const usersData = usersRes.data || [];
       const listenersData = listenersRes.data?.listeners || [];
       const activeCallsData = activeCallsRes.data?.active_calls || [];
+      const dashStats = statsRes.data || {};
+
       setActiveCalls(activeCallsData);
 
       const totalUsers = usersData.length;
@@ -76,12 +83,16 @@ const AdminDashboard = () => {
         averageRating: averageRating.toFixed(1),
         approvedListeners,
         newUsersToday,
+        dailyActiveUsers: dashStats.daily_active_users || 0,
+        conversionRate: dashStats.conversion_rate || 0,
+        totalSales: dashStats.total_sales || 0,
+        pendingSupportMessages: dashStats.pending_support_messages || 0,
       });
 
       // Real-time status from actual data
       setRealTimeStatus({
         onlineListeners: activeListeners,
-        totalCalls: listenersData.reduce((sum, l) => sum + (l.total_calls || 0), 0),
+        totalCalls: stats.totalCalls || listenersData.reduce((sum, l) => sum + (l.total_calls || 0), 0),
         systemHealth: 'healthy',
         lastUpdated: new Date()
       });
@@ -392,8 +403,20 @@ const AdminDashboard = () => {
               <div className="bg-white/20 backdrop-blur-sm p-3 rounded-xl mb-3">
                 <UserPlus className="w-10 h-10" strokeWidth={2.5} />
               </div>
-              <span className="text-xs font-semibold uppercase tracking-wider opacity-90 mb-2 block">New Today</span>
-              <span className="text-3xl font-extrabold">{stats.newUsersToday}</span>
+              <span className="text-xs font-semibold uppercase tracking-wider opacity-90 mb-2 block">DAU (24h)</span>
+              <span className="text-3xl font-extrabold">{stats.dailyActiveUsers}</span>
+            </div>
+          </div>
+
+          <div className="group relative bg-gradient-to-br from-indigo-500 via-indigo-600 to-violet-700 shadow-xl rounded-2xl p-6 flex flex-col items-center text-white hover:scale-105 hover:shadow-2xl transition-all duration-300 cursor-pointer overflow-hidden lg:col-span-1 sm:col-span-2">
+            <div className="absolute inset-0 bg-gradient-to-br from-indigo-400/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div className="relative z-10 flex flex-col items-center">
+              <span className="text-xs font-semibold uppercase tracking-wider opacity-90 mb-2 block">Conversion Rate</span>
+              <span className="text-3xl font-extrabold">{stats.conversionRate}%</span>
+              <div className="mt-4 border-t border-white/20 w-full pt-4 text-center">
+                <span className="text-xs font-semibold uppercase tracking-wider opacity-90 block">Pending Support</span>
+                <span className="text-lg font-bold">{stats.pendingSupportMessages} msgs</span>
+              </div>
             </div>
           </div>
         </div>

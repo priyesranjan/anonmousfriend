@@ -77,7 +77,7 @@ api.interceptors.response.use(
 export const getUsers = () => api.get('/users');
 export const getUserById = (user_id) => api.get(`/users/${user_id}`);
 export const updateUser = (user_id, payload) => api.put(`/users/${user_id}`, payload);
-export const deleteUser = (user_id) => api.delete(`/users/${user_id}`);
+export const updateUserStatus = (user_id, is_active) => api.put(`/users/${user_id}/status`, { is_active });
 
 // Listener methods
 export const getListeners = () => api.get('/listeners');
@@ -125,5 +125,12 @@ export const getUserTransactions = (user_id) => api.get(`/admin/users/${user_id}
 // Active Calls & Zombie Sweeper
 export const getAdminActiveCalls = () => api.get('/calls/admin/active');
 export const runZombieSweep = () => api.post('/calls/admin/zombie-sweep');
+
+// Marketing
+export const getNewbies = () => api.get('/marketing/newbies');
+export const sendMarketingNotification = (payload) => api.post('/marketing/send-notification', payload);
+
+// Dashboard
+export const getDashboardStats = () => api.get('/admin/dashboard/stats');
 
 export default api;

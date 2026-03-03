@@ -24,6 +24,7 @@ const Sidebar = () => {
     { id: 'call-rate-config', label: 'Call Rate Config', icon: Settings, path: '/admin-no-all-call/call-rate-config', shortcut: 'G O' },
     { id: 'chat-charge-config', label: 'Chat Config', icon: Settings, path: '/admin-no-all-call/chat-charge-config', shortcut: 'G H' },
     { id: 'recharge-packs', label: 'Recharge Packs', icon: CreditCard, path: '/admin-no-all-call/recharge-packs', shortcut: 'G P' },
+    { id: 'marketing', label: 'Marketing', icon: Bell, path: '/admin-no-all-call/marketing', shortcut: 'G K' },
     { id: 'offer-banner', label: 'Offer Banner', icon: Settings, path: '/admin-no-all-call/offer-banner', shortcut: 'G B' },
     { id: 'user-contacts', label: 'User Contacts', icon: Contact, path: '/admin-no-all-call/user-contacts', shortcut: 'G C' },
     { id: 'send-notification', label: 'Send Notification', icon: Bell, path: '/admin-no-all-call/send-notification', shortcut: 'G N' },
@@ -58,7 +59,7 @@ const Sidebar = () => {
     <>
       {/* Mobile Overlay */}
       {isMobileOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
           onClick={() => setIsMobileOpen(false)}
         />
@@ -102,9 +103,8 @@ const Sidebar = () => {
 
       {/* Desktop Sidebar */}
       <aside
-        className={`hidden lg:flex fixed left-0 top-0 h-screen bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex-col transition-all duration-300 z-30 ${
-          isCollapsed ? 'w-20' : 'w-64'
-        }`}
+        className={`hidden lg:flex fixed left-0 top-0 h-screen bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex-col transition-all duration-300 z-30 ${isCollapsed ? 'w-20' : 'w-64'
+          }`}
       >
         {/* Logo & Collapse Button */}
         <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
@@ -124,9 +124,8 @@ const Sidebar = () => {
         <div className="p-4">
           <button
             onClick={() => setShowSearch(true)}
-            className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors ${
-              isCollapsed ? 'justify-center' : ''
-            }`}
+            className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors ${isCollapsed ? 'justify-center' : ''
+              }`}
             title="Search (Ctrl+K)"
           >
             <Search className="w-5 h-5" />
@@ -147,11 +146,10 @@ const Sidebar = () => {
               <button
                 key={item.id}
                 onClick={() => handleNavigate(item.path)}
-                className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors group relative ${
-                  isActive
+                className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors group relative ${isActive
                     ? 'bg-blue-500 text-white'
                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                } ${isCollapsed ? 'justify-center' : ''}`}
+                  } ${isCollapsed ? 'justify-center' : ''}`}
                 title={isCollapsed ? `${item.label} (${item.shortcut})` : ''}
               >
                 <item.icon className="w-5 h-5" />
@@ -173,20 +171,18 @@ const Sidebar = () => {
         <div className="p-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
           <button
             onClick={toggleTheme}
-            className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${
-              isCollapsed ? 'justify-center' : ''
-            }`}
+            className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${isCollapsed ? 'justify-center' : ''
+              }`}
             title="Toggle theme"
           >
             {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             {!isCollapsed && <span>Toggle Theme</span>}
           </button>
-          
+
           <button
             onClick={() => setShowNotifications(!showNotifications)}
-            className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors relative ${
-              isCollapsed ? 'justify-center' : ''
-            }`}
+            className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors relative ${isCollapsed ? 'justify-center' : ''
+              }`}
             title="Notifications"
           >
             <Bell className="w-5 h-5" />
@@ -200,9 +196,8 @@ const Sidebar = () => {
 
           <button
             onClick={handleLogout}
-            className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors ${
-              isCollapsed ? 'justify-center' : ''
-            }`}
+            className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors ${isCollapsed ? 'justify-center' : ''
+              }`}
             title="Logout"
           >
             <LogOut className="w-5 h-5" />
@@ -213,9 +208,8 @@ const Sidebar = () => {
 
       {/* Mobile Sidebar */}
       <aside
-        className={`lg:hidden fixed left-0 top-0 h-screen bg-white dark:bg-gray-800 w-64 flex flex-col transition-transform duration-300 z-50 ${
-          isMobileOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+        className={`lg:hidden fixed left-0 top-0 h-screen bg-white dark:bg-gray-800 w-64 flex flex-col transition-transform duration-300 z-50 ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
       >
         <div className="p-4 border-b border-gray-200 dark:border-gray-700">
           <h1 className="text-xl font-bold text-gray-900 dark:text-white">CallTo Admin</h1>
@@ -228,11 +222,10 @@ const Sidebar = () => {
               <button
                 key={item.id}
                 onClick={() => handleNavigate(item.path)}
-                className={`w-full flex items-center space-x-3 px-3 py-3 rounded-lg transition-colors ${
-                  isActive
+                className={`w-full flex items-center space-x-3 px-3 py-3 rounded-lg transition-colors ${isActive
                     ? 'bg-blue-500 text-white'
                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                }`}
+                  }`}
               >
                 <item.icon className="w-6 h-6" />
                 <span className="flex-1 text-left">{item.label}</span>
