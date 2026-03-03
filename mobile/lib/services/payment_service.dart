@@ -68,10 +68,11 @@ class PaymentService {
     // Use key returned from backend to guarantee it matches the order
     final serverKeyId = orderResponse.data['keyId']?.toString();
     if (orderId == null || serverAmount == null) {
-      onCheckoutError?.call('Order creation failed');
+      debugPrint('Order Data: ${orderResponse.data}');
+      onCheckoutError?.call('Order creation failed. Check logs.');
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Order creation failed')),
+          const SnackBar(content: Text('Order creation failed. Invalid response.')),
         );
       }
       return;
@@ -82,6 +83,7 @@ class PaymentService {
         ? serverKeyId
         : (dotenv.env['RAZORPAY_KEY_ID']?.trim() ?? '');
     if (keyId.isEmpty) {
+      debugPrint('Razorpay Key missing in both backend and .env');
       onCheckoutError?.call('Razorpay key is missing');
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -92,9 +94,11 @@ class PaymentService {
     }
 
     try {
+      final parsedAmount = serverAmount is int ? serverAmount : double.parse(serverAmount.toString()).round();
+      debugPrint('Opening Razorpay with orderId: $orderId, amount: $parsedAmount');
       razorpay_platform.openCheckout(
         key: keyId,
-        amount: serverAmount is int ? serverAmount : int.tryParse(serverAmount.toString()) ?? amountInPaise,
+        amount: parsedAmount,
         currency: 'INR',
         name: name,
         description: description ?? 'Wallet Top-Up',
