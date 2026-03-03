@@ -12,6 +12,7 @@ services:
       - "3478:3478/udp" # TURN UDP — open in VPS firewall
       - "5349:5349/tcp" # TURN TLS — open in VPS firewall
     environment:
+      LIVEKIT_KEYS: "devkey: secret"
       LIVEKIT_CONFIG: |
         port: 7880
         rtc:
@@ -23,8 +24,6 @@ services:
           tls_port: 5349
           udp_port: 3478
           external_tls: false
-        keys:
-          devkey: secret
         logging:
           level: warn
     networks:
