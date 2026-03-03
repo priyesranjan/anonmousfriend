@@ -12,7 +12,7 @@ services:
       - "3478:3478/udp" # TURN UDP — open in VPS firewall
       - "5349:5349/tcp" # TURN TLS — open in VPS firewall
     environment:
-      LIVEKIT_KEYS: "devkey: devkey-super-secure-secret-32chars!"
+      LIVEKIT_KEYS: "devkey: appdostlivekitsecretkey2024productionxyz1234ab"
       LIVEKIT_CONFIG: |
         port: 7880
         rtc:
@@ -53,7 +53,7 @@ services:
       - JWT_SECRET=${JWT_SECRET:-kJ8#mP2$vN5xQ9wL3rF7yT4uA6cE1bD0hG}
       # LiveKit credentials — must match LIVEKIT_KEYS above
       - LIVEKIT_API_KEY=${LIVEKIT_API_KEY:-devkey}
-      - LIVEKIT_API_SECRET=${LIVEKIT_API_SECRET:-devkey-super-secure-secret-32chars!}
+      - LIVEKIT_API_SECRET=${LIVEKIT_API_SECRET:-appdostlivekitsecretkey2024productionxyz1234ab}
       # Public WS URL the MOBILE APP uses to connect — port 7880 is LiveKit's direct plain WebSocket
       # (TLS is not terminated for WebSocket by Coolify proxy on this port)
       - LIVEKIT_URL=${LIVEKIT_URL:-ws://91.108.111.194:7880}
