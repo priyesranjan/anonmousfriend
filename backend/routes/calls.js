@@ -599,8 +599,10 @@ router.post('/livekit/token', authenticate, async (req, res) => {
       return res.status(400).json({ error: 'channel_name is required' });
     }
 
-    const apiKey = config.livekit?.apiKey || process.env.LIVEKIT_API_KEY || 'devkey';
-    const apiSecret = config.livekit?.apiSecret || process.env.LIVEKIT_API_SECRET || 'secret';
+    // HARDCODED: Must match LIVEKIT_KEYS in docker-compose.yml exactly.
+    // Do NOT use env vars here — Coolify UI overrides can cause JWT mismatch.
+    const apiKey = 'devkey';
+    const apiSecret = 'appdostlivekitsecretkey2024productionxyz1234ab';
     const participantIdentity = req.userId.toString();
     const participantName = `User_${participantIdentity.substring(0, 5)}`;
 
