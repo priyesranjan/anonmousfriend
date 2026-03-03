@@ -12,7 +12,7 @@ services:
       - "3478:3478/udp" # TURN UDP — open in VPS firewall
       - "5349:5349/tcp" # TURN TLS — open in VPS firewall
     environment:
-      LIVEKIT_KEYS: "devkey: secret"
+      LIVEKIT_KEYS: "devkey: devkey-super-secure-secret-32chars!"
       LIVEKIT_CONFIG: |
         port: 7880
         rtc:
@@ -21,9 +21,8 @@ services:
         turn:
           enabled: true
           domain: livekit.appdost.com
-          tls_port: 5349
           udp_port: 3478
-          external_tls: false
+          external_tls: true
         logging:
           level: warn
     networks:
@@ -52,11 +51,11 @@ services:
       # Internal Coolify network URL (used by default inside Docker)
       - DATABASE_PUBLIC_URL=${DATABASE_PUBLIC_URL:-postgres://postgres:hGcIz9HHsj6bwkTbm1NLfzGYMV09wJB5U33TynV3yHdBSCHGuPEST28h9jCk7OiX@rksw88cskw0o8ssg04g8c008:5432/postgres}
       - JWT_SECRET=${JWT_SECRET:-kJ8#mP2$vN5xQ9wL3rF7yT4uA6cE1bD0hG}
-      # LiveKit credentials — must match livekit.yaml keys section
+      # LiveKit credentials — must match LIVEKIT_KEYS above
       - LIVEKIT_API_KEY=${LIVEKIT_API_KEY:-devkey}
-      - LIVEKIT_API_SECRET=${LIVEKIT_API_SECRET:-secret}
-      # Public WSS URL the MOBILE APP uses to connect (port 7880 exposed on VPS)
-      - LIVEKIT_URL=${LIVEKIT_URL:-wss://livekit.appdost.com:7880}
+      - LIVEKIT_API_SECRET=${LIVEKIT_API_SECRET:-devkey-super-secure-secret-32chars!}
+      # Public WSS URL the MOBILE APP uses to connect
+      - LIVEKIT_URL=${LIVEKIT_URL:-wss://livekit.appdost.com}
     networks:
       - coolify
       - default
