@@ -48,6 +48,13 @@ const getExistingBilling = async (client, callId) => {
 // Calculate maximum affordable call duration based on wallet balance
 const calculateMaxCallDuration = async (callerId, ratePerMinute) => {
   try {
+    const userResult = await pool.query(
+      'SELECT unlimited_expires_at FROM users WHERE user_id = $1',
+      [callerId]
+    );
+    const unlimitedExpiresAt = userResult.rows.length > 0 ? userResult.rows[0].unlimited_expires_at : null;
+    const isUnlimitedActive = unlimitedExpiresAt && new Date(unlimitedExpiresAt) > new Date();
+
     const walletResult = await pool.query(
       'SELECT balance FROM wallets WHERE user_id = $1',
       [callerId]
@@ -58,6 +65,14 @@ const calculateMaxCallDuration = async (callerId, ratePerMinute) => {
       : 0;
 
     const rate = Number(ratePerMinute);
+
+    if (isUnlimitedActive) {
+      // Massive buffer for unlimited
+      const maxAllowedSeconds = 24 * 60 * 60;
+      console.log(`[BILLING] VIP UNLIMITED user=${callerId} maxCallDuration → ${maxAllowedSeconds}s`);
+      return { maxAllowedSeconds, balance, rate, isUnlimited: true };
+    }
+
     if (rate <= 0 || balance <= 0) return { maxAllowedSeconds: 0, balance, rate };
 
     // Pro-rata calculation: allow the full fractional time the wallet can afford
@@ -183,10 +198,11 @@ const finalizeCallBilling = async ({ callId, durationSeconds }) => {
 
     // Check if caller is eligible for first-time offer
     const callerResult = await client.query(
-      'SELECT is_first_time_user, offer_used FROM users WHERE user_id = $1',
+      'SELECT is_first_time_user, offer_used, unlimited_expires_at FROM users WHERE user_id = $1',
       [call.caller_id]
     );
     const caller = callerResult.rows[0];
+    const isUnlimitedActive = caller && caller.unlimited_expires_at && new Date(caller.unlimited_expires_at) > new Date();
     let offerApplied = false;
 
     if (caller && caller.is_first_time_user && !caller.offer_used) {
@@ -220,7 +236,10 @@ const finalizeCallBilling = async ({ callId, durationSeconds }) => {
     let billedUserCharge = userCharge;
     let billedListenerEarn = listenerEarn;
 
-    if (walletBalance < userCharge && userCharge > 0) {
+    if (isUnlimitedActive) {
+      billedUserCharge = 0; // VIP users pay 0
+      console.log(`[BILLING] VIP UNLIMITED: user=${call.caller_id} charged ₹0. Listener=${call.listener_id} earns ₹${billedListenerEarn}`);
+    } else if (walletBalance < userCharge && userCharge > 0) {
       const affordableMinutes = Math.max(0, Math.floor(walletBalance / userRate));
       billedMinutes = affordableMinutes;
       billedUserCharge = roundMoney(billedMinutes * userRate);

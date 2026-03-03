@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../screens/home_screen.dart';
 import '../screens/random_call_screen.dart';
-import '../screens/chat_screen.dart';
 import '../screens/recents_screen.dart';
 import '../../services/offer_banner_controller.dart';
 
@@ -31,7 +30,6 @@ class _BottomNavBarState extends State<BottomNavBar> {
     _screens = [
       const HomeScreen(),
       RandomCallScreen(onBackToHome: _goHome),
-      const ChatScreen(),
       const RecentsScreen(),
     ];
   }
@@ -64,10 +62,6 @@ class _BottomNavBarState extends State<BottomNavBar> {
           BottomNavigationBarItem(
             icon: Icon(Icons.shuffle),
             label: 'Random Call',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.chat),
-            label: 'Chat',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.history),

@@ -25,6 +25,7 @@ class User {
   final bool offerUsed;
   final int? offerMinutesLimit;
   final double? offerFlatPrice;
+  final DateTime? unlimitedExpiresAt;
 
   User({
     required this.userId,
@@ -52,6 +53,7 @@ class User {
     this.offerUsed = false,
     this.offerMinutesLimit,
     this.offerFlatPrice,
+    this.unlimitedExpiresAt,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -86,6 +88,9 @@ class User {
           : null,
       lastLoginAt: json['last_login_at'] != null 
           ? DateTime.tryParse(json['last_login_at']) 
+          : null,
+      unlimitedExpiresAt: json['unlimited_expires_at'] != null
+          ? DateTime.tryParse(json['unlimited_expires_at'])
           : null,
     );
   }
@@ -134,6 +139,7 @@ class User {
       'offer_flat_price': offerFlatPrice,
       'created_at': createdAt?.toIso8601String(),
       'last_login_at': lastLoginAt?.toIso8601String(),
+      'unlimited_expires_at': unlimitedExpiresAt?.toIso8601String(),
     };
   }
 

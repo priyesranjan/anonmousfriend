@@ -252,23 +252,27 @@ class User {
     };
   }
 
-  // Add balance to user wallet
-  static async addBalance(user_id, amount, paymentDetails = {}) {
+  // Add balance to user wallet (or just record transaction for subscriptions)
+  static async addBalance(user_id, amount, paymentDetails = {}, creditWallet = true) {
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
 
       // Ensure wallet exists first
-      await this.getWallet(user_id);
+      const wallet = await this.getWallet(user_id);
+      let newBalance = wallet.balance;
 
-      // Update wallet balance
-      const walletQuery = `
-        UPDATE wallets 
-        SET balance = balance + $2, updated_at = NOW()
-        WHERE user_id = $1
-        RETURNING *
-      `;
-      const walletResult = await client.query(walletQuery, [user_id, amount]);
+      if (creditWallet) {
+        // Update wallet balance
+        const walletQuery = `
+          UPDATE wallets 
+          SET balance = balance + $2, updated_at = NOW()
+          WHERE user_id = $1
+          RETURNING *
+        `;
+        const walletResult = await client.query(walletQuery, [user_id, amount]);
+        newBalance = walletResult.rows[0].balance;
+      }
 
       // Create transaction record
       const transactionQuery = `
@@ -290,7 +294,7 @@ class User {
       await client.query(transactionQuery, transactionValues);
 
       await client.query('COMMIT');
-      return walletResult.rows[0];
+      return { balance: newBalance };
     } catch (error) {
       await client.query('ROLLBACK');
       throw error;

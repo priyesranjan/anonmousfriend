@@ -20,6 +20,7 @@ class _WalletScreenState extends State<WalletScreen> {
   bool _isProcessing = false;
   bool _isLoadingPacks = true;
   double _walletBalance = 0.0;
+  DateTime? _unlimitedExpiresAt;
   String? _prefillEmail;
   String? _prefillContact;
   List<RechargePack> _rechargePacks = [];
@@ -63,6 +64,7 @@ class _WalletScreenState extends State<WalletScreen> {
       _prefillContact = mobile;
       if (walletResult.success) {
         _walletBalance = walletResult.balance;
+        _unlimitedExpiresAt = walletResult.unlimitedExpiresAt;
       }
     });
   }
@@ -171,6 +173,34 @@ class _WalletScreenState extends State<WalletScreen> {
                 ),
               ),
 
+              if (_unlimitedExpiresAt != null && _unlimitedExpiresAt!.isAfter(DateTime.now()))
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(colors: [Colors.purple, Colors.deepPurple]),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.stars, color: Colors.amber, size: 28),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text('VIP Unlimited Calling Active', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                              Text('Expires on ${_unlimitedExpiresAt!.toLocal().toString().split('.')[0]}', style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
               // --- Section Title ---
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 8),
@@ -261,12 +291,22 @@ class _WalletScreenState extends State<WalletScreen> {
                                                 color: Colors.pink,
                                               ),
                                             ),
-                                            if (pack.extraPercentOrAmount > 0)
+                                            if (pack.isUnlimited)
+                                              Text(
+                                                '${pack.unlimitedDays} Days VIP',
+                                                style: const TextStyle(
+                                                  fontSize: 13,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.purple,
+                                                ),
+                                              )
+                                            else if (pack.extraPercentOrAmount > 0)
                                               Text(
                                                 '+${pack.extraPercentOrAmount.toStringAsFixed(0)}% extra',
                                                 style: const TextStyle(
                                                   fontSize: 12,
                                                   color: Colors.green,
+                                                  fontWeight: FontWeight.bold,
                                                 ),
                                               ),
                                           ],
@@ -322,12 +362,14 @@ class _WalletScreenState extends State<WalletScreen> {
               ),
               child: Center(
                 child: Text(
-                  _hasValidSelection && _rechargePacks[_selectedIndex!].extraPercentOrAmount > 0
+                  _hasValidSelection && _rechargePacks[_selectedIndex!].isUnlimited
+                      ? 'Pay ₹${_rechargePacks[_selectedIndex!].amount.toStringAsFixed(0)} → Get ${_rechargePacks[_selectedIndex!].unlimitedDays} Days VIP Unlimited Calling'
+                      : _hasValidSelection && _rechargePacks[_selectedIndex!].extraPercentOrAmount > 0
                       ? 'Pay ₹${_rechargePacks[_selectedIndex!].amount.toStringAsFixed(0)} → Get ₹${(_rechargePacks[_selectedIndex!].amount + _rechargePacks[_selectedIndex!].amount * _rechargePacks[_selectedIndex!].extraPercentOrAmount / 100).toStringAsFixed(2)} in wallet (+₹${(_rechargePacks[_selectedIndex!].amount * _rechargePacks[_selectedIndex!].extraPercentOrAmount / 100).toStringAsFixed(2)} extra)'
                       : _hasValidSelection
                           ? 'Pay ₹${_rechargePacks[_selectedIndex!].amount.toStringAsFixed(0)} → Get ₹${_rechargePacks[_selectedIndex!].amount.toStringAsFixed(2)} in wallet'
                           : 'Select a pack to add balance',
-                  style: const TextStyle(color: Colors.green, fontSize: 13),
+                  style: const TextStyle(color: Colors.green, fontSize: 13, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -424,14 +466,15 @@ class _WalletScreenState extends State<WalletScreen> {
     if (result.success) {
       setState(() {
         _walletBalance = result.balance;
+        _unlimitedExpiresAt = result.unlimitedExpiresAt;
       });
-      _showSuccessDialog(paymentId, rechargeAmount, result.bonusAmount, result.totalCredited);
+      _showSuccessDialog(paymentId, rechargeAmount, result.bonusAmount, result.totalCredited, selectedPack);
     } else {
       _showFailureDialog('Payment received but wallet sync failed. Please contact support.');
     }
   }
 
-  void _showSuccessDialog(String paymentId, double amount, double bonusAmount, double totalCredited) {
+  void _showSuccessDialog(String paymentId, double amount, double bonusAmount, double totalCredited, [RechargePack? pack]) {
     final hasBonus = bonusAmount > 0;
     showDialog(
       context: context,
@@ -447,7 +490,13 @@ class _WalletScreenState extends State<WalletScreen> {
               const Text('Payment Successful!',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.green)),
               const SizedBox(height: 10),
-              if (hasBonus) ...[
+              if (pack != null && pack.isUnlimited) ...[
+                Text(
+                  '${pack.unlimitedDays} Days VIP Access Activated!',
+                  style: const TextStyle(fontSize: 16, color: Colors.purple, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 4),
+              ] else if (hasBonus) ...[
                 Text(
                   '₹${amount.toStringAsFixed(2)} + ₹${bonusAmount.toStringAsFixed(2)} extra',
                   style: const TextStyle(fontSize: 15, color: Colors.black87, fontWeight: FontWeight.w600),

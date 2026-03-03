@@ -137,7 +137,11 @@ router.delete('/languages/:language_id', authenticate, async (req, res) => {
 router.get('/wallet', authenticate, async (req, res) => {
   try {
     const wallet = await User.getWallet(req.userId);
-    res.json({ wallet });
+    const userResult = await pool.query('SELECT unlimited_expires_at FROM users WHERE user_id = $1', [req.userId]);
+    res.json({
+      wallet,
+      unlimited_expires_at: userResult.rows[0]?.unlimited_expires_at
+    });
   } catch (error) {
     console.error('Get wallet error:', error);
     res.status(500).json({ error: 'Failed to fetch wallet' });
@@ -258,35 +262,75 @@ router.post('/wallet/add', authenticate, async (req, res) => {
 
     // Calculate extra bonus from recharge pack
     let bonusAmount = 0;
+    let isUnlimited = false;
+    let unlimitedDays = 0;
+    let isFirstTimeOnly = false;
+
     if (pack_id) {
       const packResult = await pool.query(
-        'SELECT extra_percent_or_amount FROM recharge_packs WHERE id = $1 AND is_active = TRUE',
+        'SELECT extra_percent_or_amount, is_unlimited, unlimited_days, is_first_time_only FROM recharge_packs WHERE id = $1 AND is_active = TRUE',
         [pack_id]
       );
       if (packResult.rows.length > 0) {
-        const extraPercent = Number(packResult.rows[0].extra_percent_or_amount) || 0;
+        const pack = packResult.rows[0];
+        const extraPercent = Number(pack.extra_percent_or_amount) || 0;
         bonusAmount = Number((parsedAmount * extraPercent / 100).toFixed(2));
+        isUnlimited = pack.is_unlimited === true;
+        unlimitedDays = Number(pack.unlimited_days) || 0;
+        isFirstTimeOnly = pack.is_first_time_only === true;
       }
     }
 
     const totalCredit = Number((parsedAmount + bonusAmount).toFixed(2));
 
+    let paymentDesc = description || 'Wallet recharge';
+    if (isUnlimited && unlimitedDays > 0) {
+      paymentDesc = `Subscription: ${unlimitedDays}-Day Unlimited VIP`;
+    } else if (bonusAmount > 0) {
+      paymentDesc = `Wallet recharge ₹${parsedAmount} + ₹${bonusAmount} extra bonus`;
+    }
+
     const paymentDetails = {
       payment_id,
       payment_method: payment_method || 'razorpay',
-      description: bonusAmount > 0
-        ? `Wallet recharge ₹${parsedAmount} + ₹${bonusAmount} extra bonus`
-        : description || 'Wallet recharge',
+      description: paymentDesc,
       currency: 'INR'
     };
 
-    const wallet = await User.addBalance(req.userId, totalCredit, paymentDetails);
+    // If it's an unlimited pack, we DO NOT credit the standard wallet balance
+    const creditWallet = !(isUnlimited && unlimitedDays > 0);
+    const wallet = await User.addBalance(req.userId, totalCredit, paymentDetails, creditWallet);
+
+    let unlimited_expires_at = null;
+
+    if (isUnlimited && unlimitedDays > 0) {
+      // Update unlimited_expires_at to NOW + unlimitedDays
+      const updateQuery = `
+        UPDATE users 
+        SET unlimited_expires_at = CURRENT_TIMESTAMP + INTERVAL '${unlimitedDays} days'
+        WHERE user_id = $1
+        RETURNING unlimited_expires_at
+      `;
+      const updateResult = await pool.query(updateQuery, [req.userId]);
+      unlimited_expires_at = updateResult.rows[0].unlimited_expires_at;
+    }
+
+    // If they bought the first-time offer pack, mark offer_used = true
+    if (isFirstTimeOnly) {
+      await pool.query(
+        'UPDATE users SET offer_used = TRUE WHERE user_id = $1',
+        [req.userId]
+      );
+    }
+
     res.json({
-      message: 'Balance added successfully',
+      message: isUnlimited ? 'Unlimited plan activated successfully' : 'Balance added successfully',
       balance: wallet.balance,
       base_amount: parsedAmount,
       bonus_amount: bonusAmount,
-      total_credited: totalCredit,
+      total_credited: creditWallet ? totalCredit : 0,
+      is_unlimited: isUnlimited,
+      unlimited_expires_at
     });
   } catch (error) {
     console.error('Add balance error:', error);

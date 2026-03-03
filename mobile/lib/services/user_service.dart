@@ -144,6 +144,7 @@ class UserService {
         success: true,
         balance: _safeParseDouble(wallet['balance']),
         transactions: transactions is List ? transactions : [],
+        unlimitedExpiresAt: data['unlimited_expires_at'] != null ? DateTime.tryParse(data['unlimited_expires_at']) : null,
       );
     } else {
       return WalletResult(
@@ -175,6 +176,7 @@ class UserService {
         balance: _safeParseDouble(response.data['balance']),
         bonusAmount: _safeParseDouble(response.data['bonus_amount']),
         totalCredited: _safeParseDouble(response.data['total_credited']),
+        unlimitedExpiresAt: response.data['unlimited_expires_at'] != null ? DateTime.tryParse(response.data['unlimited_expires_at']) : null,
         message: response.data['message'],
       );
     } else {
@@ -323,6 +325,7 @@ class WalletResult {
   final double bonusAmount;
   final double totalCredited;
   final List<dynamic> transactions;
+  final DateTime? unlimitedExpiresAt;
   final String? message;
   final String? error;
 
@@ -332,6 +335,7 @@ class WalletResult {
     this.bonusAmount = 0,
     this.totalCredited = 0,
     this.transactions = const [],
+    this.unlimitedExpiresAt,
     this.message,
     this.error,
   });

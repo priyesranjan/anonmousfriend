@@ -6,6 +6,7 @@ import '../screens/listener_rating.dart';
 import '../../services/active_call_service.dart';
 import '../../services/ad_service.dart';
 import '../../services/app_task_service.dart';
+import '../../services/user_service.dart';
 
 /// ──────────────────────────────────────────────────────────────────
 /// User-side calling screen — professional mobile call UI.
@@ -31,6 +32,7 @@ class Calling extends StatefulWidget {
   final String? topic;
   final String? language;
   final String? gender;
+  final bool isRandomCall;
 
   const Calling({
     super.key,
@@ -44,6 +46,7 @@ class Calling extends StatefulWidget {
     this.topic,
     this.language,
     this.gender,
+    this.isRandomCall = false,
   });
 
   @override
@@ -58,8 +61,10 @@ class _CallingState extends State<Calling>
   bool _hadConnected = false;
   bool _ratingShown = false;
   bool _isNavigating = false;
+  bool _isVip = false;
   final ActiveCallService _activeCallService = ActiveCallService();
   final AppTaskService _appTaskService = AppTaskService();
+  final UserService _userService = UserService();
 
   @override
   void initState() {
@@ -88,6 +93,16 @@ class _CallingState extends State<Calling>
     )..repeat(reverse: true);
 
     _controller.initialize();
+    _checkVip();
+  }
+
+  Future<void> _checkVip() async {
+    final userResult = await _userService.getProfile();
+    if (userResult.success && userResult.user?.unlimitedExpiresAt != null) {
+      if (userResult.user!.unlimitedExpiresAt!.isAfter(DateTime.now())) {
+        if (mounted) setState(() => _isVip = true);
+      }
+    }
   }
 
   void _onControllerChanged() {
@@ -148,9 +163,11 @@ class _CallingState extends State<Calling>
 
   void _openRatingOrClose() async {
     // Post-call interstitial ad (Section 13: after call ends)
-    try {
-      await AdService().showInterstitialAd();
-    } catch (_) {}
+    if (widget.isRandomCall) {
+      try {
+        await AdService().showInterstitialAd();
+      } catch (_) {}
+    }
 
     if (_shouldOpenRating()) {
       _ratingShown = true;
@@ -566,6 +583,28 @@ class _CallingState extends State<Calling>
                 : _fallbackAvatar(),
           ),
         ),
+        if (name == widget.userName && _isVip)
+          Transform.translate(
+            offset: const Offset(0, -12),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(colors: [Colors.purple, Colors.deepPurple]),
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(color: Colors.purple.withOpacity(0.5), blurRadius: 4, offset: const Offset(0, 2)),
+                ],
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.stars, color: Colors.amber, size: 10),
+                  SizedBox(width: 2),
+                  Text('VIP', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                ],
+              ),
+            ),
+          ),
         SizedBox(height: isSmallScreen ? 8 : 12),
         Text(
           name,

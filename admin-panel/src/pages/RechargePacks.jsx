@@ -14,7 +14,10 @@ const RechargePacks = () => {
     extra_percent_or_amount: '',
     badge_text: '',
     is_active: true,
-    sort_order: 0
+    sort_order: 0,
+    is_unlimited: false,
+    unlimited_days: 0,
+    is_first_time_only: false
   });
   const { addNotification } = useNotifications();
 
@@ -44,7 +47,10 @@ const RechargePacks = () => {
       extra_percent_or_amount: pack.extra_percent_or_amount,
       badge_text: pack.badge_text || '',
       is_active: pack.is_active,
-      sort_order: pack.sort_order
+      sort_order: pack.sort_order,
+      is_unlimited: pack.is_unlimited || false,
+      unlimited_days: pack.unlimited_days || 0,
+      is_first_time_only: pack.is_first_time_only || false
     });
   };
 
@@ -56,7 +62,10 @@ const RechargePacks = () => {
       extra_percent_or_amount: '',
       badge_text: '',
       is_active: true,
-      sort_order: 0
+      sort_order: 0,
+      is_unlimited: false,
+      unlimited_days: 0,
+      is_first_time_only: false
     });
   };
 
@@ -143,95 +152,131 @@ const RechargePacks = () => {
           </button>
         </div>
 
-      {(isAdding || editingId) && (
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6 mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                {editingId ? 'Edit Recharge Pack' : 'Add New Recharge Pack'}
-              </h2>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Configure amount, bonus, badge, and display order
-              </p>
+        {(isAdding || editingId) && (
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6 mb-8">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                  {editingId ? 'Edit Recharge Pack' : 'Add New Recharge Pack'}
+                </h2>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Configure amount, bonus, badge, and display order
+                </p>
+              </div>
+              <div className="px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-300">
+                {editingId ? 'Editing' : 'New Pack'}
+              </div>
             </div>
-            <div className="px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-300">
-              {editingId ? 'Editing' : 'New Pack'}
-            </div>
-          </div>
-          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-            <div className="space-y-1.5">
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Amount (₹)</label>
-              <input
-                type="number"
-                value={formData.amount}
-                onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900/60 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-            <div className="space-y-1.5">
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Extra Bonus (%)</label>
-              <input
-                type="number"
-                value={formData.extra_percent_or_amount}
-                onChange={(e) => setFormData({ ...formData, extra_percent_or_amount: e.target.value })}
-                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900/60 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-            <div className="space-y-1.5">
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Badge Label</label>
-              <input
-                type="text"
-                value={formData.badge_text}
-                onChange={(e) => setFormData({ ...formData, badge_text: e.target.value })}
-                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900/60 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Popular, Best Value"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Sort Order</label>
-              <input
-                type="number"
-                value={formData.sort_order}
-                onChange={(e) => setFormData({ ...formData, sort_order: e.target.value })}
-                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900/60 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div className="flex items-center gap-3 md:col-span-2 xl:col-span-1">
-              <label className="inline-flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+            <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+              <div className="space-y-1.5">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Amount (₹)</label>
                 <input
-                  type="checkbox"
-                  checked={formData.is_active}
-                  onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                  className="w-4 h-4 text-blue-600 rounded"
+                  type="number"
+                  value={formData.amount}
+                  onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900/60 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
                 />
-                Active
-              </label>
-              <span className="text-xs text-gray-500 dark:text-gray-400">
-                Active packs are visible in the mobile app
-              </span>
-            </div>
-            <div className="flex items-end gap-3 md:col-span-2 xl:col-span-1">
-              <button
-                type="submit"
-                className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-xl transition-colors font-semibold"
-              >
-                <Save className="w-5 h-5" />
-                <span>Save Pack</span>
-              </button>
-              <button
-                type="button"
-                onClick={handleCancel}
-                className="inline-flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-100 px-6 py-2.5 rounded-xl transition-colors font-semibold"
-              >
-                <X className="w-5 h-5" />
-                <span>Cancel</span>
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
+              </div>
+              <div className="space-y-1.5">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Extra Bonus (%)</label>
+                <input
+                  type="number"
+                  value={formData.extra_percent_or_amount}
+                  onChange={(e) => setFormData({ ...formData, extra_percent_or_amount: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900/60 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  disabled={formData.is_unlimited}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Badge Label</label>
+                <input
+                  type="text"
+                  value={formData.badge_text}
+                  onChange={(e) => setFormData({ ...formData, badge_text: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900/60 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Popular, Best Value"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Sort Order</label>
+                <input
+                  type="number"
+                  value={formData.sort_order}
+                  onChange={(e) => setFormData({ ...formData, sort_order: e.target.value })}
+                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900/60 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div className="space-y-1.5 md:col-span-2 xl:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-5 border-t border-gray-100 dark:border-gray-700 pt-4 mt-2">
+                <div className="flex flex-col gap-2">
+                  <label className="inline-flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    <input
+                      type="checkbox"
+                      checked={formData.is_unlimited}
+                      onChange={(e) => setFormData({ ...formData, is_unlimited: e.target.checked, extra_percent_or_amount: e.target.checked ? '0' : formData.extra_percent_or_amount })}
+                      className="w-4 h-4 text-purple-600 rounded"
+                    />
+                    Is Unlimited Plan?
+                  </label>
+                  {formData.is_unlimited && (
+                    <input
+                      type="number"
+                      placeholder="Valid Days (e.g. 1)"
+                      value={formData.unlimited_days}
+                      onChange={(e) => setFormData({ ...formData, unlimited_days: e.target.value })}
+                      className="w-full px-4 py-2 rounded-lg border border-purple-200 dark:border-purple-900/50 bg-purple-50 dark:bg-purple-900/20 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                  )}
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className="inline-flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    <input
+                      type="checkbox"
+                      checked={formData.is_first_time_only}
+                      onChange={(e) => setFormData({ ...formData, is_first_time_only: e.target.checked })}
+                      className="w-4 h-4 text-orange-600 rounded"
+                    />
+                    First-Time Offer Only?
+                  </label>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    Hide from users who already recharged
+                  </span>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 md:col-span-2 xl:col-span-1">
+                <label className="inline-flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  <input
+                    type="checkbox"
+                    checked={formData.is_active}
+                    onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                    className="w-4 h-4 text-blue-600 rounded"
+                  />
+                  Active
+                </label>
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  Active packs are visible in the mobile app
+                </span>
+              </div>
+              <div className="flex items-end gap-3 md:col-span-2 xl:col-span-1">
+                <button
+                  type="submit"
+                  className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-xl transition-colors font-semibold"
+                >
+                  <Save className="w-5 h-5" />
+                  <span>Save Pack</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCancel}
+                  className="inline-flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-100 px-6 py-2.5 rounded-xl transition-colors font-semibold"
+                >
+                  <X className="w-5 h-5" />
+                  <span>Cancel</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
 
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-6 py-5 border-b border-gray-200 dark:border-gray-700 bg-gray-50/70 dark:bg-gray-900/60">
@@ -268,7 +313,18 @@ const RechargePacks = () => {
                     <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-200">{pack.sort_order}</td>
                     <td className="px-6 py-4 text-sm font-semibold text-gray-900 dark:text-white">₹{pack.amount}</td>
                     <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-200">
-                      {pack.extra_percent_or_amount}%
+                      {pack.is_unlimited ? (
+                        <span className="text-purple-600 dark:text-purple-400 font-bold">
+                          {pack.unlimited_days} Days VIP
+                        </span>
+                      ) : (
+                        <>{pack.extra_percent_or_amount}%</>
+                      )}
+                      {pack.is_first_time_only && (
+                        <span className="ml-2 px-2 py-0.5 rounded text-[10px] font-bold bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300">
+                          1ST TIME
+                        </span>
+                      )}
                     </td>
                     <td className="px-6 py-4 text-sm">
                       {pack.badge_text ? (
@@ -282,9 +338,8 @@ const RechargePacks = () => {
                     <td className="px-6 py-4 text-sm">
                       <button
                         onClick={() => handleToggleActive(pack)}
-                        className={`inline-flex items-center gap-1.5 font-semibold ${
-                          pack.is_active ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
-                        }`}
+                        className={`inline-flex items-center gap-1.5 font-semibold ${pack.is_active ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
+                          }`}
                       >
                         {pack.is_active ? <ToggleRight className="w-6 h-6" /> : <ToggleLeft className="w-6 h-6" />}
                         <span>{pack.is_active ? 'Active' : 'Inactive'}</span>

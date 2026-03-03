@@ -46,11 +46,21 @@ class LiveKitService {
       if (response.isSuccess) {
         final data = response.data;
         debugPrint('LiveKitService: Token fetched successfully');
+        
+        // Always use plain ws:// on port 7880 directly.
+        // The Coolify reverse proxy does NOT handle WebSocket TLS on this port.
+        // Using wss:// causes HandshakeException: WRONG_VERSION_NUMBER.
+        String livekitUrl = data['url'] ?? 'ws://91.108.111.194:7880';
+        if (livekitUrl.startsWith('wss://')) {
+          // Override any wss:// URL from backend — force plain ws://
+          livekitUrl = 'ws://91.108.111.194:7880';
+          debugPrint('LiveKitService: Overriding wss:// URL to ws://91.108.111.194:7880');
+        }
+        
         return TokenResult(
           success: true,
           token: data['token'],
-          // Provide default URL if backend doesn't return one
-          url: data['url'] ?? 'wss://livekit.appdost.com',
+          url: livekitUrl,
         );
       } else {
         return TokenResult(

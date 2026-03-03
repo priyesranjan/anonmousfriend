@@ -318,6 +318,7 @@ class _RandomCallScreenState extends State<RandomCallScreen>
           userAvatar: userAvatar,
           channelName: callId,
           listenerId: listenerId,
+          isRandomCall: true,
         ),
       ),
     );
