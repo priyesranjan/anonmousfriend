@@ -12,8 +12,11 @@ services:
       - "3478:3478/udp"   # TURN UDP — open in VPS firewall
       - "5349:5349/tcp"   # TURN TLS — open in VPS firewall
     volumes:
-      - ./livekit.yaml:/etc/livekit.yaml
-    command: --config /etc/livekit.yaml
+      - ./:/workspace  # Mount the repo root to avoid Docker creating a directory for the file
+    command: --config /workspace/livekit.yaml
+    networks:
+      - coolify
+      - default
 
   # ======== BACKEND ========
   backend:
@@ -42,6 +45,9 @@ services:
       - LIVEKIT_API_SECRET=${LIVEKIT_API_SECRET:-secret}
       # Public WSS URL the MOBILE APP uses to connect (port 7880 exposed on VPS)
       - LIVEKIT_URL=${LIVEKIT_URL:-wss://livekit.appdost.com:7880}
+    networks:
+      - coolify
+      - default
 
   # ======== ADMIN PANEL ========
   admin-panel:
@@ -54,3 +60,11 @@ services:
       - "${ADMIN_PORT:-8888}:80"
     depends_on:
       - backend
+    networks:
+      - coolify
+      - default
+
+# Connect to Coolify's internal network to reach the PostgreSQL container
+networks:
+  coolify:
+    external: true
