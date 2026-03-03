@@ -10,6 +10,7 @@ import config from './config/config.js';
 import { testConnection, ensureSchema, pool, getRateConfig } from './db.js';
 // Initialize Express app
 const app = express();
+app.set('trust proxy', 1); // Trust first proxy (required for Coolify/Nginx rate limiting)
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: config.cors,
