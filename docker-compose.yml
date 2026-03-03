@@ -54,8 +54,9 @@ services:
       # LiveKit credentials — must match LIVEKIT_KEYS above
       - LIVEKIT_API_KEY=${LIVEKIT_API_KEY:-devkey}
       - LIVEKIT_API_SECRET=${LIVEKIT_API_SECRET:-devkey-super-secure-secret-32chars!}
-      # Public WSS URL the MOBILE APP uses to connect
-      - LIVEKIT_URL=${LIVEKIT_URL:-wss://livekit.appdost.com}
+      # Public WS URL the MOBILE APP uses to connect — port 7880 is LiveKit's direct plain WebSocket
+      # (TLS is not terminated for WebSocket by Coolify proxy on this port)
+      - LIVEKIT_URL=${LIVEKIT_URL:-ws://91.108.111.194:7880}
     networks:
       - coolify
       - default
