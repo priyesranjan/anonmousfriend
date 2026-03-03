@@ -1,0 +1,711 @@
+--------- beginning of main
+I/HfLooper( 1305): hal step counter = 2769
+I/WM-WorkerWrapper(27882): Worker result SUCCESS for Work [ id=0009de58-14c2-4a14-bf54-918045b56eba, tags={ com.whatsapp.xmpp.messaging.XmppLifecycleWorker } ]
+I/TranTele/TranPhoneInterfaceManager( 2426): TTC - onSignalStrengthsChanged
+I/TranPhoneSwitcher( 2426): mDefaultsign:4subid :2
+I/TranTele/TranPhoneInterfaceManager( 2426): TTC - onSignalStrengthsChanged
+I/TranPhoneSwitcher( 2426): mDefaultsign:4subid :2
+--------- beginning of system
+I/Hiber/importantScene( 1562): isTrafficActive uid:10281 speed :0
+I/Hiber/appStateMachine( 1562): uid:10281 enter FrozenState
+I/Hiber/stateManager( 1562): freeze uid: 10281 com.whatsapp.w4b costTime=8ms ,last unfreeze 5s ago
+I/Hiber/restrictionPolicy( 1562): uid:10281  pkgName:com.whatsapp.w4b isAllowedNet
+I/Hiber/nativeServiceClient( 1562): watch app network uid=10281, persistent=0
+I/Hiber/hiber( 1562): msg for start proxy frozen state
+I/Hiber/proxyManager( 1562): p_service: 10281
+I/Hiber/proxyManager( 1562): p_job: 10281 pkgName=com.whatsapp.w4b which=2
+I/Hiber/hiber( 1562): proxy alarm (uid=10281, pkgName=com.whatsapp.w4b)
+I/Hiber/proxyManager( 1562): p_alarm: uid=10281, pkgName=com.whatsapp.w4b
+I/Hiber/proxyManager( 1562): p_sensor: uid=10281, pkgName=com.whatsapp.w4b
+E/ApplicationHelper( 1562): Fail to get PackageManager
+I/Hiber/importantScene( 1562): isTrafficActive uid:10141 speed :0
+I/Hiber/importantScene( 1562): bt: packageName=com.google.android.gm
+I/Hiber/appStateMachine( 1562): uid:10141, pkg=com.google.android.gm  can't transition from R to F ,importantcase is : bt
+I/Hiber/nativeServiceClient( 1562): check binder uid=10281
+I/TranTele/TranPhoneInterfaceManager( 2426): TTC - onSignalStrengthsChanged
+I/TranPhoneSwitcher( 2426): mDefaultsign:4subid :2
+I/android.hardware.thermal@2.0-service.mtk(  935): fill_temperatures filterType1 name: SKIN type: SKIN throttlingStatus: NONE value: 42.982 ret_temps size 0
+I/TranTele/TranPhoneInterfaceManager( 2426): TTC - onSignalStrengthsChanged
+I/TranPhoneSwitcher( 2426): mDefaultsign:4subid :2
+I/TranTele/TranPhoneInterfaceManager( 2426): TTC - onSignalStrengthsChanged
+I/TranPhoneSwitcher( 2426): mDefaultsign:4subid :2
+I/TranHBMManagerService( 1562): processValuesLocked normal temperature=385,Threshold=410
+I/TranHBMComponentImpl( 1562): updateBatteryLevel:88
+I/ChargeAnima( 2206): TrSysChargeUtils-updateNativeCharge pumpstat Not fast charge}
+I/TranTele/TranPhoneInterfaceManager( 2426): [onReceive] action: android.intent.action.BATTERY_CHANGED
+W/BatteryLabPowerSaveUtils( 4774): isPowerSaveOpen: false
+I/TranClouldConfigObserver( 5230): onReceive called: Intent.action = android.intent.action.BATTERY_CHANGED
+I/TranTele/TranPhoneInterfaceManager( 2426): TTC - onSignalStrengthsChanged
+I/TranPhoneSwitcher( 2426): mDefaultsign:4subid :2
+I/TranTele/TranPhoneInterfaceManager( 2426): TTC - onSignalStrengthsChanged
+I/TranPhoneSwitcher( 2426): mDefaultsign:4subid :2
+I/TranTele/TranPhoneInterfaceManager( 2426): TTC - onSignalStrengthsChanged
+I/TranPhoneSwitcher( 2426): mDefaultsign:4subid :2
+I/Hiber/stateManager( 1562): unfreeze uid: 10281 com.whatsapp.w4b pids:[27882]  reason:packet   cpninfo:TRANSACTION_-1 costTime=10ms ,last freeze 9s ago
+I/Hiber/appStateMachine( 1562): uid=10281, pkg=com.whatsapp.w4b, transition from Frozen to Running, reason=packet
+I/Hiber/appStateMachine( 1562): uid:10281 exit FrozenState
+I/Hiber/proxyManager( 1562): up_service: 10281
+I/Hiber/proxyManager( 1562): un_job: 10281
+I/Hiber/proxyManager( 1562): up_sensor: uid=10281, pkgName=com.whatsapp.w4b
+I/HfLooper( 1305): hal step counter = 2769
+I/TranTele/TranPhoneInterfaceManager( 2426): TTC - onSignalStrengthsChanged
+I/TranPhoneSwitcher( 2426): mDefaultsign:4subid :2
+I/Hiber/importantScene( 1562): default_sms: packageName=com.google.android.apps.messaging
+I/Hiber/appStateMachine( 1562): uid:10274, pkg=com.google.android.apps.messaging  can't transition from R to F ,importantcase is : default_sms
+D/ccci_mdinit( 1002): (1):monitor_time_update_thread round:2087 ########
+W/TeeEndorsementInstaller( 1022): Endorsement token not found, wait a bit longer (81 sec) [vendor/mediatek/proprietary/trustzone/trustonic/source/external/mobicore/common/510/Daemon/src/EndorsementInstaller.cpp:104]
+D/TranSignalStrengthComponentImpl( 2426): [NR] dbm: -98
+D/TranSignalStrengthComponentImpl( 2426): [NR] dbm: -98
+D/TranSignalStrengthComponentImpl(27882): [NR] dbm: -98
+D/CallbackProxy( 5230): [onSignalStrengthsChanged]
+D/TranSignalStrengthComponentImpl( 1562): [NR] dbm: -98
+I/TranTele/TranPhoneInterfaceManager( 2426): TTC - onSignalStrengthsChanged
+D/TranPhoneSwitcher( 2426): getNetworkType: 5G
+I/TranPhoneSwitcher( 2426): mDefaultsign:4subid :2
+D/TranWifiTputMonitor( 1562): SOFTAP: TX: 4 RX: 62 TOTAL = 66
+D/TranWifiTputMonitor( 1562): High Tput: false, TOTAL TPUT: 66
+D/ULogGuard( 1312): Monitoring: 16 threads, 0 requests, 0 time-bombs; 1 guards. ResetFlags = 0x7
+I/android.hardware.thermal@2.0-service.mtk(  935): fill_temperatures filterType1 name: SKIN type: SKIN throttlingStatus: NONE value: 42.857 ret_temps size 0
+V/SettingsProvider( 1562): name : tran_board_temperature appId : 1000
+D/BackupManagerService( 1562): mUserServices size: 1
+I/Hiber/importantScene( 1562): isTrafficActive uid:10281 speed :0
+I/Hiber/appStateMachine( 1562): uid:10281 enter FrozenState
+I/Hiber/stateManager( 1562): freeze uid: 10281 com.whatsapp.w4b costTime=10ms ,last unfreeze 5s ago
+I/Hiber/restrictionPolicy( 1562): uid:10281  pkgName:com.whatsapp.w4b isAllowedNet
+I/Hiber/nativeServiceClient( 1562): watch app network uid=10281, persistent=0
+I/Hiber/hiber( 1562): msg for start proxy frozen state
+D/ActivityManager( 1562): Hiber try idle uid[10281] by hiber ,bgTime>0 ? true,isIdled before ? true ,isCurAllowListed ? false ,isProcStateBackground?true
+D/ActivityManager( 1562): Hiber try idle uid[10281] by hiber
+I/Hiber/proxyManager( 1562): p_service: 10281
+I/Hiber/proxyManager( 1562): p_job: 10281 pkgName=com.whatsapp.w4b which=2
+I/Hiber/hiber( 1562): proxy alarm (uid=10281, pkgName=com.whatsapp.w4b)
+I/Hiber/proxyManager( 1562): p_alarm: uid=10281, pkgName=com.whatsapp.w4b
+E/ApplicationHelper( 1562): Fail to get PackageManager
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{7071468 type 3 origWhen 40001043 whenElapsed 40001043 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{d3897be type 2 origWhen 40340122 whenElapsed 40340122 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{fb2266d type 2 origWhen 40480484 whenElapsed 40480484 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{7e17f23 type 3 origWhen 43260018 whenElapsed 43260018 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{c26107a type 0 origWhen 1772476212000 whenElapsed 49020465 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{70fae43 type 0 origWhen 1772476221000 whenElapsed 49029465 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{397ccc0 type 3 origWhen 49286148 whenElapsed 49286148 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{d96602b type 0 origWhen 1772483401000 whenElapsed 56209464 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{484ddf9 type 0 origWhen 1772483429000 whenElapsed 56237464 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{6963c88 type 3 origWhen 66598744 whenElapsed 66598744 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{135540f type 2 origWhen 107373296 whenElapsed 107373296 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{d996621 type 2 origWhen 107373296 whenElapsed 107373296 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms leave, uid=10281, packageName=com.whatsapp.w4b
+I/Hiber/proxyManager( 1562): p_sensor: uid=10281, pkgName=com.whatsapp.w4b
+D/TranSignalStrengthComponentImpl( 2426): [NR] dbm: -101
+D/TranSignalStrengthComponentImpl( 2426): [NR] dbm: -101
+D/CallbackProxy( 5230): [onSignalStrengthsChanged]
+I/TranTele/TranPhoneInterfaceManager( 2426): TTC - onSignalStrengthsChanged
+D/TranSignalStrengthComponentImpl( 1562): [NR] dbm: -101
+D/TranPhoneSwitcher( 2426): getNetworkType: 5G
+I/TranPhoneSwitcher( 2426): mDefaultsign:4subid :2
+I/Hiber/nativeServiceClient( 1562): check binder uid=10281
+V/Hiber/hiber( 1562): unfreeze from hiber: (2,-1,-1,-1,10281), rpcName: FROZEN_TRANS_PROC, code: 1, reason:transBinder
+D/TranSignalStrengthComponentImpl(27882): [NR] dbm: -101
+I/Hiber/stateManager( 1562): unfreeze uid: 10281 com.whatsapp.w4b pids:[27882]  reason:transBinder   cpninfo:TRANSACTION_1 costTime=10ms ,last freeze 1s ago
+I/Hiber/appStateMachine( 1562): uid=10281, pkg=com.whatsapp.w4b, transition from Frozen to Running, reason=transBinder
+I/Hiber/appStateMachine( 1562): uid:10281 exit FrozenState
+D/Hiber/proxyWakeLock( 1562): remove uid: 10281 wiht all pids from wakelockUidInfo list
+I/Hiber/proxyManager( 1562): up_service: 10281
+I/Hiber/proxyManager( 1562): un_job: 10281
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{7071468 type 3 origWhen 40001043 whenElapsed 40001043 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{d3897be type 2 origWhen 40340122 whenElapsed 40340122 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{fb2266d type 2 origWhen 40480484 whenElapsed 40480484 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{7e17f23 type 3 origWhen 43260018 whenElapsed 43260018 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{c26107a type 0 origWhen 1772476212000 whenElapsed 49020465 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{70fae43 type 0 origWhen 1772476221000 whenElapsed 49029465 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{397ccc0 type 3 origWhen 49286148 whenElapsed 49286148 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{d96602b type 0 origWhen 1772483401000 whenElapsed 56209464 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{484ddf9 type 0 origWhen 1772483429000 whenElapsed 56237464 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{6963c88 type 3 origWhen 66598744 whenElapsed 66598744 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{135540f type 2 origWhen 107373296 whenElapsed 107373296 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{d996621 type 2 origWhen 107373296 whenElapsed 107373296 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms leave, uid=10281, packageName=null
+I/Hiber/proxyManager( 1562): up_sensor: uid=10281, pkgName=com.whatsapp.w4b
+D/TranSignalStrengthComponentImpl( 2426): [NR] dbm: -105
+D/TranSignalStrengthComponentImpl( 2426): [NR] dbm: -105
+I/TranTele/TranPhoneInterfaceManager( 2426): TTC - onSignalStrengthsChanged
+D/CallbackProxy( 5230): [onSignalStrengthsChanged]
+D/TranSignalStrengthComponentImpl( 1562): [NR] dbm: -105
+D/TranSignalStrengthComponentImpl(27882): [NR] dbm: -105
+D/TranPhoneSwitcher( 2426): getNetworkType: 5G
+I/TranPhoneSwitcher( 2426): mDefaultsign:4subid :2
+D/TranSignalStrengthComponentImpl( 2426): [NR] dbm: -102
+D/TranSignalStrengthComponentImpl( 2426): [NR] dbm: -102
+I/TranTele/TranPhoneInterfaceManager( 2426): TTC - onSignalStrengthsChanged
+D/TranSignalStrengthComponentImpl( 1562): [NR] dbm: -102
+D/CallbackProxy( 5230): [onSignalStrengthsChanged]
+D/TranSignalStrengthComponentImpl(27882): [NR] dbm: -102
+E/MtkPhoneIntfMgrEx( 2426): MainThreadHandler.handleMessage : 3
+D/TLinkBrush_RAT( 2426): [handleMessage] : URC_OBSERVER
+D/TLinkBrush_DATA( 2426): [TranSST1] rsrp +EGREG:1,0001AF,0C22E8002,32768,FF,0,0,0,1,0,0,0
+D/TLinkBrush_RAT( 2426): AT RESPONSE
+D/TLinkBrush_RAT( 2426): Response str = +EGREG: 1,"0001AF","0C22E8002",32768,"FF",0,0,0,1,0,0,0
+D/TLinkBrush_RAT( 2426): processUnsolOemMsg --- resp : +EGREG: 1,"0001AF","0C22E8002",32768,"FF",0,0,0,1,0,0,0
+D/MtkPhoneIntfMgrEx( 2426): EVENT_AT_URC_IND(1) AT(prefix): +EGREG
+D/TranPhoneSwitcher( 2426): getNetworkType: 5G
+I/TranPhoneSwitcher( 2426): mDefaultsign:4subid :2
+D/TRNS_PluginBase( 5230): EVENT_AT_COMMAND_URC: [1, +EGREG: 1,"0001AF","0C22E8002",32768,"FF",0,0,0,1,0,0,0]
+D/UrcEventAnalyzer( 5230): Illegal dmf module id.
+D/TranTeleDataStoreController( 2426): [cellInfoListUrcUpdate] test!
+D/TranTeleDataStoreController( 2426): cell info list:[CellInfoNr:{ mRegistered=YES mTimeStamp=39777773614597ns mCellConnectionStatus=1 CellIdentityNr:{ mPci = 97 mTac = 431 mNrArfcn = 634080 mBands = [78] mMcc = 405 mMnc = 856 mNci = 3257827329 mAlphaLong = IND-JIO mAlphaShort = JIO mAdditionalPlmns = {} } CellSignalStrengthNr:{ csiRsrp = 2147483647 csiRsrq = 2147483647 csiCqiTableIndex = 2147483647 csiCqiReport = [] ssRsrp = -92 ssRsrq = -11 ssSinr = 20 level = 1 parametersUseForLevel = 1 timingAdvance = 2147483647 } }, CellInfoNr:{ mRegistered=NO mTimeStamp=39777773614597ns mCellConnectionStatus=0 CellIdentityNr:{ mPci = 75 mTac = 2147483647 mNrArfcn = 634080 mBands = [78] mMcc = null mMnc = null mNci = 268435455 mAlphaLong =  mAlphaShort =  mAdditionalPlmns = {} } CellSignalStrengthNr:{ csiRsrp = 2147483647 csiRsrq = 2147483647 csiCqiTableIndex = 2147483647 csiCqiReport = [] ssRsrp = -107 ssRsrq = -12 ssSinr = 5 level = 1 parametersUseForLevel = 1 timingAdvance = 2147483647 } }, CellInfoNr:{ mRegistered=NO mTimeStamp=39777773614597ns mCellConnectionStatus=0 CellIdentityNr:{ mPci = 426 mTac = 2147483647 mNrArfcn = 634080 mBands = [78] mMcc = null mMnc = null mNci = 268435455 mAlphaLong =  mAlphaShort =  mAdditionalPlmns = {} } CellSignalStrengthNr:{ csiRsrp = 2147483647 csiRsrq = 2147483647 csiCqiTableIndex = 2147483647 csiCqiReport = [] ssRsrp = -111 ssRsrq = -17 ssSinr = -6 level = 0 parametersUseForLevel = 1 timingAdvance = 2147483647 } }, CellInfoNr:{ mRegistered=NO mTimeStamp=39777773614597ns mCellConnectionStatus=0 CellIdentityNr:{ mPci = 428 mTac = 2147483647 mNrArfcn = 634080 mBands = [78] mMcc = null mMnc = null mNci = 268435455 mAlphaLong =  mAlphaShort =  mAdditionalPlmns = {} } CellSignalStrengthNr:{ csiRsrp = 2147483647 csiRsrq = 2147483647 csiCqiTableIndex = 2147483647 csiCqiReport = [] ssRsrp = -112 ssRsrq = -13 ssSinr = 2 level = 0 parametersUseForLevel = 1 timingAdvance = 2147483647 } }, CellInfoNr:{ mRegistered=NO mTimeStamp=39777773614597ns mCellConnectionStatus=0 CellIdentityNr:{ mPci = 281 mTac = 2147483647 mNrArfcn = 634080 mBands = [78] mMcc = null mMnc = null mNci = 268435455 mAlphaLong =  mAlphaShort =  mAdditionalPlmns = {} } CellSignalStrengthNr:{ csiRsrp = 2147483647 csiRsrq = 2147483647 csiCqiTableIndex = 2147483647 csiCqiReport = [] ssRsrp = -112 ssRsrq = -12 ssSinr = 5 level = 0 parametersUseForLevel = 1 timingAdvance = 2147483647 } }, CellInfoNr:{ mRegistered=NO mTimeStamp=39777773614597ns mCellConnectionStatus=0 CellIdentityNr:{ mPci = 299 mTac = 2147483647 mNrArfcn = 634080 mBands = [78] mMcc = null mMnc = null mNci = 268435455 mAlphaLong =  mAlphaShort =  mAdditionalPlmns = {} } CellSignalStrengthNr:{ csiRsrp = 2147483647 csiRsrq = 2147483647 csiCqiTableIndex = 2147483647 csiCqiReport = [] ssRsrp = -120 ssRsrq = -20 ssSinr = -10 level = 0 parametersUseForLevel = 1 timingAdvance = 2147483647 } }]
+I/TranTele/TranPhoneInterfaceManager( 2426): TTC - onCellInfoChanged
+D/TranTeleDataStoreController( 2426): [cellInfoListUrcUpdate] test!
+D/TranTeleDataStoreController( 2426): cell info list:[CellInfoNr:{ mRegistered=YES mTimeStamp=39777782501597ns mCellConnectionStatus=1 CellIdentityNr:{ mPci = 97 mTac = 431 mNrArfcn = 634080 mBands = [78] mMcc = 405 mMnc = 856 mNci = 3257827329 mAlphaLong = IND-JIO mAlphaShort = JIO mAdditionalPlmns = {} } CellSignalStrengthNr:{ csiRsrp = 2147483647 csiRsrq = 2147483647 csiCqiTableIndex = 2147483647 csiCqiReport = [] ssRsrp = -92 ssRsrq = -11 ssSinr = 20 level = 1 parametersUseForLevel = 1 timingAdvance = 2147483647 } }, CellInfoNr:{ mRegistered=NO mTimeStamp=39777782501597ns mCellConnectionStatus=0 CellIdentityNr:{ mPci = 75 mTac = 2147483647 mNrArfcn = 634080 mBands = [78] mMcc = null mMnc = null mNci = 268435455 mAlphaLong =  mAlphaShort =  mAdditionalPlmns = {} } CellSignalStrengthNr:{ csiRsrp = 2147483647 csiRsrq = 2147483647 csiCqiTableIndex = 2147483647 csiCqiReport = [] ssRsrp = -107 ssRsrq = -12 ssSinr = 5 level = 1 parametersUseForLevel = 1 timingAdvance = 2147483647 } }, CellInfoNr:{ mRegistered=NO mTimeStamp=39777782501597ns mCellConnectionStatus=0 CellIdentityNr:{ mPci = 426 mTac = 2147483647 mNrArfcn = 634080 mBands = [78] mMcc = null mMnc = null mNci = 268435455 mAlphaLong =  mAlphaShort =  mAdditionalPlmns = {} } CellSignalStrengthNr:{ csiRsrp = 2147483647 csiRsrq = 2147483647 csiCqiTableIndex = 2147483647 csiCqiReport = [] ssRsrp = -111 ssRsrq = -17 ssSinr = -6 level = 0 parametersUseForLevel = 1 timingAdvance = 2147483647 } }, CellInfoNr:{ mRegistered=NO mTimeStamp=39777782501597ns mCellConnectionStatus=0 CellIdentityNr:{ mPci = 428 mTac = 2147483647 mNrArfcn = 634080 mBands = [78] mMcc = null mMnc = null mNci = 268435455 mAlphaLong =  mAlphaShort =  mAdditionalPlmns = {} } CellSignalStrengthNr:{ csiRsrp = 2147483647 csiRsrq = 2147483647 csiCqiTableIndex = 2147483647 csiCqiReport = [] ssRsrp = -112 ssRsrq = -13 ssSinr = 2 level = 0 parametersUseForLevel = 1 timingAdvance = 2147483647 } }, CellInfoNr:{ mRegistered=NO mTimeStamp=39777782501597ns mCellConnectionStatus=0 CellIdentityNr:{ mPci = 281 mTac = 2147483647 mNrArfcn = 634080 mBands = [78] mMcc = null mMnc = null mNci = 268435455 mAlphaLong =  mAlphaShort =  mAdditionalPlmns = {} } CellSignalStrengthNr:{ csiRsrp = 2147483647 csiRsrq = 2147483647 csiCqiTableIndex = 2147483647 csiCqiReport = [] ssRsrp = -112 ssRsrq = -12 ssSinr = 5 level = 0 parametersUseForLevel = 1 timingAdvance = 2147483647 } }, CellInfoNr:{ mRegistered=NO mTimeStamp=39777782501597ns mCellConnectionStatus=0 CellIdentityNr:{ mPci = 299 mTac = 2147483647 mNrArfcn = 634080 mBands = [78] mMcc = null mMnc = null mNci = 268435455 mAlphaLong =  mAlphaShort =  mAdditionalPlmns = {} } CellSignalStrengthNr:{ csiRsrp = 2147483647 csiRsrq = 2147483647 csiCqiTableIndex = 2147483647 csiCqiReport = [] ssRsrp = -120 ssRsrq = -20 ssSinr = -10 level = 0 parametersUseForLevel = 1 timingAdvance = 2147483647 } }]
+I/TranTele/TranPhoneInterfaceManager( 2426): TTC - onCellInfoChanged
+D/TLinkBrush_DATA( 2426): [TranSST1] checkOos -- state = 0
+I/TranTele/TranPhoneInterfaceManager( 2426): [getPTWhiteList]
+I/TranTele/TranPhoneInterfaceManager( 2426): [getPtPolicyforSlotIndex]
+W/ContextImpl( 1562): Calling a method in the system process without a qualified user: android.app.ContextImpl.sendBroadcastMultiplePermissions:1342 android.content.Context.sendBroadcastMultiplePermissions:2524 com.android.server.TelephonyRegistry.broadcastServiceStateChanged:3701 com.android.server.TelephonyRegistry.notifyServiceStateForPhoneId:1763 com.android.internal.telephony.ITelephonyRegistry$Stub.onTransact:546 
+I/TranTele/TranPhoneInterfaceManager( 2426): TTC - onServiceStateChanged
+I/TranTele/ReliableDetectionController( 2426): getDeviceState 4
+D/CallbackProxy( 5230): [onServiceStateChanged]
+I/TranTele/TranRatStallController( 2426): [onServiceStateChanged] Not support or trueOning return.
+D/TranSnifferController[1]( 2426): onServiceStateChanged: subId = 2, state = 0
+I/TranElevatorModeForCarrierController( 2426): [isElevatorModeForCarrierDisable] disable0
+D/TranElevatorModeForCarrierController( 2426): [onServiceStateChanged] subId:2,isDisable:false
+D/TranElevatorModeForCarrierController( 2426): [isContains] value:405856
+W/ContextImpl( 1562): Calling a method in the system process without a qualified user: android.app.ContextImpl.sendBroadcastMultiplePermissions:1382 com.android.server.TelephonyRegistry.broadcastServiceStateChanged:3706 com.android.server.TelephonyRegistry.notifyServiceStateForPhoneId:1763 com.android.internal.telephony.ITelephonyRegistry$Stub.onTransact:546 android.os.Binder.execTransactInternal:1534 
+I/TranTele/DynamicSarCtl( 2426): [DynamicSarHandler] msg.what=33108
+D/TranElevatorModeForCarrierController( 2426): [isContains] testPlmn:null
+I/TranTele/DynamicSarCtl( 2426): [orgStateInspection] return
+D/TranElevatorModeForCarrierController( 2426): [isContains] value:405856
+D/TranElevatorModeForCarrierController( 2426): [isContains] testPlmn:null
+D/UpdateCarrierConfigController( 2426): [onServiceStateChanged] mccMnc = 405856, subId = 2, serviceState = 0
+D/UpdateCarrierConfigController( 2426): updateCarrierConfigBoolean: subId=2, ccKey=hide_rat_icon_when_wifi_bool, value=false
+D/UpdateCarrierConfigController( 2426): updateCarrierConfigBoolean: subId=2, ccKey=show_custom_lte_ca_icon, value=true
+W/ContextImpl( 1562): Calling a method in the system process without a qualified user: android.app.ContextImpl.sendBroadcastMultiplePermissions:1382 com.android.server.TelephonyRegistry.broadcastServiceStateChanged:3715 com.android.server.TelephonyRegistry.notifyServiceStateForPhoneId:1763 com.android.internal.telephony.ITelephonyRegistry$Stub.onTransact:546 android.os.Binder.execTransactInternal:1534 
+D/UpdateCarrierConfigController( 2426): updateCarrierConfigBoolean: subId=2, ccKey=show_custom_lte_ca_icon_plus, value=false
+W/ContextImpl( 1562): Calling a method in the system process without a qualified user: android.app.ContextImpl.sendBroadcastMultiplePermissions:1382 com.android.server.TelephonyRegistry.broadcastServiceStateChanged:3721 com.android.server.TelephonyRegistry.notifyServiceStateForPhoneId:1763 com.android.internal.telephony.ITelephonyRegistry$Stub.onTransact:546 android.os.Binder.execTransactInternal:1534 
+D/UpdateCarrierConfigController( 2426): updateCarrierConfigBoolean: subId=1, ccKey=always_show_data_rat_icon_bool, value=true
+D/UpdateCarrierConfigController( 2426): updateCarrierConfigBoolean: subId=1, ccKey=tran_always_show_data_rat_icon_bool, value=true
+D/ServiceStateProvider( 2426): subId=2
+I/tranpm/BroadcastPolicy( 1562): isBlockHs1 true
+I/tranpm/BroadcastPolicy( 1562): limitScheduleReceiverColdLocked by hs: callingPackage = android, targetPkg = com.google.android.cellbroadcastreceiver action = android.intent.action.SERVICE_STATE
+D/NetRatStallController( 2426): [onServiceStateChanged] inService = true
+D/PingPongDetector1( 2426): onServiceStateChanged: dataRat=5G, voiceRat=5G
+I/TranTele/TranBlindAfrPingPongController_0( 2426): [onServiceStateChanged] Not support or trueOning return.
+I/TranTele/TranBlindAfrPingPongController_1( 2426): [onServiceStateChanged] Not support or trueOning return.
+D/SysUI(260105)_CarrierText( 2206): setCarrierText: carrierText = Airtel GÇö Jio True5G
+I/TranPhoneSwitcher( 2426): mDefaultServiceState:0subid :2
+I/TranTele/TranPhoneInterfaceManager( 2426): [getPTWhiteList]
+I/TranTele/TranPhoneInterfaceManager( 2426): [getPtPolicyforSlotIndex]
+I/TranTele/TranPhoneInterfaceManager( 2426): [getPTWhiteList]
+I/TranTele/TranPhoneInterfaceManager( 2426): [getPtPolicyforSlotIndex]
+D/PhoneGlobals( 2426): mShownNotificationReasons: {},shownForThisReason: false,shownInThisNumeric: false
+D/TranWifiTputMonitor( 1562): SOFTAP: TX: 12 RX: 6 TOTAL = 18
+D/TranWifiTputMonitor( 1562): High Tput: false, TOTAL TPUT: 18
+D/ULogGuard( 1312): Monitoring: 16 threads, 0 requests, 0 time-bombs; 1 guards. ResetFlags = 0x7
+D/TranSignalStrengthComponentImpl( 2426): [NR] dbm: -104
+D/TranSignalStrengthComponentImpl( 2426): [NR] dbm: -104
+D/TranSignalStrengthComponentImpl(27882): [NR] dbm: -104
+D/CallbackProxy( 5230): [onSignalStrengthsChanged]
+D/TranSignalStrengthComponentImpl( 1562): [NR] dbm: -104
+I/TranTele/TranPhoneInterfaceManager( 2426): TTC - onSignalStrengthsChanged
+E/MtkPhoneIntfMgrEx( 2426): MainThreadHandler.handleMessage : 3
+D/MtkPhoneIntfMgrEx( 2426): EVENT_AT_URC_IND(1) AT(prefix): +EGREG
+D/TranPhoneSwitcher( 2426): getNetworkType: 5G
+I/TranPhoneSwitcher( 2426): mDefaultsign:4subid :2
+D/TLinkBrush_RAT( 2426): [handleMessage] : URC_OBSERVER
+D/TLinkBrush_RAT( 2426): AT RESPONSE
+D/TLinkBrush_RAT( 2426): Response str = +EGREG: 1,"0001AF","0C22E8001",32768,"FF",0,0,0,1,0,0,0
+D/TLinkBrush_RAT( 2426): processUnsolOemMsg --- resp : +EGREG: 1,"0001AF","0C22E8001",32768,"FF",0,0,0,1,0,0,0
+D/TRNS_PluginBase( 5230): EVENT_AT_COMMAND_URC: [1, +EGREG: 1,"0001AF","0C22E8001",32768,"FF",0,0,0,1,0,0,0]
+D/UrcEventAnalyzer( 5230): Illegal dmf module id.
+D/TLinkBrush_DATA( 2426): [TranSST1] rsrp +EGREG:1,0001AF,0C22E8001,32768,FF,0,0,0,1,0,0,0
+D/TranTeleDataStoreController( 2426): [cellInfoListUrcUpdate] test!
+D/TranTeleDataStoreController( 2426): cell info list:[CellInfoNr:{ mRegistered=YES mTimeStamp=39778394046212ns mCellConnectionStatus=1 CellIdentityNr:{ mPci = 97 mTac = 431 mNrArfcn = 634080 mBands = [78] mMcc = 405 mMnc = 856 mNci = 3257827329 mAlphaLong = IND-JIO mAlphaShort = JIO mAdditionalPlmns = {} } CellSignalStrengthNr:{ csiRsrp = 2147483647 csiRsrq = 2147483647 csiCqiTableIndex = 2147483647 csiCqiReport = [] ssRsrp = -92 ssRsrq = -11 ssSinr = 20 level = 1 parametersUseForLevel = 1 timingAdvance = 2147483647 } }, CellInfoNr:{ mRegistered=NO mTimeStamp=39778394046212ns mCellConnectionStatus=0 CellIdentityNr:{ mPci = 75 mTac = 2147483647 mNrArfcn = 634080 mBands = [78] mMcc = null mMnc = null mNci = 268435455 mAlphaLong =  mAlphaShort =  mAdditionalPlmns = {} } CellSignalStrengthNr:{ csiRsrp = 2147483647 csiRsrq = 2147483647 csiCqiTableIndex = 2147483647 csiCqiReport = [] ssRsrp = -107 ssRsrq = -12 ssSinr = 5 level = 1 parametersUseForLevel = 1 timingAdvance = 2147483647 } }, CellInfoNr:{ mRegistered=NO mTimeStamp=39778394046212ns mCellConnectionStatus=0 CellIdentityNr:{ mPci = 426 mTac = 2147483647 mNrArfcn = 634080 mBands = [78] mMcc = null mMnc = null mNci = 268435455 mAlphaLong =  mAlphaShort =  mAdditionalPlmns = {} } CellSignalStrengthNr:{ csiRsrp = 2147483647 csiRsrq = 2147483647 csiCqiTableIndex = 2147483647 csiCqiReport = [] ssRsrp = -111 ssRsrq = -17 ssSinr = -6 level = 0 parametersUseForLevel = 1 timingAdvance = 2147483647 } }, CellInfoNr:{ mRegistered=NO mTimeStamp=39778394046212ns mCellConnectionStatus=0 CellIdentityNr:{ mPci = 428 mTac = 2147483647 mNrArfcn = 634080 mBands = [78] mMcc = null mMnc = null mNci = 268435455 mAlphaLong =  mAlphaShort =  mAdditionalPlmns = {} } CellSignalStrengthNr:{ csiRsrp = 2147483647 csiRsrq = 2147483647 csiCqiTableIndex = 2147483647 csiCqiReport = [] ssRsrp = -112 ssRsrq = -13 ssSinr = 2 level = 0 parametersUseForLevel = 1 timingAdvance = 2147483647 } }, CellInfoNr:{ mRegistered=NO mTimeStamp=39778394046212ns mCellConnectionStatus=0 CellIdentityNr:{ mPci = 281 mTac = 2147483647 mNrArfcn = 634080 mBands = [78] mMcc = null mMnc = null mNci = 268435455 mAlphaLong =  mAlphaShort =  mAdditionalPlmns = {} } CellSignalStrengthNr:{ csiRsrp = 2147483647 csiRsrq = 2147483647 csiCqiTableIndex = 2147483647 csiCqiReport = [] ssRsrp = -112 ssRsrq = -12 ssSinr = 5 level = 0 parametersUseForLevel = 1 timingAdvance = 2147483647 } }, CellInfoNr:{ mRegistered=NO mTimeStamp=39778394046212ns mCellConnectionStatus=0 CellIdentityNr:{ mPci = 299 mTac = 2147483647 mNrArfcn = 634080 mBands = [78] mMcc = null mMnc = null mNci = 268435455 mAlphaLong =  mAlphaShort =  mAdditionalPlmns = {} } CellSignalStrengthNr:{ csiRsrp = 2147483647 csiRsrq = 2147483647 csiCqiTableIndex = 2147483647 csiCqiReport = [] ssRsrp = -120 ssRsrq = -20 ssSinr = -10 level = 0 parametersUseForLevel = 1 timingAdvance = 2147483647 } }]
+I/TranTele/TranPhoneInterfaceManager( 2426): TTC - onCellInfoChanged
+D/TranTeleDataStoreController( 2426): [cellInfoListUrcUpdate] test!
+D/TranTeleDataStoreController( 2426): cell info list:[CellInfoNr:{ mRegistered=YES mTimeStamp=39778401574520ns mCellConnectionStatus=1 CellIdentityNr:{ mPci = 97 mTac = 431 mNrArfcn = 634080 mBands = [78] mMcc = 405 mMnc = 856 mNci = 3257827329 mAlphaLong = IND-JIO mAlphaShort = JIO mAdditionalPlmns = {} } CellSignalStrengthNr:{ csiRsrp = 2147483647 csiRsrq = 2147483647 csiCqiTableIndex = 2147483647 csiCqiReport = [] ssRsrp = -92 ssRsrq = -11 ssSinr = 20 level = 1 parametersUseForLevel = 1 timingAdvance = 2147483647 } }, CellInfoNr:{ mRegistered=NO mTimeStamp=39778401574520ns mCellConnectionStatus=0 CellIdentityNr:{ mPci = 75 mTac = 2147483647 mNrArfcn = 634080 mBands = [78] mMcc = null mMnc = null mNci = 268435455 mAlphaLong =  mAlphaShort =  mAdditionalPlmns = {} } CellSignalStrengthNr:{ csiRsrp = 2147483647 csiRsrq = 2147483647 csiCqiTableIndex = 2147483647 csiCqiReport = [] ssRsrp = -107 ssRsrq = -12 ssSinr = 5 level = 1 parametersUseForLevel = 1 timingAdvance = 2147483647 } }, CellInfoNr:{ mRegistered=NO mTimeStamp=39778401574520ns mCellConnectionStatus=0 CellIdentityNr:{ mPci = 426 mTac = 2147483647 mNrArfcn = 634080 mBands = [78] mMcc = null mMnc = null mNci = 268435455 mAlphaLong =  mAlphaShort =  mAdditionalPlmns = {} } CellSignalStrengthNr:{ csiRsrp = 2147483647 csiRsrq = 2147483647 csiCqiTableIndex = 2147483647 csiCqiReport = [] ssRsrp = -111 ssRsrq = -17 ssSinr = -6 level = 0 parametersUseForLevel = 1 timingAdvance = 2147483647 } }, CellInfoNr:{ mRegistered=NO mTimeStamp=39778401574520ns mCellConnectionStatus=0 CellIdentityNr:{ mPci = 428 mTac = 2147483647 mNrArfcn = 634080 mBands = [78] mMcc = null mMnc = null mNci = 268435455 mAlphaLong =  mAlphaShort =  mAdditionalPlmns = {} } CellSignalStrengthNr:{ csiRsrp = 2147483647 csiRsrq = 2147483647 csiCqiTableIndex = 2147483647 csiCqiReport = [] ssRsrp = -112 ssRsrq = -13 ssSinr = 2 level = 0 parametersUseForLevel = 1 timingAdvance = 2147483647 } }, CellInfoNr:{ mRegistered=NO mTimeStamp=39778401574520ns mCellConnectionStatus=0 CellIdentityNr:{ mPci = 281 mTac = 2147483647 mNrArfcn = 634080 mBands = [78] mMcc = null mMnc = null mNci = 268435455 mAlphaLong =  mAlphaShort =  mAdditionalPlmns = {} } CellSignalStrengthNr:{ csiRsrp = 2147483647 csiRsrq = 2147483647 csiCqiTableIndex = 2147483647 csiCqiReport = [] ssRsrp = -112 ssRsrq = -12 ssSinr = 5 level = 0 parametersUseForLevel = 1 timingAdvance = 2147483647 } }, CellInfoNr:{ mRegistered=NO mTimeStamp=39778401574520ns mCellConnectionStatus=0 CellIdentityNr:{ mPci = 299 mTac = 2147483647 mNrArfcn = 634080 mBands = [78] mMcc = null mMnc = null mNci = 268435455 mAlphaLong =  mAlphaShort =  mAdditionalPlmns = {} } CellSignalStrengthNr:{ csiRsrp = 2147483647 csiRsrq = 2147483647 csiCqiTableIndex = 2147483647 csiCqiReport = [] ssRsrp = -120 ssRsrq = -20 ssSinr = -10 level = 0 parametersUseForLevel = 1 timingAdvance = 2147483647 } }]
+I/TranTele/TranPhoneInterfaceManager( 2426): TTC - onCellInfoChanged
+D/TLinkBrush_DATA( 2426): [TranSST1] checkOos -- state = 0
+I/TranTele/TranPhoneInterfaceManager( 2426): [getPTWhiteList]
+I/TranTele/TranPhoneInterfaceManager( 2426): [getPtPolicyforSlotIndex]
+D/CallbackProxy( 5230): [onServiceStateChanged]
+I/TranTele/TranPhoneInterfaceManager( 2426): TTC - onServiceStateChanged
+I/TranTele/ReliableDetectionController( 2426): getDeviceState 4
+W/ContextImpl( 1562): Calling a method in the system process without a qualified user: android.app.ContextImpl.sendBroadcastMultiplePermissions:1342 android.content.Context.sendBroadcastMultiplePermissions:2524 com.android.server.TelephonyRegistry.broadcastServiceStateChanged:3701 com.android.server.TelephonyRegistry.notifyServiceStateForPhoneId:1763 com.android.internal.telephony.ITelephonyRegistry$Stub.onTransact:546 
+I/TranTele/TranRatStallController( 2426): [onServiceStateChanged] Not support or trueOning return.
+D/TranSnifferController[1]( 2426): onServiceStateChanged: subId = 2, state = 0
+I/TranElevatorModeForCarrierController( 2426): [isElevatorModeForCarrierDisable] disable0
+D/TranElevatorModeForCarrierController( 2426): [onServiceStateChanged] subId:2,isDisable:false
+D/TranElevatorModeForCarrierController( 2426): [isContains] value:405856
+I/TranTele/DynamicSarCtl( 2426): [DynamicSarHandler] msg.what=33108
+I/TranTele/DynamicSarCtl( 2426): [orgStateInspection] return
+D/TranElevatorModeForCarrierController( 2426): [isContains] testPlmn:null
+D/TranElevatorModeForCarrierController( 2426): [isContains] value:405856
+D/TranElevatorModeForCarrierController( 2426): [isContains] testPlmn:null
+D/UpdateCarrierConfigController( 2426): [onServiceStateChanged] mccMnc = 405856, subId = 2, serviceState = 0
+D/UpdateCarrierConfigController( 2426): updateCarrierConfigBoolean: subId=2, ccKey=hide_rat_icon_when_wifi_bool, value=false
+D/UpdateCarrierConfigController( 2426): updateCarrierConfigBoolean: subId=2, ccKey=show_custom_lte_ca_icon, value=true
+W/ContextImpl( 1562): Calling a method in the system process without a qualified user: android.app.ContextImpl.sendBroadcastMultiplePermissions:1382 com.android.server.TelephonyRegistry.broadcastServiceStateChanged:3706 com.android.server.TelephonyRegistry.notifyServiceStateForPhoneId:1763 com.android.internal.telephony.ITelephonyRegistry$Stub.onTransact:546 android.os.Binder.execTransactInternal:1534 
+D/UpdateCarrierConfigController( 2426): updateCarrierConfigBoolean: subId=2, ccKey=show_custom_lte_ca_icon_plus, value=false
+D/UpdateCarrierConfigController( 2426): updateCarrierConfigBoolean: subId=1, ccKey=always_show_data_rat_icon_bool, value=true
+D/UpdateCarrierConfigController( 2426): updateCarrierConfigBoolean: subId=1, ccKey=tran_always_show_data_rat_icon_bool, value=true
+W/ContextImpl( 1562): Calling a method in the system process without a qualified user: android.app.ContextImpl.sendBroadcastMultiplePermissions:1382 com.android.server.TelephonyRegistry.broadcastServiceStateChanged:3715 com.android.server.TelephonyRegistry.notifyServiceStateForPhoneId:1763 com.android.internal.telephony.ITelephonyRegistry$Stub.onTransact:546 android.os.Binder.execTransactInternal:1534 
+D/NetRatStallController( 2426): [onServiceStateChanged] inService = true
+D/PingPongDetector1( 2426): onServiceStateChanged: dataRat=5G, voiceRat=5G
+I/TranTele/TranBlindAfrPingPongController_0( 2426): [onServiceStateChanged] Not support or trueOning return.
+I/TranTele/TranBlindAfrPingPongController_1( 2426): [onServiceStateChanged] Not support or trueOning return.
+W/ContextImpl( 1562): Calling a method in the system process without a qualified user: android.app.ContextImpl.sendBroadcastMultiplePermissions:1382 com.android.server.TelephonyRegistry.broadcastServiceStateChanged:3721 com.android.server.TelephonyRegistry.notifyServiceStateForPhoneId:1763 com.android.internal.telephony.ITelephonyRegistry$Stub.onTransact:546 android.os.Binder.execTransactInternal:1534 
+D/SysUI(260105)_CarrierText( 2206): setCarrierText: carrierText = Airtel GÇö Jio True5G
+D/ServiceStateProvider( 2426): subId=2
+I/tranpm/BroadcastPolicy( 1562): isBlockHs1 true
+I/tranpm/BroadcastPolicy( 1562): limitScheduleReceiverColdLocked by hs: callingPackage = android, targetPkg = com.google.android.cellbroadcastreceiver action = android.intent.action.SERVICE_STATE
+I/TranPhoneSwitcher( 2426): mDefaultServiceState:0subid :2
+I/TranTele/TranPhoneInterfaceManager( 2426): [getPTWhiteList]
+I/TranTele/TranPhoneInterfaceManager( 2426): [getPtPolicyforSlotIndex]
+I/TranTele/TranPhoneInterfaceManager( 2426): [getPTWhiteList]
+I/TranTele/TranPhoneInterfaceManager( 2426): [getPtPolicyforSlotIndex]
+D/PhoneGlobals( 2426): mShownNotificationReasons: {},shownForThisReason: false,shownInThisNumeric: false
+D/TranSignalStrengthComponentImpl( 2426): [NR] dbm: -108
+D/TranSignalStrengthComponentImpl( 2426): [NR] dbm: -108
+D/CallbackProxy( 5230): [onSignalStrengthsChanged]
+D/TranSignalStrengthComponentImpl(27882): [NR] dbm: -108
+D/TranSignalStrengthComponentImpl( 1562): [NR] dbm: -108
+I/TranTele/TranPhoneInterfaceManager( 2426): TTC - onSignalStrengthsChanged
+D/TranPhoneSwitcher( 2426): getNetworkType: 5G
+I/TranPhoneSwitcher( 2426): mDefaultsign:3subid :2
+E/ApplicationHelper( 1562): Fail to get PackageManager
+E/ApplicationHelper( 1562): Fail to get PackageManager
+D/TranSignalStrengthComponentImpl( 2426): [NR] dbm: -104
+D/TranSignalStrengthComponentImpl( 2426): [NR] dbm: -104
+D/CallbackProxy( 5230): [onSignalStrengthsChanged]
+D/TranSignalStrengthComponentImpl(27882): [NR] dbm: -104
+D/TranSignalStrengthComponentImpl( 1562): [NR] dbm: -104
+I/TranTele/TranPhoneInterfaceManager( 2426): TTC - onSignalStrengthsChanged
+D/TranPhoneSwitcher( 2426): getNetworkType: 5G
+I/TranPhoneSwitcher( 2426): mDefaultsign:4subid :2
+D/TranWifiTputMonitor( 1562): SOFTAP: TX: 3 RX: 189 TOTAL = 192
+D/TranWifiTputMonitor( 1562): High Tput: false, TOTAL TPUT: 192
+D/ULogGuard( 1312): Monitoring: 16 threads, 0 requests, 0 time-bombs; 1 guards. ResetFlags = 0x7
+D/TLinkBrush_DATA( 1562): [NetdEvent]onTcpSocketStatsEvent
+D/TLinkBrush_DATA( 1562): [NetdEvent]onTcpSocketStatsEvent : netId = 100	sent = 1, lost = 0	failRate = 0%	rttms = 131ms	sentAckDiffMs = -17213
+D/TLinkBrush_DATA( 1562): [NetdEvent]checkSCase - 405856 no need do this opt!
+I/HfLooper( 1305): hal step counter = 2769
+I/Hiber/importantScene( 1562): isTrafficActive uid:10281 speed :0
+I/Hiber/appStateMachine( 1562): uid:10281 enter FrozenState
+I/Hiber/stateManager( 1562): freeze uid: 10281 com.whatsapp.w4b costTime=8ms ,last unfreeze 5s ago
+I/Hiber/restrictionPolicy( 1562): uid:10281  pkgName:com.whatsapp.w4b isAllowedNet
+I/Hiber/nativeServiceClient( 1562): watch app network uid=10281, persistent=0
+I/Hiber/hiber( 1562): msg for start proxy frozen state
+D/ActivityManager( 1562): Hiber try idle uid[10281] by hiber ,bgTime>0 ? true,isIdled before ? true ,isCurAllowListed ? false ,isProcStateBackground?true
+D/ActivityManager( 1562): Hiber try idle uid[10281] by hiber
+I/Hiber/proxyManager( 1562): p_service: 10281
+I/Hiber/proxyManager( 1562): p_job: 10281 pkgName=com.whatsapp.w4b which=2
+I/Hiber/hiber( 1562): proxy alarm (uid=10281, pkgName=com.whatsapp.w4b)
+I/Hiber/proxyManager( 1562): p_alarm: uid=10281, pkgName=com.whatsapp.w4b
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{7071468 type 3 origWhen 40001043 whenElapsed 40001043 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{d3897be type 2 origWhen 40340122 whenElapsed 40340122 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{fb2266d type 2 origWhen 40480484 whenElapsed 40480484 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{7e17f23 type 3 origWhen 43260018 whenElapsed 43260018 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{c26107a type 0 origWhen 1772476212000 whenElapsed 49020465 com.whatsapp.w4b}
+E/ApplicationHelper( 1562): Fail to get PackageManager
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{70fae43 type 0 origWhen 1772476221000 whenElapsed 49029465 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{397ccc0 type 3 origWhen 49286148 whenElapsed 49286148 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{d96602b type 0 origWhen 1772483401000 whenElapsed 56209464 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{484ddf9 type 0 origWhen 1772483429000 whenElapsed 56237464 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{6963c88 type 3 origWhen 66598744 whenElapsed 66598744 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{d996621 type 2 origWhen 107373296 whenElapsed 107373296 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{135540f type 2 origWhen 107373296 whenElapsed 107373296 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms leave, uid=10281, packageName=com.whatsapp.w4b
+I/Hiber/proxyManager( 1562): p_sensor: uid=10281, pkgName=com.whatsapp.w4b
+I/Hiber/nativeServiceClient( 1562): check binder uid=10281
+I/ActivityManager( 1562): isUserAMonkey mUserIsMonkey = false
+I/ActivityTaskManager( 1562): isControllerAMonkey mController = null,mControllerIsAMonkey = true, mTrueTime = 2026-03-02 19:36:25.977, mFalseTime = null
+D/TranSignalStrengthComponentImpl( 2426): [NR] dbm: -106
+D/TranSignalStrengthComponentImpl( 2426): [NR] dbm: -106
+D/CallbackProxy( 5230): [onSignalStrengthsChanged]
+I/TranTele/TranPhoneInterfaceManager( 2426): TTC - onSignalStrengthsChanged
+D/TranSignalStrengthComponentImpl( 1562): [NR] dbm: -106
+D/TranPhoneSwitcher( 2426): getNetworkType: 5G
+I/TranPhoneSwitcher( 2426): mDefaultsign:3subid :2
+I/ActivityManager( 1562): isUserAMonkey mUserIsMonkey = false
+I/ActivityTaskManager( 1562): isControllerAMonkey mController = null,mControllerIsAMonkey = true, mTrueTime = 2026-03-02 19:36:25.977, mFalseTime = null
+D/ULogGuard( 1312): Monitoring: 16 threads, 0 requests, 0 time-bombs; 1 guards. ResetFlags = 0x7
+D/TranWifiTputMonitor( 1562): SOFTAP: TX: 2 RX: 1 TOTAL = 3
+D/TranWifiTputMonitor( 1562): High Tput: false, TOTAL TPUT: 3
+W/ApiInvoke1.5.123( 1562): KolunIPCChannel: unbindRemote channelName AiEngine oxygenBus connected: true
+E/ApplicationHelper( 1562): Fail to get PackageManager
+I/android.hardware.thermal@2.0-service.mtk(  935): fill_temperatures filterType1 name: SKIN type: SKIN throttlingStatus: NONE value: 42.759 ret_temps size 0
+D/AES     ( 1562): AEEIOCTL_GET/SET_SF_STATE IOCTL,cmd= 1074294797, lParam=0. 
+D/AES     ( 1562): AEEIOCTL_RT_MON_Kick IOCTL,cmd= 2147774474, lParam=300. 
+D/TranSignalStrengthComponentImpl( 2426): [NR] dbm: -105
+D/TranSignalStrengthComponentImpl( 2426): [NR] dbm: -105
+D/CallbackProxy( 5230): [onSignalStrengthsChanged]
+D/TranSignalStrengthComponentImpl( 1562): [NR] dbm: -105
+I/TranTele/TranPhoneInterfaceManager( 2426): TTC - onSignalStrengthsChanged
+D/TranPhoneSwitcher( 2426): getNetworkType: 5G
+I/TranPhoneSwitcher( 2426): mDefaultsign:4subid :2
+W/ActivityManager( 1562): Receiver with filter android.content.IntentFilter@7edac6a already registered for pid 1562, callerPackage is android
+W/ActivityManager( 1562): Receiver with filter android.content.IntentFilter@eb6e55b already registered for pid 1562, callerPackage is android
+W/ApiInvoke1.5.150( 2197): KolunIPCChannel: disconnectChannel, mChannelName APPService
+W/ApiInvoke1.5.150( 2197): ApiServiceConnect: disConnect remote:APPService
+W/ApiInvoke1.5.150( 2197): KolunIPCChannel: unbindRemote channelName APPService oxygenBus connected: true
+D/ULogGuard( 1312): Monitoring: 16 threads, 0 requests, 0 time-bombs; 1 guards. ResetFlags = 0x7
+D/TranWifiTputMonitor( 1562): SOFTAP: TX: 2 RX: 3 TOTAL = 5
+D/TranWifiTputMonitor( 1562): High Tput: false, TOTAL TPUT: 5
+V/[GF_HAL][CustomizedFingerprintCore]( 1398): Open uevent handle n = 810 
+V/[GF_HAL][CustomizedFingerprintCore]( 1398): Open uevent handle filter = FULL_HBM_SET 
+V/[GF_HAL][CustomizedFingerprintCore]( 1398): filter = FULL_HBM_SET , uevent->fp_event = 
+D/BatteryService( 1562): widetemperaturebatteryburn check uevent: {POWER_SUPPLY_VOLTAGE_NOW=4334000, POWER_SUPPLY_CURRENT_AVG=947800, POWER_SUPPLY_CAPACITY_LEVEL=High, POWER_SUPPLY_TYPE=Battery, POWER_SUPPLY_HEALTH=Good, POWER_SUPPLY_CURRENT_NOW=946600, POWER_SUPPLY_PRESENT=1, POWER_SUPPLY_TECHNOLOGY=Li-ion, POWER_SUPPLY_CHARGE_FULL=5000000, POWER_SUPPLY_TIME_TO_FULL_NOW=2365, POWER_SUPPLY_CHARGE_FULL_DESIGN=500000, SUBSYSTEM=power_supply, POWER_SUPPLY_CONSTANT_CHARGE_VOLTAGE=4450, POWER_SUPPLY_TEMP=385, SEQNUM=12356, ACTION=change, POWER_SUPPLY_NAME=battery, POWER_SUPPLY_STATUS=Charging, POWER_SUPPLY_CYCLE_COUNT=1, POWER_SUPPLY_CHARGE_COUNTER=4400000, POWER_SUPPLY_CAPACITY=88, DEVPATH=/devices/platform/11b20000.i2c/i2c-5/5-0034/11b20000.i2c:mt6375@34:mtk_gauge/power_supply/battery}
+D/BatteryService( 1562): widetemperaturebatteryburn PORT_STATE no availd
+I/TranHBMManagerService( 1562): processValuesLocked normal temperature=383,Threshold=410
+I/TranHBMComponentImpl( 1562): updateBatteryLevel:88
+D/TranHBMManagerService( 1562): allowBatteryState = true, mAllowBatteryState = true
+D/BatteryService( 1562): HealthInfoUpdate: HealthInfo:{.chargerAcOnline = true, .chargerUsbOnline = false, .chargerWirelessOnline = false, .maxChargingCurrent = 0, .maxChargingVoltage = 0, .batteryStatus = 2, .batteryHealth = 2, .batteryPresent = true, .batteryLevel = 88, .batteryVoltage = 4350, .batteryTemperature = 383, .batteryCurrent = 1047300, .batteryCycleCount = 1, .batteryFullCharge = 5000000, .batteryChargeCounter=4400000, .batteryTechnology = Li-ion, .batteryCapacityLevel = 4}
+D/PowerUI ( 2206): can't show warning due to - plugged: true status unknown: false
+I/ChargeAnima( 2206): TrSysChargeUtils-updateNativeCharge pumpstat Not fast charge}
+I/TranTele/TranPhoneInterfaceManager( 2426): [onReceive] action: android.intent.action.BATTERY_CHANGED
+D/EmergencyMsgController( 2426): powerPluggedIn: true level: 88 LowBatteryMode: false
+W/BatteryLabPowerSaveUtils( 4774): isPowerSaveOpen: false
+D/BatteryLabService( 4774): current level == 88, temperature == 383
+D/BatteryLabService( 4774): funcNamepumpstat
+D/BLab-SettingsProviderUtils( 4774): isUserSetupCompleteSdk = 1
+D/BatteryLabService( 4774): system is charging
+D/BLab-PowerSaveProviderUtils( 4774): isPowerSaveModeReminderOn: 1
+I/TranClouldConfigObserver( 5230): onReceive called: Intent.action = android.intent.action.BATTERY_CHANGED
+D/TranClouldConfigObserver( 5230): [onReceive] action: android.intent.action.BATTERY_CHANGED
+D/CallbackProxy( 5230): [onBatteryStateChanged]
+D/DriverNodeUtil( 3770): getDriverNodeValue: 0
+D/here is debug ( 3770):  driverNodeValue = 0
+D/WidgetView(26200): onChargingChange:1
+D/WidgetView(26200): mBatteryReceiver funcName: pumpstat
+D/WidgetView(26200): mBatteryReceiver chargeType: 0 power: 0
+I/CastDatabase( 2198): Saving the database
+I/SQLiteCastStore( 2198): [CastNetworkInfo] saved: 0, skipped: 0, [CastDeviceInfo]: saved 0, skipped 0, [ProbedNetworks]: saved 0, skipped: 0, [ProbedSocketAddress]: saved 0, skipped: 0, [Network-Device pairs]: saved: 0
+D/TranSignalStrengthComponentImpl( 2426): [NR] dbm: -107
+D/TranSignalStrengthComponentImpl( 2426): [NR] dbm: -107
+D/CallbackProxy( 5230): [onSignalStrengthsChanged]
+I/TranTele/TranPhoneInterfaceManager( 2426): TTC - onSignalStrengthsChanged
+D/TranSignalStrengthComponentImpl( 1562): [NR] dbm: -107
+D/TranPhoneSwitcher( 2426): getNetworkType: 5G
+I/TranPhoneSwitcher( 2426): mDefaultsign:3subid :2
+D/BroadcastQueue( 1562): Hiber/broadcast restricted queue.uid=10272 action=BroadcastRecord{6fbd5a4 android.intent.action.BATTERY_CHANGED/u-1}
+D/BroadcastQueue( 1562): Hiber/broadcast restricted queue.uid=10281 action=BroadcastRecord{6fbd5a4 android.intent.action.BATTERY_CHANGED/u-1}
+D/BroadcastQueue( 1562): Hiber/broadcast restricted queue.uid=10253 action=BroadcastRecord{6fbd5a4 android.intent.action.BATTERY_CHANGED/u-1}
+D/TrancareProviderLib( 4016): [MSG_CHECK_CACHE_CYCLE]
+D/TrancareProviderLib( 4016): [flushCacheToDataBase]+
+D/TrancareProviderLib( 4016): [flushCacheToDataBase]-
+D/TranSignalStrengthComponentImpl( 2426): [NR] dbm: -104
+D/TranSignalStrengthComponentImpl( 2426): [NR] dbm: -104
+I/TranTele/TranPhoneInterfaceManager( 2426): TTC - onSignalStrengthsChanged
+D/TranSignalStrengthComponentImpl( 1562): [NR] dbm: -104
+D/CallbackProxy( 5230): [onSignalStrengthsChanged]
+D/TranPhoneSwitcher( 2426): getNetworkType: 5G
+I/TranPhoneSwitcher( 2426): mDefaultsign:4subid :2
+D/ULogGuard( 1312): Monitoring: 16 threads, 0 requests, 0 time-bombs; 1 guards. ResetFlags = 0x7
+D/TranWifiTputMonitor( 1562): SOFTAP: TX: 0 RX: 1 TOTAL = 1
+D/TranWifiTputMonitor( 1562): High Tput: false, TOTAL TPUT: 1
+I/TranHBMComponentImpl( 1562): updateBatteryLevel:88
+D/TranHBMManagerService( 1562): allowBatteryState = true, mAllowBatteryState = true
+D/BatteryService( 1562): HealthInfoUpdate: HealthInfo:{.chargerAcOnline = true, .chargerUsbOnline = false, .chargerWirelessOnline = false, .maxChargingCurrent = 0, .maxChargingVoltage = 0, .batteryStatus = 2, .batteryHealth = 2, .batteryPresent = true, .batteryLevel = 88, .batteryVoltage = 4348, .batteryTemperature = 383, .batteryCurrent = 969200, .batteryCycleCount = 1, .batteryFullCharge = 5000000, .batteryChargeCounter=4400000, .batteryTechnology = Li-ion, .batteryCapacityLevel = 4}
+D/PowerUI ( 2206): can't show warning due to - plugged: true status unknown: false
+I/ChargeAnima( 2206): TrSysChargeUtils-updateNativeCharge pumpstat Not fast charge}
+I/TranTele/TranPhoneInterfaceManager( 2426): [onReceive] action: android.intent.action.BATTERY_CHANGED
+D/EmergencyMsgController( 2426): powerPluggedIn: true level: 88 LowBatteryMode: false
+W/BatteryLabPowerSaveUtils( 4774): isPowerSaveOpen: false
+D/BatteryLabService( 4774): current level == 88, temperature == 383
+D/BatteryLabService( 4774): funcNamepumpstat
+D/BLab-SettingsProviderUtils( 4774): isUserSetupCompleteSdk = 1
+D/BatteryLabService( 4774): system is charging
+D/BLab-PowerSaveProviderUtils( 4774): isPowerSaveModeReminderOn: 1
+I/TranClouldConfigObserver( 5230): onReceive called: Intent.action = android.intent.action.BATTERY_CHANGED
+D/TranClouldConfigObserver( 5230): [onReceive] action: android.intent.action.BATTERY_CHANGED
+D/CallbackProxy( 5230): [onBatteryStateChanged]
+D/DriverNodeUtil( 3770): getDriverNodeValue: 0
+D/here is debug ( 3770):  driverNodeValue = 0
+D/WidgetView(26200): onChargingChange:1
+D/WidgetView(26200): mBatteryReceiver funcName: pumpstat
+D/WidgetView(26200): mBatteryReceiver chargeType: 0 power: 0
+D/BroadcastQueue( 1562): Hiber/broadcast restricted queue.uid=10272 action=BroadcastRecord{90aa4d3 android.intent.action.BATTERY_CHANGED/u-1}
+D/BroadcastQueue( 1562): Hiber/broadcast restricted queue.uid=10281 action=BroadcastRecord{90aa4d3 android.intent.action.BATTERY_CHANGED/u-1}
+D/BroadcastQueue( 1562): Hiber/broadcast restricted queue.uid=10253 action=BroadcastRecord{90aa4d3 android.intent.action.BATTERY_CHANGED/u-1}
+D/TLinkBrush_DATA( 1562): [NetdEvent]onTcpSocketStatsEvent
+D/TLinkBrush_DATA( 1562): [NetdEvent]onTcpSocketStatsEvent sent = 0, return
+V/Hiber/hiber( 1562): unfreeze from hiber: (4,-1,-1,-1,10281), rpcName: PKG, code: -1, reason:packet
+D/TranSignalStrengthComponentImpl(27882): [NR] dbm: -106
+I/Hiber/stateManager( 1562): unfreeze uid: 10281 com.whatsapp.w4b pids:[27882]  reason:packet   cpninfo:TRANSACTION_-1 costTime=11ms ,last freeze 9s ago
+I/Hiber/appStateMachine( 1562): uid=10281, pkg=com.whatsapp.w4b, transition from Frozen to Running, reason=packet
+I/Hiber/appStateMachine( 1562): uid:10281 exit FrozenState
+I/Hiber/proxyManager( 1562): up_service: 10281
+D/TranSignalStrengthComponentImpl(27882): [NR] dbm: -105
+I/Hiber/proxyManager( 1562): un_job: 10281
+D/TranSignalStrengthComponentImpl(27882): [NR] dbm: -107
+D/Hiber/proxyWakeLock( 1562): remove uid: 10281 wiht all pids from wakelockUidInfo list
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{7071468 type 3 origWhen 40001043 whenElapsed 40001043 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{d3897be type 2 origWhen 40340122 whenElapsed 40340122 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{fb2266d type 2 origWhen 40480484 whenElapsed 40480484 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{7e17f23 type 3 origWhen 43260018 whenElapsed 43260018 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{c26107a type 0 origWhen 1772476212000 whenElapsed 49020465 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{70fae43 type 0 origWhen 1772476221000 whenElapsed 49029465 com.whatsapp.w4b}
+D/TranSignalStrengthComponentImpl(27882): [NR] dbm: -104
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{397ccc0 type 3 origWhen 49286148 whenElapsed 49286148 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{d96602b type 0 origWhen 1772483401000 whenElapsed 56209464 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{484ddf9 type 0 origWhen 1772483429000 whenElapsed 56237464 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{6963c88 type 3 origWhen 66598744 whenElapsed 66598744 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{d996621 type 2 origWhen 107373296 whenElapsed 107373296 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{135540f type 2 origWhen 107373296 whenElapsed 107373296 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms leave, uid=10281, packageName=null
+I/Hiber/proxyManager( 1562): up_sensor: uid=10281, pkgName=com.whatsapp.w4b
+D/ZenModeController( 2206): Added callback class com.android.systemui.qs.tiles.DndTile$3
+D/ZenModeController( 2206): Removed callback class com.android.systemui.qs.tiles.DndTile$3
+I/Hiber/importantScene( 1562): isTrafficActive uid:10141 speed :0
+I/Hiber/importantScene( 1562): bt: packageName=com.google.android.gm
+I/Hiber/appStateMachine( 1562): uid:10141, pkg=com.google.android.gm  can't transition from R to F ,importantcase is : bt
+D/PhoneInterfaceManager( 2426): SubscriptionManager.getPhoneId(1)=0
+D/Tile.TrCellularTile( 2206): handleUpdateState: status=5 isMobileDataEnabled=true phone == null false
+D/PhoneInterfaceManager( 2426): SubscriptionManager.getPhoneId(2)=1
+D/Tile.TrCellularTile( 2206): handleUpdateState: status=5 isMobileDataEnabled=true phone == null false
+D/PhoneInterfaceManager( 2426): SubscriptionManager.getPhoneId(1)=0
+D/Tile.TrCellularTile( 2206): handleUpdateState: status=5 isMobileDataEnabled=true phone == null false
+D/PhoneInterfaceManager( 2426): SubscriptionManager.getPhoneId(2)=1
+D/Tile.TrCellularTile( 2206): handleUpdateState: status=5 isMobileDataEnabled=true phone == null false
+D/PhoneInterfaceManager( 2426): SubscriptionManager.getPhoneId(1)=0
+D/Tile.TrCellularTile( 2206): handleUpdateState: status=5 isMobileDataEnabled=true phone == null false
+D/PhoneInterfaceManager( 2426): SubscriptionManager.getPhoneId(2)=1
+D/Tile.TrCellularTile( 2206): handleUpdateState: status=5 isMobileDataEnabled=true phone == null false
+I/QuickAccessWalletTile( 2206): QAW service is unavailable, recreating the wallet client.
+D/TrBluetoothBatteryHelpe( 2206): getBtBatteryLevel = 100
+D/TrBluetoothBatteryHelpe( 2206): getBtBatteryLevel = 100
+D/SysUI(260105)_Tile.TrBluetoothTile( 2206): handleUpdateState: state.secondaryLabel=Connected, enabled=true, bluetoothState=12, connected=true, state.isTransient= false, state.icon == null? false
+D/SysUI(260105)_Tile.TrBluetoothTile( 2206): handleUpdateState: state.secondaryLabel=Connected, enabled=true, bluetoothState=12, connected=true, state.isTransient= false, state.icon == null? false
+I/HfLooper( 1305): hal step counter = 2769
+I/TetherOffload(22351): getForwardedStats() upstream:ccmni2
+I/TetherOffload(22351):  GetInstance p=0xb400007d337ed230
+I/TetherOffload(22351): getDataUsage (app: 255 ) ok 
+D/ULogGuard( 1312): Monitoring: 16 threads, 0 requests, 0 time-bombs; 1 guards. ResetFlags = 0x7
+D/TranWifiTputMonitor( 1562): SOFTAP: TX: 6 RX: 66 TOTAL = 72
+D/TranWifiTputMonitor( 1562): High Tput: false, TOTAL TPUT: 72
+D/TranSignalStrengthComponentImpl( 2426): [NR] dbm: -105
+D/TranSignalStrengthComponentImpl( 2426): [NR] dbm: -105
+D/CallbackProxy( 5230): [onSignalStrengthsChanged]
+D/TranSignalStrengthComponentImpl(27882): [NR] dbm: -105
+D/TranSignalStrengthComponentImpl( 1562): [NR] dbm: -105
+I/TranTele/TranPhoneInterfaceManager( 2426): TTC - onSignalStrengthsChanged
+D/TranPhoneSwitcher( 2426): getNetworkType: 5G
+I/TranPhoneSwitcher( 2426): mDefaultsign:4subid :2
+I/android.hardware.thermal@2.0-service.mtk(  935): fill_temperatures filterType1 name: SKIN type: SKIN throttlingStatus: NONE value: 42.603 ret_temps size 0
+D/ULogGuard( 1312): Monitoring: 16 threads, 0 requests, 0 time-bombs; 1 guards. ResetFlags = 0x7
+D/TranWifiTputMonitor( 1562): SOFTAP: TX: 0 RX: 0 TOTAL = 0
+D/TranWifiTputMonitor( 1562): High Tput: false, TOTAL TPUT: 0
+I/Hiber/importantScene( 1562): isTrafficActive uid:10281 speed :0
+I/Hiber/appStateMachine( 1562): uid:10281 enter FrozenState
+I/Hiber/stateManager( 1562): freeze uid: 10281 com.whatsapp.w4b costTime=8ms ,last unfreeze 5s ago
+I/Hiber/restrictionPolicy( 1562): uid:10281  pkgName:com.whatsapp.w4b isAllowedNet
+I/Hiber/nativeServiceClient( 1562): watch app network uid=10281, persistent=0
+I/Hiber/hiber( 1562): msg for start proxy frozen state
+D/ActivityManager( 1562): Hiber try idle uid[10281] by hiber ,bgTime>0 ? true,isIdled before ? true ,isCurAllowListed ? false ,isProcStateBackground?true
+D/ActivityManager( 1562): Hiber try idle uid[10281] by hiber
+I/Hiber/proxyManager( 1562): p_service: 10281
+I/Hiber/proxyManager( 1562): p_job: 10281 pkgName=com.whatsapp.w4b which=2
+I/Hiber/hiber( 1562): proxy alarm (uid=10281, pkgName=com.whatsapp.w4b)
+I/Hiber/proxyManager( 1562): p_alarm: uid=10281, pkgName=com.whatsapp.w4b
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{7071468 type 3 origWhen 40001043 whenElapsed 40001043 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{d3897be type 2 origWhen 40340122 whenElapsed 40340122 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{fb2266d type 2 origWhen 40480484 whenElapsed 40480484 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{7e17f23 type 3 origWhen 43260018 whenElapsed 43260018 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{c26107a type 0 origWhen 1772476212000 whenElapsed 49020465 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{70fae43 type 0 origWhen 1772476221000 whenElapsed 49029465 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{397ccc0 type 3 origWhen 49286148 whenElapsed 49286148 com.whatsapp.w4b}
+E/ApplicationHelper( 1562): Fail to get PackageManager
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{d96602b type 0 origWhen 1772483401000 whenElapsed 56209464 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{484ddf9 type 0 origWhen 1772483429000 whenElapsed 56237464 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{6963c88 type 3 origWhen 66598744 whenElapsed 66598744 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{135540f type 2 origWhen 107373296 whenElapsed 107373296 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{d996621 type 2 origWhen 107373296 whenElapsed 107373296 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms leave, uid=10281, packageName=com.whatsapp.w4b
+I/Hiber/proxyManager( 1562): p_sensor: uid=10281, pkgName=com.whatsapp.w4b
+D/TranSignalStrengthComponentImpl( 2426): [NR] dbm: -102
+D/TranSignalStrengthComponentImpl( 2426): [NR] dbm: -102
+D/CallbackProxy( 5230): [onSignalStrengthsChanged]
+D/TranSignalStrengthComponentImpl( 1562): [NR] dbm: -102
+I/TranTele/TranPhoneInterfaceManager( 2426): TTC - onSignalStrengthsChanged
+D/TranPhoneSwitcher( 2426): getNetworkType: 5G
+I/TranPhoneSwitcher( 2426): mDefaultsign:4subid :2
+I/Hiber/nativeServiceClient( 1562): check binder uid=10281
+V/Hiber/hiber( 1562): unfreeze from hiber: (2,-1,-1,-1,10281), rpcName: FROZEN_TRANS_PROC, code: 1, reason:transBinder
+D/TranSignalStrengthComponentImpl(27882): [NR] dbm: -102
+I/Hiber/stateManager( 1562): unfreeze uid: 10281 com.whatsapp.w4b pids:[27882]  reason:transBinder   cpninfo:TRANSACTION_1 costTime=9ms ,last freeze 1s ago
+I/Hiber/appStateMachine( 1562): uid=10281, pkg=com.whatsapp.w4b, transition from Frozen to Running, reason=transBinder
+I/Hiber/appStateMachine( 1562): uid:10281 exit FrozenState
+I/Hiber/proxyManager( 1562): up_service: 10281
+I/Hiber/proxyManager( 1562): un_job: 10281
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{7071468 type 3 origWhen 40001043 whenElapsed 40001043 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{d3897be type 2 origWhen 40340122 whenElapsed 40340122 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{fb2266d type 2 origWhen 40480484 whenElapsed 40480484 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{7e17f23 type 3 origWhen 43260018 whenElapsed 43260018 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{c26107a type 0 origWhen 1772476212000 whenElapsed 49020465 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{70fae43 type 0 origWhen 1772476221000 whenElapsed 49029465 com.whatsapp.w4b}
+D/Hiber/proxyWakeLock( 1562): remove uid: 10281 wiht all pids from wakelockUidInfo list
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{397ccc0 type 3 origWhen 49286148 whenElapsed 49286148 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{d96602b type 0 origWhen 1772483401000 whenElapsed 56209464 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{484ddf9 type 0 origWhen 1772483429000 whenElapsed 56237464 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{6963c88 type 3 origWhen 66598744 whenElapsed 66598744 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{135540f type 2 origWhen 107373296 whenElapsed 107373296 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{d996621 type 2 origWhen 107373296 whenElapsed 107373296 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms leave, uid=10281, packageName=null
+I/Hiber/proxyManager( 1562): up_sensor: uid=10281, pkgName=com.whatsapp.w4b
+D/WM-SystemJobScheduler(27882): Scheduling work ID 269edad9-7aed-4c84-9324-4ec4fe9b319dJob ID 1628
+E/ApplicationHelper( 1562): Fail to get PackageManager
+D/WM-GreedyScheduler(27882): Starting tracking for 594b620f-7076-44b5-8b84-d11baa9473e4,269edad9-7aed-4c84-9324-4ec4fe9b319d
+D/WM-GreedyScheduler(27882): Constraints met: Scheduling work ID WorkGenerationalId(workSpecId=269edad9-7aed-4c84-9324-4ec4fe9b319d, generation=0)
+D/WM-Processor(27882): IPM: processing WorkGenerationalId(workSpecId=269edad9-7aed-4c84-9324-4ec4fe9b319d, generation=0)
+E/ApplicationHelper( 1562): Fail to get PackageManager
+D/WM-SystemJobService(27882): onStartJob for WorkGenerationalId(workSpecId=269edad9-7aed-4c84-9324-4ec4fe9b319d, generation=0)
+D/WM-WorkerWrapper(27882): Starting work for com.whatsapp.xmpp.messaging.XmppLifecycleWorker
+D/WM-Processor(27882): Work WorkGenerationalId(workSpecId=269edad9-7aed-4c84-9324-4ec4fe9b319d, generation=0) is already enqueued for processing
+D/ShortcutService( 1562): rescanPackageIfNeeded 0@com.whatsapp.w4b, forceRescan=false , isNewApp=false
+D/ShortcutService( 1562): rescanPackageIfNeeded 0@com.whatsapp.w4b, forceRescan=false , isNewApp=false
+W/NotificationHistory( 1562): Attempted to remove conversation for locked/gone/disabled user 0
+D/ShortcutService( 1562): rescanPackageIfNeeded 0@com.whatsapp.w4b, forceRescan=false , isNewApp=false
+E/ShortcutService( 1562): Invalid icon type in shortcut 281213386408058@lid. Bitmaps are not allowed in long-lived shortcuts. Use Resource icons, or Uri-based icons instead.
+D/ShortcutService( 1562): Saving package item com.whatsapp.w4b to /data/system_ce/0/shortcut_service/packages/com.whatsapp.w4b.xml
+D/ShortcutService( 1562): Getting shortcuts for launcher= com.transsion.smartpaneluser=0 pkg=com.whatsapp.w4b
+D/TranSignalStrengthComponentImpl( 2426): [NR] dbm: -103
+D/TranSignalStrengthComponentImpl( 2426): [NR] dbm: -103
+D/TranSignalStrengthComponentImpl( 1562): [NR] dbm: -103
+D/TranSignalStrengthComponentImpl(27882): [NR] dbm: -103
+I/TranTele/TranPhoneInterfaceManager( 2426): TTC - onSignalStrengthsChanged
+D/CallbackProxy( 5230): [onSignalStrengthsChanged]
+D/TranPhoneSwitcher( 2426): getNetworkType: 5G
+I/TranPhoneSwitcher( 2426): mDefaultsign:4subid :2
+D/ShortcutService( 1562): Getting shortcuts for launcher= com.transsion.XOSLauncheruser=0 pkg=com.whatsapp.w4b
+D/PackageChangeHelp( 4620): onShortcutsChanged received packageName: com.whatsapp.w4b
+D/ShortcutService( 1562): Getting shortcuts for launcher= com.google.android.asuser=0 pkg=com.whatsapp.w4b
+D/ShortcutService( 1562): Getting shortcuts for launcher= com.android.systemuiuser=0 pkg=com.whatsapp.w4b
+D/ULogGuard( 1312): Monitoring: 16 threads, 0 requests, 0 time-bombs; 1 guards. ResetFlags = 0x7
+D/BackupManagerService( 1562): mUserServices size: 1
+D/TranWifiTputMonitor( 1562): SOFTAP: TX: 0 RX: 0 TOTAL = 0
+D/TranWifiTputMonitor( 1562): High Tput: false, TOTAL TPUT: 0
+D/TranSignalStrengthComponentImpl( 2426): [NR] dbm: -106
+D/TranSignalStrengthComponentImpl( 2426): [NR] dbm: -106
+D/TranSignalStrengthComponentImpl( 1562): [NR] dbm: -106
+D/TranSignalStrengthComponentImpl(27882): [NR] dbm: -106
+I/TranTele/TranPhoneInterfaceManager( 2426): TTC - onSignalStrengthsChanged
+D/CallbackProxy( 5230): [onSignalStrengthsChanged]
+D/TranPhoneSwitcher( 2426): getNetworkType: 5G
+I/TranPhoneSwitcher( 2426): mDefaultsign:3subid :2
+D/AES     ( 1562): AEEIOCTL_GET/SET_SF_STATE IOCTL,cmd= 1074294797, lParam=0. 
+D/AES     ( 1562): AEEIOCTL_RT_MON_Kick IOCTL,cmd= 2147774474, lParam=300. 
+D/TLinkBrush_DATA( 1562): [NetdEvent]onTcpSocketStatsEvent
+D/TLinkBrush_DATA( 1562): [NetdEvent]onTcpSocketStatsEvent : netId = 100	sent = 7, lost = 0	failRate = 0%	rttms = 130ms	sentAckDiffMs = -13880
+D/TLinkBrush_DATA( 1562): [NetdEvent]checkSCase - 405856 no need do this opt!
+D/ULogGuard( 1312): Monitoring: 16 threads, 0 requests, 0 time-bombs; 1 guards. ResetFlags = 0x7
+D/TranWifiTputMonitor( 1562): SOFTAP: TX: 0 RX: 0 TOTAL = 0
+D/TranWifiTputMonitor( 1562): High Tput: false, TOTAL TPUT: 0
+I/Hiber/importantScene( 1562): isTrafficActive uid:10281 speed :0
+I/Hiber/appStateMachine( 1562): uid:10281 enter FrozenState
+I/Hiber/stateManager( 1562): freeze uid: 10281 com.whatsapp.w4b costTime=8ms ,last unfreeze 5s ago
+I/Hiber/restrictionPolicy( 1562): uid:10281  pkgName:com.whatsapp.w4b isAllowedNet
+I/Hiber/nativeServiceClient( 1562): watch app network uid=10281, persistent=0
+I/Hiber/hiber( 1562): msg for start proxy frozen state
+D/ActivityManager( 1562): Hiber try idle uid[10281] by hiber ,bgTime>0 ? true,isIdled before ? true ,isCurAllowListed ? false ,isProcStateBackground?true
+D/ActivityManager( 1562): Hiber try idle uid[10281] by hiber
+I/Hiber/proxyManager( 1562): p_service: 10281
+I/Hiber/proxyManager( 1562): p_job: 10281 pkgName=com.whatsapp.w4b which=2
+I/Hiber/proxyWakeLock( 1562): add uid: 10281 wakelock: lock:162869528PARTIAL_WAKE_LOCK                 '*job*/@androidx.work.systemjobscheduler@com.whatsapp.w4b/androidx.work.impl.background.systemjob.SystemJobService (uid=1000 pid=1562 ws=WorkSource{10281 com.whatsapp.w4b})  to FroceReleaseWakeLock list
+D/Hiber/proxyWakeLock( 1562): releaseWakeLockInternal: lock=162869528 [*job*/@androidx.work.systemjobscheduler@com.whatsapp.w4b/androidx.work.impl.background.systemjob.SystemJobService], flags=0x1
+E/ApplicationHelper( 1562): Fail to get PackageManager
+D/DisplayPowerController2[0]( 1562): setTranAutoBrightnessTemporarily enable=true reason=screen off or doze
+I/DisplayPowerController2[0]( 1562): set fast adjustment config false because of screen off/doze/doze_default
+D/MagellanHandle( 1562): updateRefreshRateForSceneVsyncs what = 11
+D/Hiber/JobExtImpl( 1562): proxyJobs leave, uid=10281, pkg=com.whatsapp.w4b which=2
+D/SensorManager( 1562): unregisterListenerImpl pid=1562 uid=1000 sensor=NULL pkgName=android listener=com.android.server.display.brightness.clamper.BrightnessClamperController$1@105a9c0
+I/Hiber/hiber( 1562): proxy alarm (uid=10281, pkgName=com.whatsapp.w4b)
+I/Hiber/proxyManager( 1562): p_alarm: uid=10281, pkgName=com.whatsapp.w4b
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{7071468 type 3 origWhen 40001043 whenElapsed 40001043 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{d3897be type 2 origWhen 40340122 whenElapsed 40340122 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{fb2266d type 2 origWhen 40480484 whenElapsed 40480484 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{7e17f23 type 3 origWhen 43260018 whenElapsed 43260018 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{c26107a type 0 origWhen 1772476212000 whenElapsed 49020465 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{70fae43 type 0 origWhen 1772476221000 whenElapsed 49029465 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{397ccc0 type 3 origWhen 49286148 whenElapsed 49286148 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{d96602b type 0 origWhen 1772483401000 whenElapsed 56209464 com.whatsapp.w4b}
+V/Hiber/hiber( 1562): unfreeze from hiber: (0,1562,1000,27882,10281), rpcName: android.app.job.IJobService, code: 2, reason:asyncBinderWhiteList
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{484ddf9 type 0 origWhen 1772483429000 whenElapsed 56237464 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{6963c88 type 3 origWhen 66598744 whenElapsed 66598744 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{d996621 type 2 origWhen 107373296 whenElapsed 107373296 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms, alarm=Alarm{135540f type 2 origWhen 107373296 whenElapsed 107373296 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): proxyAlarms leave, uid=10281, packageName=com.whatsapp.w4b
+I/Hiber/proxyManager( 1562): p_sensor: uid=10281, pkgName=com.whatsapp.w4b
+D/WM-SystemJobService(27882): onStopJob for WorkGenerationalId(workSpecId=269edad9-7aed-4c84-9324-4ec4fe9b319d, generation=0)
+I/Hiber/stateManager( 1562): unfreeze uid: 10281 com.whatsapp.w4b pids:[27882]  reason:asyncBinderWhiteList   cpninfo:TRANSACTION_2 costTime=7ms ,last freeze 0s ago
+I/Hiber/appStateMachine( 1562): uid=10281, pkg=com.whatsapp.w4b, transition from Frozen to Running, reason=asyncBinderWhiteList
+I/Hiber/appStateMachine( 1562): uid:10281 exit FrozenState
+I/Hiber/proxyManager( 1562): up_service: 10281
+I/Hiber/proxyManager( 1562): un_job: 10281
+D/Hiber/proxyWakeLock( 1562): remove uid[10281,-1] from wakelockUidInfo list
+D/Hiber/proxyWakeLock( 1562): drop uidPid[10281,-1]  wakelock: lock:162869528PARTIAL_WAKE_LOCK                 '*job*/@androidx.work.systemjobscheduler@com.whatsapp.w4b/androidx.work.impl.background.systemjob.SystemJobService (uid=1000 pid=1562 ws=WorkSource{10281 com.whatsapp.w4b}) from ForceReleaseWakeLocks List.
+D/Hiber/proxyWakeLock( 1562): remove uid: 10281 wiht all pids from wakelockUidInfo list
+D/WM-Processor(27882): WorkerWrapper interrupted for 269edad9-7aed-4c84-9324-4ec4fe9b319d
+D/WM-StopWorkRunnable(27882): StopWorkRunnable for 269edad9-7aed-4c84-9324-4ec4fe9b319d; Processor.stopWork = true
+E/JobScheduler.JobStatus( 1562): Hasn't been prepared: JobStatus{6785c79 androidx.work.systemjobscheduler:u0a281/1628 @androidx.work.systemjobscheduler@com.whatsapp.w4b/androidx.work.impl.background.systemjob.SystemJobService u=0 s=10281 NET READY}
+E/JobScheduler.JobStatus( 1562): Was already unprepared at 
+E/JobScheduler.JobStatus( 1562): java.lang.Throwable
+E/JobScheduler.JobStatus( 1562): 	at com.android.server.job.controllers.JobStatus.unprepareLocked(JobStatus.java:1033)
+E/JobScheduler.JobStatus( 1562): 	at com.android.server.job.JobSchedulerService.cancelJobImplLocked(JobSchedulerService.java:2359)
+E/JobScheduler.JobStatus( 1562): 	at java.lang.reflect.Method.invoke(Native Method)
+E/JobScheduler.JobStatus( 1562): 	at com.android.server.job.TranJobSchedulerServiceExtImpl.cancelJobImplInner(TranJobSchedulerServiceExtImpl.java:72)
+E/JobScheduler.JobStatus( 1562): 	at com.android.server.job.TranJobSchedulerServiceExtImpl.proxyJobsInner(TranJobSchedulerServiceExtImpl.java:117)
+E/JobScheduler.JobStatus( 1562): 	at com.android.server.job.TranJobSchedulerServiceExtImpl.proxyJobs(TranJobSchedulerServiceExtImpl.java:92)
+E/JobScheduler.JobStatus( 1562): 	at com.android.server.job.TranJobSchedulerServiceExtImpl$TranLocalService.proxyJobs(TranJobSchedulerServiceExtImpl.java:171)
+E/JobScheduler.JobStatus( 1562): 	at com.transsion.base.usf.policy.hiber.proxy.TranProxyManager.proxyJob(TranProxyManager.java:138)
+E/JobScheduler.JobStatus( 1562): 	at com.transsion.base.usf.policy.hiber.TranHiber.handleProxyForFrozen(TranHiber.java:449)
+E/JobScheduler.JobStatus( 1562): 	at com.transsion.base.usf.policy.hiber.TranHiber.access$000(TranHiber.java:64)
+E/JobScheduler.JobStatus( 1562): 	at com.transsion.base.usf.policy.hiber.TranHiber$TranBgHandler.handleMessage(TranHiber.java:399)
+E/JobScheduler.JobStatus( 1562): 	at android.os.Handler.dispatchMessage(Handler.java:107)
+E/JobScheduler.JobStatus( 1562): 	at android.os.Looper.loopOnce(Looper.java:311)
+E/JobScheduler.JobStatus( 1562): 	at android.os.Looper.loop(Looper.java:408)
+E/JobScheduler.JobStatus( 1562): 	at android.os.HandlerThread.run(HandlerThread.java:85)
+E/TranExceptionReporterComponentImpl( 1562): init: ro.product.succ.bbcollect.log.support==1
+E/TranExceptionReporterComponentImpl( 1562): init: ro.product.succ.bbcollect.log.support==1
+E/ApplicationHelper( 1562): Fail to get PackageManager
+D/Hiber/JobExtImpl( 1562): un_job=JobStatus{6785c79 androidx.work.systemjobscheduler:u0a281/1628 @androidx.work.systemjobscheduler@com.whatsapp.w4b/androidx.work.impl.background.systemjob.SystemJobService u=0 s=10281 NET READY}for uid=10281
+D/Hiber/JobExtImpl( 1562): unProxyJobs leave, uid=10281 discard=false
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{7071468 type 3 origWhen 40001043 whenElapsed 40001043 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{d3897be type 2 origWhen 40340122 whenElapsed 40340122 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{fb2266d type 2 origWhen 40480484 whenElapsed 40480484 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{7e17f23 type 3 origWhen 43260018 whenElapsed 43260018 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{c26107a type 0 origWhen 1772476212000 whenElapsed 49020465 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{70fae43 type 0 origWhen 1772476221000 whenElapsed 49029465 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{397ccc0 type 3 origWhen 49286148 whenElapsed 49286148 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{d96602b type 0 origWhen 1772483401000 whenElapsed 56209464 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{484ddf9 type 0 origWhen 1772483429000 whenElapsed 56237464 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{6963c88 type 3 origWhen 66598744 whenElapsed 66598744 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{d996621 type 2 origWhen 107373296 whenElapsed 107373296 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms, alarm=Alarm{135540f type 2 origWhen 107373296 whenElapsed 107373296 com.whatsapp.w4b}
+D/Hiber/alarmManagerServiceExtImpl( 1562): unproxyAlarms leave, uid=10281, packageName=null
+I/WM-WorkerWrapper(27882): Work [ id=269edad9-7aed-4c84-9324-4ec4fe9b319d, tags={ com.whatsapp.xmpp.messaging.XmppLifecycleWorker } ] was cancelled
+I/WM-WorkerWrapper(27882): X.J0m
+I/WM-WorkerWrapper(27882): 	at X.IPM.A01(:6)
+I/WM-WorkerWrapper(27882): 	at X.IsF.run(:84)
+I/WM-WorkerWrapper(27882): 	at X.IrX.run(:2)
+I/WM-WorkerWrapper(27882): 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
+I/WM-WorkerWrapper(27882): 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
+I/WM-WorkerWrapper(27882): 	at java.lang.Thread.run(Thread.java:1564)
+I/Hiber/proxyManager( 1562): up_sensor: uid=10281, pkgName=com.whatsapp.w4b
+E/ApplicationHelper( 1562): Fail to get PackageManager
+D/WM-WorkerWrapper(27882): Status for 269edad9-7aed-4c84-9324-4ec4fe9b319d is RUNNING; not doing any work and rescheduling for later execution
+D/WM-Processor(27882): IPM 269edad9-7aed-4c84-9324-4ec4fe9b319d executed; reschedule = true
+D/WM-GreedyScheduler(27882): Stopping tracking for WorkGenerationalId(workSpecId=269edad9-7aed-4c84-9324-4ec4fe9b319d, generation=0)
+D/WM-GreedyScheduler(27882): Cancelling work ID 269edad9-7aed-4c84-9324-4ec4fe9b319d
+D/WM-SystemJobScheduler(27882): Scheduling work ID 269edad9-7aed-4c84-9324-4ec4fe9b319dJob ID 1629
+D/WM-GreedyScheduler(27882): Starting tracking for 594b620f-7076-44b5-8b84-d11baa9473e4
+D/TranSignalStrengthComponentImpl( 2426): [NR] dbm: -104
+D/TranSignalStrengthComponentImpl( 2426): [NR] dbm: -104
+I/TranTele/TranPhoneInterfaceManager( 2426): TTC - onSignalStrengthsChanged
+D/TranSignalStrengthComponentImpl( 1562): [NR] dbm: -104
+D/CallbackProxy( 5230): [onSignalStrengthsChanged]
+D/TranSignalStrengthComponentImpl(27882): [NR] dbm: -104
+D/TranPhoneSwitcher( 2426): getNetworkType: 5G
+I/TranPhoneSwitcher( 2426): mDefaultsign:4subid :2
+I/HfLooper( 1305): hal step counter = 2769
+I/Hiber/importantScene( 1562): default_sms: packageName=com.google.android.apps.messaging
+I/Hiber/appStateMachine( 1562): uid:10274, pkg=com.google.android.apps.messaging  can't transition from R to F ,importantcase is : default_sms
+I/Hiber/nativeServiceClient( 1562): check binder uid=10281
+D/ccci_mdinit( 1002): (1):monitor_time_update_thread round:2088 ########

@@ -100,6 +100,102 @@ class AuthService {
     }
   }
 
+  /// Request OTP for phone number
+  Future<String?> sendOtp({required String phoneNumber}) async {
+    final response = await _api.post(
+      ApiConfig.sendOtp,
+      body: {
+        'phone_number': phoneNumber,
+      },
+    );
+
+    if (response.isSuccess) {
+      return response.data['session_id'];
+    } else {
+      throw Exception(response.error ?? 'Failed to send OTP');
+    }
+  }
+
+  /// Verify OTP and log in / sign up
+  Future<AuthResult> verifyOtp({
+    required String phoneNumber,
+    required String otp,
+    required String sessionId,
+    String? fcmToken,
+  }) async {
+    final response = await _api.post(
+      ApiConfig.verifyOtp,
+      body: {
+        'phone_number': phoneNumber,
+        'otp': otp,
+        'session_id': sessionId,
+        if (fcmToken != null) 'fcm_token': fcmToken,
+      },
+    );
+
+    if (response.isSuccess) {
+      final data = response.data;
+      final isNewUser = data['isNewUser'] ?? false;
+      
+      // Save token
+      await _storage.saveToken(data['token']);
+      
+      // Parse and save user
+      final user = User.fromJson(data['user']);
+      _currentUser = user;
+      await _storage.saveUserId(user.userId);
+      if (user.email != null && user.email!.isNotEmpty) {
+        await _storage.saveEmail(user.email!);
+      }
+
+      if (isNewUser) {
+        await _storage.clearUserProfileData();
+        await _storage.clearListenerFormData();
+        await _storage.saveIsListener(false);
+        await _storage.saveUserProfileComplete(false);
+        await _storage.saveListenerProfileComplete(false);
+      } else {
+        await _storage.saveUserData(jsonEncode(data['user']));
+        // Persist commonly used profile fields
+        try {
+          if (user.displayName != null && user.displayName!.isNotEmpty) {
+            await _storage.saveDisplayName(user.displayName!);
+          }
+          if (user.city != null && user.city!.isNotEmpty) {
+            await _storage.saveCity(user.city!);
+          }
+          if (user.avatarUrl != null && user.avatarUrl!.isNotEmpty) {
+            await _storage.saveAvatarUrl(user.avatarUrl!);
+          }
+          if (user.gender != null && user.gender!.isNotEmpty) {
+            await _storage.saveGender(user.gender!);
+          }
+        } catch (_) {}
+
+        if (user.accountType == 'listener') {
+          await _storage.saveIsListener(true);
+          await _storage.saveListenerProfileComplete(true);
+        }
+
+        if (user.hasCompleteProfile) {
+          await _storage.saveUserProfileComplete(true);
+        }
+      }
+      
+      return AuthResult(
+        success: true,
+        user: user,
+        isNewUser: isNewUser,
+        message: data['message'],
+      );
+    } else {
+      return AuthResult(
+        success: false,
+        error: response.error ?? 'OTP Verification failed',
+      );
+    }
+  }
+
   /// Complete profile registration after social login
   Future<AuthResult> completeRegistration({
     String? email,

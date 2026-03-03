@@ -281,13 +281,26 @@ class UserCallController extends ChangeNotifier {
   Future<void> _initiateCallAndConnect() async {
     debugPrint('UserCallController: Initiating call to listener...');
 
-    // 1. Ensure socket is connected & request mic permission in parallel
+    // 1. Ensure socket is connected & request permissions in parallel
     final socketFuture = _socketService.connect();
-    final micFuture = Permission.microphone.request();
+    
+    // Request microphone and bluetooth connect (required for Android 12+ WebRTC audio routing)
+    Map<Permission, PermissionStatus> statuses = await [
+      Permission.microphone,
+      Permission.bluetoothConnect,
+    ].request();
 
     final connected = await socketFuture;
     if (!connected) {
-      _setError('Failed to connect. Please try again.');
+      _setError('Failed to connect to server. Please try again.');
+      return;
+    }
+
+    // Check if critical microphone permission was granted
+    if (statuses[Permission.microphone] != PermissionStatus.granted) {
+      _setError('Microphone permission is required to make a call.');
+      _stopRingtone();
+      _scheduleAutoClose();
       return;
     }
 
@@ -322,21 +335,20 @@ class UserCallController extends ChangeNotifier {
       );
     }
 
-    // 4. Init LiveKit (mic permission already resolved in parallel)
-    final micStatus = await micFuture;
-    if (!micStatus.isGranted) {
-      _setError('Microphone permission denied');
-      return;
-    }
+    // 4. Init LiveKit (permissions already resolved)
     await _initLiveKitEngine();
   }
 
   // ── LiveKit init + join ──
 
   Future<void> _initLiveKit() async {
-    final micStatus = await Permission.microphone.request();
-    if (!micStatus.isGranted) {
-      _setError('Microphone permission denied');
+    Map<Permission, PermissionStatus> statuses = await [
+      Permission.microphone,
+      Permission.bluetoothConnect,
+    ].request();
+
+    if (statuses[Permission.microphone] != PermissionStatus.granted) {
+      _setError('Microphone permission is required to join the call.');
       return;
     }
     await _initLiveKitEngine();

@@ -55,6 +55,15 @@ void onStart(ServiceInstance service) async {
   DartPluginRegistrant.ensureInitialized();
   WidgetsFlutterBinding.ensureInitialized();
 
+  // MUST call setForegroundNotificationInfo immediately before any await,
+  // otherwise Android kills the service with ForegroundServiceDidNotStartInTimeException
+  if (service is AndroidServiceInstance) {
+    service.setForegroundNotificationInfo(
+      title: 'CallTo is running',
+      content: 'Listening for incoming calls',
+    );
+  }
+
   final storage = StorageService();
   final isListener = await storage.getIsListener();
   

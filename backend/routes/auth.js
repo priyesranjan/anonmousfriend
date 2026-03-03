@@ -171,6 +171,135 @@ router.post('/social-login', async (req, res) => {
 
 /**
  * =====================================================
+ * OTP LOGIN / SIGNUP
+ * Phone Number + 2Factor API
+ * =====================================================
+ */
+router.post('/send-otp', async (req, res) => {
+  try {
+    const { phone_number } = req.body;
+
+    if (!phone_number) {
+      return res.status(400).json({ error: 'phone_number is required' });
+    }
+
+    const phoneRegex = /^[0-9]{10}$/;
+    if (!phoneRegex.test(phone_number)) {
+      return res.status(400).json({ error: 'Invalid phone number format. Must be exactly 10 digits.' });
+    }
+
+    const apiKey = process.env.TWO_FACTOR_API_KEY;
+    if (!apiKey) {
+      console.error('[AUTH] TWO_FACTOR_API_KEY is missing from environment variables');
+      return res.status(500).json({ error: 'Authentication service temporarily unavailable' });
+    }
+
+    const response = await axios.get(
+      `https://2factor.in/API/V1/${apiKey}/SMS/${phone_number}/AUTOGEN`
+    );
+
+    if (response.data && response.data.Status === "Success") {
+      return res.json({
+        message: 'OTP sent successfully',
+        session_id: response.data.Details
+      });
+    } else {
+      return res.status(400).json({ error: 'Failed to send OTP. Please try again later.' });
+    }
+  } catch (error) {
+    console.error('Send OTP error:', error.message || error);
+    return res.status(500).json({ error: 'Internal server error while sending OTP' });
+  }
+});
+
+router.post('/verify-otp', async (req, res) => {
+  try {
+    const { phone_number, otp, session_id } = req.body;
+
+    if (!phone_number || !otp || !session_id) {
+      return res.status(400).json({ error: 'phone_number, otp, and session_id are required' });
+    }
+
+    const phoneRegex = /^[0-9]{10}$/;
+    if (!phoneRegex.test(phone_number)) {
+      return res.status(400).json({ error: 'Invalid phone number format. Must be exactly 10 digits.' });
+    }
+
+    const apiKey = process.env.TWO_FACTOR_API_KEY;
+    if (!apiKey) {
+      console.error('[AUTH] TWO_FACTOR_API_KEY is missing from environment variables');
+      return res.status(500).json({ error: 'Authentication service temporarily unavailable' });
+    }
+
+    let isOtpValid = false;
+
+    // Production Mode: Unconditionally verify against 2Factor API
+    try {
+      const response = await axios.get(
+        `https://2factor.in/API/V1/${apiKey}/SMS/VERIFY/${session_id}/${otp}`
+      );
+      if (response.data && response.data.Status === "Success") {
+        isOtpValid = true;
+      } else {
+        return res.status(400).json({ error: 'Invalid OTP' });
+      }
+    } catch (apiError) {
+      console.error('2Factor verify error:', apiError.response?.data || apiError.message);
+      return res.status(400).json({ error: 'Invalid OTP or expired session' });
+    }
+
+    // ===================== FIND USER =====================
+    let user = await User.findByPhone(phone_number);
+    let isNewUser = false;
+
+    // ===================== CREATE USER =====================
+    if (!user) {
+      const rateConfig = await getRateConfig();
+      const isFirstTimeUser = true;
+      user = await User.create({
+        phone_number: phone_number,
+        auth_provider: 'phone',
+        account_type: 'user',
+        is_first_time_user: isFirstTimeUser,
+        offer_used: false,
+        offer_minutes_limit: rateConfig?.offer_minutes_limit,
+        offer_flat_price: rateConfig?.offer_flat_price
+      });
+      isNewUser = true;
+    } else {
+      await User.updateLastLogin(user.user_id);
+      if (req.body.fcm_token) {
+        await User.update(user.user_id, { fcm_token: req.body.fcm_token });
+      }
+    }
+
+    await User.verifyUser(user.user_id);
+
+    // ===================== JWT =====================
+    const jwtToken = jwt.sign(
+      {
+        user_id: user.user_id,
+        provider: 'phone',
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '30d' }
+    );
+
+    return res.json({
+      message: isNewUser ? 'Signup successful' : 'Login successful',
+      token: jwtToken,
+      user: await User.findById(user.user_id),
+      isNewUser,
+    });
+
+  } catch (error) {
+    console.error('Verify OTP error:', error);
+    return res.status(500).json({ error: 'OTP verification failed' });
+  }
+});
+
+/**
+ * =====================================================
  * COMPLETE PROFILE AFTER SOCIAL LOGIN
  * =====================================================
  */

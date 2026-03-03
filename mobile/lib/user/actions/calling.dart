@@ -480,28 +480,10 @@ class _CallingState extends State<Calling>
         );
 
       case UserCallState.ended:
-        final endError = _controller.connectionError;
-        return Column(
-          key: const ValueKey('ended'),
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              endError != null ? 'Call Failed' : 'Call Ended',
-              style: TextStyle(
-                fontSize: 16,
-                color: endError != null ? Colors.redAccent : Colors.white54,
-                fontWeight: endError != null ? FontWeight.w600 : FontWeight.normal,
-              ),
-            ),
-            if (endError != null) ...[
-              const SizedBox(height: 6),
-              Text(
-                endError,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 13, color: Colors.redAccent),
-              ),
-            ],
-          ],
+        return const Text(
+          key: ValueKey('ended'),
+          'Call Ended',
+          style: TextStyle(fontSize: 16, color: Colors.white54),
         );
     }
   }

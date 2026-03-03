@@ -21,6 +21,8 @@ class ApiConfig {
   static final String apiBase = '$baseUrl/api';
 
   static final String socialLogin = '$apiBase/auth/social-login';
+  static final String sendOtp = '$apiBase/auth/send-otp';
+  static final String verifyOtp = '$apiBase/auth/verify-otp';
   static final String register = '$apiBase/auth/register';
   static final String logout = '$apiBase/auth/logout';
   static final String deleteAccountRequest = '$apiBase/account/delete-request';

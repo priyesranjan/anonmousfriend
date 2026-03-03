@@ -27,6 +27,12 @@ class _LoginScreenState extends State with TickerProviderStateMixin {
   bool _isLoading = false;
   bool _agreedToTerms = true;
   bool _googleSignInAvailable = false;
+  bool _isOtpSent = false;
+  String? _sessionId;
+  
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _otpController = TextEditingController();
+
   late AnimationController _fadeController;
   late AnimationController _slideController;
   late Animation<double> _fadeAnimation;
@@ -84,6 +90,16 @@ class _LoginScreenState extends State with TickerProviderStateMixin {
     // Initialize Google Sign-In
     _initializeGoogleSignIn();
 
+    // Auto-trigger OTP when 10 digits are entered
+    _phoneController.addListener(() {
+      final text = _phoneController.text.trim();
+      if (text.length == 10 && !_isOtpSent && !_isLoading) {
+        // Unfocus the keyboard to dismiss it
+        FocusScope.of(context).unfocus();
+        _handleOtpRequest();
+      }
+    });
+
     // Start animations and autoscroll after first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
@@ -139,6 +155,8 @@ class _LoginScreenState extends State with TickerProviderStateMixin {
     rightScrollController.dispose();
     _fadeController.dispose();
     _slideController.dispose();
+    _phoneController.dispose();
+    _otpController.dispose();
     super.dispose();
   }
 
@@ -218,6 +236,72 @@ class _LoginScreenState extends State with TickerProviderStateMixin {
     } catch (e) {
       _showLoading(false);
       _showError('Google login failed: $e');
+    }
+  }
+
+  Future _handleOtpRequest() async {
+    final phone = _phoneController.text.trim();
+    if (phone.isEmpty || phone.length < 10) {
+      _showError('Please enter a valid phone number');
+      return;
+    }
+
+    if (!_agreedToTerms) {
+      _showError('Please agree to Terms of Use and Privacy Policy');
+      return;
+    }
+
+    _showLoading(true);
+    try {
+      final sessionId = await _authService.sendOtp(phoneNumber: phone);
+      if (sessionId != null) {
+        setState(() {
+          _sessionId = sessionId;
+          _isOtpSent = true;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('OTP sent to phone number')),
+        );
+      }
+    } catch (e) {
+      _showError(e.toString());
+    } finally {
+      _showLoading(false);
+    }
+  }
+
+  Future _handleOtpVerify() async {
+    final phone = _phoneController.text.trim();
+    final otp = _otpController.text.trim();
+
+    if (otp.isEmpty || otp.length < 4) {
+      _showError('Please enter a valid OTP');
+      return;
+    }
+
+    if (_sessionId == null) {
+      _showError('Session expired. Please request OTP again.');
+      return;
+    }
+
+    _showLoading(true);
+    try {
+      final result = await _authService.verifyOtp(
+        phoneNumber: phone,
+        otp: otp,
+        sessionId: _sessionId!,
+      );
+
+      _showLoading(false);
+
+      if (result.success) {
+        await _postLoginNavigation(result);
+      } else {
+        _showError(result.error ?? 'OTP Verification failed');
+      }
+    } catch (e) {
+      _showLoading(false);
+      _showError('OTP Verification failed: $e');
     }
   }
 
@@ -532,8 +616,18 @@ class _LoginScreenState extends State with TickerProviderStateMixin {
           
           SizedBox(height: screenHeight * 0.028),
 
-          // Google login button
-          _buildGoogleLoginButton(screenHeight),
+          // Custom OTP Fields
+          _buildPhoneInput(screenHeight),
+
+          if (_isOtpSent) ...[
+            SizedBox(height: screenHeight * 0.02),
+            _buildOtpInput(screenHeight),
+          ],
+
+          SizedBox(height: screenHeight * 0.02),
+
+          // Request/Verify OTP Button
+          _buildOtpActionButton(screenHeight),
 
           SizedBox(height: screenHeight * 0.02),
 
@@ -546,9 +640,26 @@ class _LoginScreenState extends State with TickerProviderStateMixin {
                   color: Colors.white.withOpacity(0.1),
                 ),
               ),
-              
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  'OR',
+                  style: TextStyle(color: Colors.white54, fontSize: screenHeight * 0.015),
+                ),
+              ),
+              Expanded(
+                child: Container(
+                  height: 1,
+                  color: Colors.white.withOpacity(0.1),
+                ),
+              ),
             ],
           ),
+
+          SizedBox(height: screenHeight * 0.02),
+
+          // Google login button
+          _buildGoogleLoginButton(screenHeight),
 
           SizedBox(height: screenHeight * 0.02),
 
@@ -621,6 +732,97 @@ class _LoginScreenState extends State with TickerProviderStateMixin {
     ),
   );
 }
+
+  Widget _buildPhoneInput(double screenHeight) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withOpacity(0.1)),
+      ),
+      child: TextField(
+        controller: _phoneController,
+        keyboardType: TextInputType.phone,
+        style: const TextStyle(color: Colors.white),
+        enabled: !_isOtpSent && !_isLoading,
+        decoration: InputDecoration(
+          hintText: 'Phone Number',
+          hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
+          prefixIcon: const Icon(Icons.phone, color: Colors.white70),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOtpInput(double screenHeight) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withOpacity(0.1)),
+      ),
+      child: TextField(
+        controller: _otpController,
+        keyboardType: TextInputType.number,
+        style: const TextStyle(color: Colors.white),
+        enabled: !_isLoading,
+        decoration: InputDecoration(
+          hintText: 'Enter OTP',
+          hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
+          prefixIcon: const Icon(Icons.lock_outline, color: Colors.white70),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOtpActionButton(double screenHeight) {
+    final double buttonHeight = screenHeight * 0.055;
+    final bool isVerifying = _isOtpSent;
+
+    return GestureDetector(
+      onTap: _isLoading ? null : (isVerifying ? _handleOtpVerify : _handleOtpRequest),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        width: double.infinity,
+        height: buttonHeight,
+        decoration: BoxDecoration(
+          color: const Color(0xFF00D9FF),
+          borderRadius: BorderRadius.circular(30),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF00D9FF).withOpacity(0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Center(
+          child: _isLoading
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                )
+              : Text(
+                  isVerifying ? 'Verify OTP' : 'Request OTP',
+                  style: TextStyle(
+                    color: Colors.black87,
+                    fontSize: screenHeight * 0.016,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+        ),
+      ),
+    );
+  }
 
   Widget _buildTermsSection(double screenHeight) {
     return Column(

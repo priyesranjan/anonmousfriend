@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:async';
+import 'dart:io';
+import 'http_overrides.dart';
 import 'login/login.dart';
 import 'gender/gender_selection.dart';
 import 'user/widgets/bottom_nav_bar.dart' as user_bottom_nav_bar;
@@ -35,6 +37,7 @@ void ensureGlobalCallHandler() {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  HttpOverrides.global = MyHttpOverrides();
   await dotenv.load(fileName: '.env');
   
   // Initialize Android Foreground Service

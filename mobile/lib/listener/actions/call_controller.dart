@@ -202,8 +202,12 @@ class CallController extends ChangeNotifier {
   // ── LiveKit init + join ──
 
   Future<void> _initLiveKit() async {
-    final micStatus = await Permission.microphone.request();
-    if (!micStatus.isGranted) {
+    Map<Permission, PermissionStatus> statuses = await [
+      Permission.microphone,
+      Permission.bluetoothConnect,
+    ].request();
+
+    if (statuses[Permission.microphone] != PermissionStatus.granted) {
       _setError('Microphone permission denied');
       return;
     }
