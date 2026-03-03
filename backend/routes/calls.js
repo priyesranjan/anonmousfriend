@@ -616,7 +616,10 @@ router.post('/livekit/token', authenticate, async (req, res) => {
     res.json({
       token,
       channel_name,
-      url: process.env.LIVEKIT_URL || 'wss://livekit.appdost.com'
+      // Use plain WebSocket ws:// directly to port 7880 on the VPS.
+      // Coolify's SSL proxy does NOT terminate WebSocket on this port.
+      // Using wss:// causes TLS handshake failure: WRONG_VERSION_NUMBER
+      url: process.env.LIVEKIT_URL || 'ws://91.108.111.194:7880'
     });
   } catch (error) {
     console.error('Fatal error generating LiveKit token:', error);
