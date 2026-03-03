@@ -183,20 +183,10 @@ router.post('/check-random-call', authenticate, async (req, res) => {
             : null;
         let callsToday = lastDate === today ? (user.random_calls_today || 0) : 0;
 
-        if (callsToday >= 2) {
-            return res.json({
-                allowed: false,
-                isPremium: false,
-                reason: 'daily_limit',
-                message: 'You\'ve used your 2 free random calls today. Upgrade to Premium for unlimited calls!',
-                freeCallsUsed: callsToday,
-                freeCallsLimit: 2,
-            });
-        }
-
         // Increment counter
         if (lastDate !== today) {
             // Reset for new day
+            callsToday = 0;
             await pool.query(
                 `UPDATE users SET random_calls_today = 1, last_random_call_date = CURRENT_DATE WHERE user_id = $1`,
                 [req.userId]
@@ -208,14 +198,19 @@ router.post('/check-random-call', authenticate, async (req, res) => {
             );
         }
 
+        const currentCallCount = callsToday + 1;
+        // Show ad on the 1st call and then every 5th call (e.g., 1, 5, 10, 15...)
+        // Or if user meant "Every 5 random call", perhaps currentCallCount % 5 === 0.
+        const adRequired = (currentCallCount % 5 === 0);
+
         return res.json({
             allowed: true,
             isPremium: false,
-            adRequired: true,
-            maxMinutes: 3,
+            adRequired: adRequired,
+            maxMinutes: null, // Unlimited minutes for random call
             filtersEnabled: false,
-            freeCallsUsed: callsToday + 1,
-            freeCallsLimit: 2,
+            freeCallsUsed: currentCallCount,
+            freeCallsLimit: 9999, // practically unlimited
         });
     } catch (error) {
         console.error('Check random call error:', error);
