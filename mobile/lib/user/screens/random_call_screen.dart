@@ -132,8 +132,9 @@ class _RandomCallScreenState extends State<RandomCallScreen>
 
 
     try {
-      // Ensure socket is connected to get real-time online status
-      await _socketService.connect();
+      // Connect socket in background — don't block the search on this.
+      // Real-time status is a bonus; backend online/busy flags are the fallback.
+      _socketService.connect();
 
       int maxRetries = 3;
       int retryCount = 0;
