@@ -169,6 +169,24 @@ const pendingCalls = new Map(); // Map of callId -> { callerId, listenerId, list
 const activeCallTimers = new Map(); // Map of callId -> { timerId, callerId, listenerUserId, channelName, startedAt, maxAllowedSeconds }
 const processingCalls = new Set(); // Dedup guard: callIds currently being set up in call:joined handler
 
+// ── Random User-to-User Match Pool ──────────────────────────────────────────
+// When "Match with Verified Expert" toggle is OFF, users join this pool.
+// The server instantly pairs two waiting users and emits `random:matched` to both.
+const randomUserPool = new Map(); // Map of userId -> { socketId, displayName, avatarUrl, gender, joinedAt }
+
+// Clean up stale pool entries (waiting > 5 minutes)
+setInterval(() => {
+  const now = Date.now();
+  for (const [userId, entry] of randomUserPool.entries()) {
+    if (now - entry.joinedAt > 5 * 60 * 1000) {
+      console.log(`[RANDOM] Removed stale pool entry for user ${userId}`);
+      randomUserPool.delete(userId);
+    }
+  }
+}, 60000);
+// ────────────────────────────────────────────────────────────────────────────
+
+
 // Stale pendingCalls cleanup: remove entries older than 60 seconds
 setInterval(() => {
   const now = Date.now();
@@ -332,7 +350,130 @@ io.on('connection', (socket) => {
     }
   });
 
+  // ── RANDOM USER-TO-USER MATCH ─────────────────────────────────────────────
+  // Toggle OFF: User wants a free random match with another regular user.
+  // Server maintains an in-memory pool. When 2 users are waiting, they are paired.
+  // ─────────────────────────────────────────────────────────────────────────
+
+  // User joins the free random match pool
+  socket.on('random:join_pool', (data) => {
+    const { userId, displayName, avatarUrl, gender, preferredGender } = data || {};
+    if (!userId) return;
+
+    // Clear any old stale entry / pending timeout
+    if (randomUserPool.has(userId)) {
+      const old = randomUserPool.get(userId);
+      if (old.timeoutId) clearTimeout(old.timeoutId);
+      randomUserPool.delete(userId);
+    }
+
+    console.log(`[RANDOM] User ${userId} (${displayName}, gender=${gender}, prefer=${preferredGender}) joined pool. Pool size: ${randomUserPool.size + 1}`);
+
+    // Gender-aware matching:
+    // 1st pass: find a user whose gender matches the requester's preference AND
+    //           whose own preference matches the requester's gender (mutual)
+    // 2nd pass: if preferredGender is 'Any', accept anyone
+    let matchedUserId = null;
+
+    // Pass 1: strict gender preference match
+    if (preferredGender && preferredGender !== 'Any') {
+      for (const [waitingUserId, entry] of randomUserPool.entries()) {
+        if (waitingUserId === userId) continue;
+        const genderMatch = entry.gender === preferredGender;
+        const theirPrefMatch = !entry.preferredGender || entry.preferredGender === 'Any' || entry.preferredGender === gender;
+        if (genderMatch && theirPrefMatch) {
+          matchedUserId = waitingUserId;
+          break;
+        }
+      }
+    }
+
+    // Pass 2: any gender (fallback or 'Any' preference)
+    if (!matchedUserId) {
+      for (const [waitingUserId, entry] of randomUserPool.entries()) {
+        if (waitingUserId === userId) continue;
+        // Only accept if their preference also allows any or matches current user
+        const theirPrefOk = !entry.preferredGender || entry.preferredGender === 'Any' || entry.preferredGender === gender;
+        if (theirPrefOk) {
+          matchedUserId = waitingUserId;
+          break;
+        }
+      }
+    }
+
+    if (matchedUserId) {
+      // Found a match! Pair both users.
+      const matchedEntry = randomUserPool.get(matchedUserId);
+      if (matchedEntry.timeoutId) clearTimeout(matchedEntry.timeoutId);
+      randomUserPool.delete(matchedUserId);
+
+      const currentUserInfo = { userId, displayName, avatarUrl, gender };
+      const matchedUserInfo = {
+        userId: matchedUserId,
+        displayName: matchedEntry.displayName,
+        avatarUrl: matchedEntry.avatarUrl,
+        gender: matchedEntry.gender,
+      };
+
+      socket.emit('random:matched', { matchedUser: matchedUserInfo });
+
+      const matchedSocketId = matchedEntry.socketId;
+      if (matchedSocketId) {
+        io.to(matchedSocketId).emit('random:matched', { matchedUser: currentUserInfo });
+      }
+
+      console.log(`[RANDOM] ✓ Matched: ${userId} <-> ${matchedUserId}`);
+    } else {
+      // No match found — add to pool and set a 30s timeout
+      const timeoutId = setTimeout(() => {
+        if (randomUserPool.has(userId)) {
+          randomUserPool.delete(userId);
+          // Notify client that no match was found within the timeout
+          socket.emit('random:no_match', {
+            preferredGender: preferredGender || 'Any',
+            message: preferredGender && preferredGender !== 'Any'
+              ? `All ${preferredGender.toLowerCase()} users are busy right now`
+              : 'No users available right now',
+          });
+          console.log(`[RANDOM] Timeout: no match for user ${userId} (prefer: ${preferredGender})`);
+        }
+      }, 30000);
+
+      randomUserPool.set(userId, {
+        socketId: socket.id,
+        displayName: displayName || 'User',
+        avatarUrl: avatarUrl || null,
+        gender: gender || null,
+        preferredGender: preferredGender || 'Any',
+        joinedAt: Date.now(),
+        timeoutId,
+      });
+      console.log(`[RANDOM] User ${userId} added to pool. Waiting 30s...`);
+    }
+  });
+
+
+  // User leaves the free random match pool (cancelled search)
+  socket.on('random:leave_pool', (data) => {
+    const { userId } = data || {};
+    if (userId) {
+      randomUserPool.delete(userId);
+      console.log(`[RANDOM] User ${userId} left pool. Pool size: ${randomUserPool.size}`);
+    }
+  });
+
+  // Clean up pool entry on disconnect
+  socket.on('disconnect', () => {
+    const userId = socket.userId;
+    if (userId && randomUserPool.has(userId)) {
+      randomUserPool.delete(userId);
+      console.log(`[RANDOM] Removed disconnected user ${userId} from random pool`);
+    }
+  });
+  // ─────────────────────────────────────────────────────────────────────────
+
   // 2. CALL HANDLING
+
 
   // Initiate call: User -> Listener
   // CRITICAL: This checks if listener is online by looking for their socket
