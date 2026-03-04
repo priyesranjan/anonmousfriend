@@ -9,6 +9,7 @@ import '../../services/subscription_service.dart';
 import '../../models/chat_model.dart';
 import '../nav/profile/wallet.dart';
 import 'package:image_picker/image_picker.dart';
+import 'calling.dart' as user_calling_import;
 
 class ChatPage extends StatefulWidget {
   final String expertName;
@@ -1389,6 +1390,11 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
         onPressed: () => Navigator.pop(context),
       ),
       actions: [
+        if (widget.isEphemeral && widget.otherUserId != null)
+          IconButton(
+            icon: const Icon(Icons.call, color: Colors.white),
+            onPressed: () => _initiateFreeP2PCall(),
+          ),
         PopupMenuButton<String>(
           icon: const Icon(Icons.more_vert, color: Colors.white),
           onSelected: (value) => _handleConversationMenuSelection(value),
@@ -1444,6 +1450,46 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
           ),
         );
       },
+    );
+  }
+
+  void _initiateFreeP2PCall() async {
+    final connected = await _socketService.connect();
+    if (!connected) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to connect. Please try again.')),
+        );
+      }
+      return;
+    }
+
+    final userName = await _storage.getDisplayName() ?? 'You';
+    final userAvatar = await _storage.getAvatarUrl();
+    final callId = 'p2p_${DateTime.now().millisecondsSinceEpoch}';
+
+    _socketService.emit('random:call_invite', {
+      'targetUserId': widget.otherUserId,
+      'channelName': callId,
+      'callerName': userName,
+      'callerAvatar': userAvatar,
+    });
+
+    if (!mounted) return;
+    
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => user_calling_import.Calling(
+          callerName: widget.expertName,
+          callerAvatar: widget.imagePath,
+          userName: userName,
+          userAvatar: null,
+          channelName: callId,
+          listenerId: widget.otherUserId,
+          isRandomCall: true,
+        ),
+      ),
     );
   }
 

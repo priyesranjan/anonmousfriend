@@ -126,6 +126,30 @@ class _RandomCallScreenState extends State<RandomCallScreen>
               'assets/images/female_profile/avatar2.jpg',
         };
       });
+
+      // ---- Auto-Connect directly to ChatPage ----
+      if (this.matchedUser != null) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ChatPage(
+              expertName: this.matchedUser!['name'] ?? 'User',
+              imagePath: this.matchedUser!['image'] ?? 'assets/images/female_profile/avatar2.jpg',
+              otherUserId: this.matchedUser!['id'],
+              otherUserAvatar: this.matchedUser!['image'],
+              isEphemeral: true,
+            ),
+          ),
+        ).then((_) {
+          // When user comes back from the chat, reset match state so they can search again
+          if (mounted) {
+            setState(() {
+              this.matchedUser = null;
+              _isUserMatch = false;
+            });
+          }
+        });
+      }
     });
     // Also listen for no-match timeout & p2p call events
     _listenNoMatch();
@@ -360,6 +384,21 @@ class _RandomCallScreenState extends State<RandomCallScreen>
             'assets/images/female_profile/avatar2.jpg',
       };
     });
+
+    // ---- Auto-Connect directly to Call ----
+    if (matchedUser != null) {
+      startCall(matchedUser!);
+      
+      // Clear match state so if they return to this screen, it's ready for next
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (mounted) {
+          setState(() {
+            matchedUser = null;
+            _isUserMatch = false;
+          });
+        }
+      });
+    }
   }
 
   Future<List<model.Listener>> _fetchListenersWithRetry() async {
