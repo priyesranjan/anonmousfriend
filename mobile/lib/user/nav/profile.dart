@@ -598,7 +598,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
           _buildListTile(
             Icons.mic_none,
-            "Apply as Speaker",
+            "Apply As Expert",
             onTap: () {
               Navigator.push(
                 context,

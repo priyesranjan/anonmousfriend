@@ -11,10 +11,14 @@ import 'package:record/record.dart';
 
 import 'payment.dart';
 import '../../services/storage_service.dart';
+import '../../ui/theme/app_tokens.dart';
+import '../../ui/widgets/info_card.dart';
+import '../../ui/widgets/primary_cta_button.dart';
 
 // Conditional imports for dart:io (mobile only)
 import 'voice_io_stub.dart'
-    if (dart.library.io) 'voice_io_real.dart' as voice_io;
+    if (dart.library.io) 'voice_io_real.dart'
+    as voice_io;
 
 class VoiceSelectionPage extends StatefulWidget {
   final String? selectedLanguage;
@@ -42,9 +46,9 @@ class _VoiceSelectionPageState extends State<VoiceSelectionPage> {
   final AudioPlayer _player = AudioPlayer();
 
   // Consistent color palette
-  final Color primaryColor = const Color(0xFFFF4081);
-  final Color backgroundColor = const Color(0xFFFCE4EC);
-  final Color textPrimary = const Color(0xFF880E4F);
+  final Color primaryColor = AppColors.primary;
+  final Color backgroundColor = AppColors.gradientBottom;
+  final Color textPrimary = AppColors.textPrimary;
 
   final String verificationTextHi = """
 Namaste! Dosti bahut khaas hoti hai. 
@@ -285,10 +289,7 @@ Unke bina sab adhoora hai. Dhanyavaad!
 
     if (bytes == null || bytes.isEmpty) return null;
 
-    return {
-      'base64': base64Encode(bytes),
-      'mimeType': mimeType,
-    };
+    return {'base64': base64Encode(bytes), 'mimeType': mimeType};
   }
 
   // ==================== SAVE & CONTINUE ====================
@@ -344,16 +345,9 @@ Unke bina sab adhoora hai. Dhanyavaad!
       if (!mounted) return;
       setState(() => _isUploading = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: $e'),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
       );
     }
-  }
-
-  void _skip() {
-    Navigator.pop(context);
   }
 
   String _formatDuration(int seconds) {
@@ -365,7 +359,7 @@ Unke bina sab adhoora hai. Dhanyavaad!
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
-    
+
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
@@ -406,7 +400,7 @@ Unke bina sab adhoora hai. Dhanyavaad!
                     color: primaryColor,
                   ),
                 ),
-                
+
                 const SizedBox(height: 20),
 
                 // Title
@@ -433,21 +427,19 @@ Unke bina sab adhoora hai. Dhanyavaad!
                 SizedBox(height: screenHeight * 0.04),
 
                 // Verification Text Card
-                Container(
-                  width: double.infinity,
+                InfoCard(
                   padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: primaryColor.withValues(alpha: 0.3)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: primaryColor.withValues(alpha: 0.1),
-                        blurRadius: 20,
-                        offset: const Offset(0, 8),
-                      ),
-                    ],
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: primaryColor.withValues(alpha: 0.3),
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: primaryColor.withValues(alpha: 0.1),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
                   child: Column(
                     children: [
                       Icon(
@@ -501,16 +493,17 @@ Unke bina sab adhoora hai. Dhanyavaad!
                       color: _isRecording
                           ? Colors.red
                           : _hasRecorded
-                              ? Colors.green
-                              : primaryColor,
+                          ? Colors.green
+                          : primaryColor,
                       boxShadow: [
                         BoxShadow(
-                          color: (_isRecording
-                                  ? Colors.red
-                                  : _hasRecorded
+                          color:
+                              (_isRecording
+                                      ? Colors.red
+                                      : _hasRecorded
                                       ? Colors.green
                                       : primaryColor)
-                              .withValues(alpha: 0.4),
+                                  .withValues(alpha: 0.4),
                           blurRadius: 20,
                           offset: const Offset(0, 8),
                         ),
@@ -520,8 +513,8 @@ Unke bina sab adhoora hai. Dhanyavaad!
                       _isRecording
                           ? Icons.stop_rounded
                           : _hasRecorded
-                              ? Icons.check_rounded
-                              : Icons.mic_rounded,
+                          ? Icons.check_rounded
+                          : Icons.mic_rounded,
                       size: 48,
                       color: Colors.white,
                     ),
@@ -535,16 +528,16 @@ Unke bina sab adhoora hai. Dhanyavaad!
                   _isRecording
                       ? 'Recording... Tap to stop'
                       : _hasRecorded
-                          ? 'Recording Complete ✓'
-                          : 'Tap to Record',
+                      ? 'Recording Complete ✓'
+                      : 'Tap to Record',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: _isRecording
                         ? Colors.red.shade600
                         : _hasRecorded
-                            ? Colors.green.shade600
-                            : textPrimary,
+                        ? Colors.green.shade600
+                        : textPrimary,
                   ),
                 ),
 
@@ -570,7 +563,9 @@ Unke bina sab adhoora hai. Dhanyavaad!
                             borderRadius: BorderRadius.circular(30),
                           ),
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 12),
+                            horizontal: 20,
+                            vertical: 12,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -585,7 +580,9 @@ Unke bina sab adhoora hai. Dhanyavaad!
                             borderRadius: BorderRadius.circular(30),
                           ),
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 12),
+                            horizontal: 20,
+                            vertical: 12,
+                          ),
                         ),
                       ),
                     ],
@@ -605,62 +602,11 @@ Unke bina sab adhoora hai. Dhanyavaad!
 
                 SizedBox(height: screenHeight * 0.05),
 
-                // Bottom Buttons
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: _isUploading ? null : _skip,
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          side: BorderSide(color: primaryColor, width: 1.5),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                        ),
-                        child: Text(
-                          'Skip',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: primaryColor,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: _isUploading ? null : _saveAndContinue,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: primaryColor,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          elevation: 4,
-                        ),
-                        child: _isUploading
-                            ? const SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.white),
-                                ),
-                              )
-                            : const Text(
-                                'Continue',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white,
-                                ),
-                              ),
-                      ),
-                    ),
-                  ],
+                // Bottom Button
+                PrimaryCtaButton(
+                  label: 'Continue',
+                  isLoading: _isUploading,
+                  onPressed: _saveAndContinue,
                 ),
 
                 const SizedBox(height: 30),
@@ -672,5 +618,3 @@ Unke bina sab adhoora hai. Dhanyavaad!
     );
   }
 }
-
-

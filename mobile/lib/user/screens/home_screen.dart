@@ -14,6 +14,9 @@ import '../../services/user_service.dart';
 import '../../models/listener_model.dart' as listener_model;
 import '../../models/user_model.dart';
 import '../../ui/skeleton_loading_ui/listener_card_skeleton.dart';
+import '../../ui/theme/app_tokens.dart';
+import '../../ui/widgets/info_card.dart';
+import '../../ui/widgets/primary_cta_button.dart';
 import '../../listener/listener_form/intro_screen.dart';
 import '../../services/ad_service.dart';
 import '../../services/subscription_service.dart';
@@ -256,33 +259,19 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
     try {
       // Fetch all Experts (online and offline) with high limit
-      print('[HOME] Fetching Experts...');
       final result = await _listenerService.getListeners(limit: 100);
-      print(
-        '[HOME] Result success: ${result.success}, count: ${result.listeners.length}',
-      );
 
       if (result.success) {
-        // Log all fetched Experts for debugging
-        for (var listener in result.listeners) {
-          print(
-            '[HOME] Listener: ${listener.professionalName}, ID: ${listener.listenerId}, userId: ${listener.userId}, isAvailable: ${listener.isAvailable}',
-          );
-        }
-
         setState(() {
           _listeners = result.listeners;
           _filterListeners();
         });
-        print('[HOME] Filtered Experts count: ${_filteredListeners.length}');
       } else {
-        print('[HOME] Failed to load Experts: ${result.error}');
         setState(() {
           _error = 'Failed to load Experts';
         });
       }
     } catch (e) {
-      print('[HOME] Error loading Experts: $e');
       setState(() {
         _error = 'Error: $e';
       });
@@ -444,30 +433,32 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   Widget _buildChatEarnBanner() {
     if (!_showChatEarnBanner) return const SizedBox.shrink();
 
-    return Container(
+    return InfoCard(
       margin: const EdgeInsets.fromLTRB(12, 8, 12, 4),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFFAD1457), Color(0xFFE91E63)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.pink.withOpacity(0.3),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+      gradient: const LinearGradient(
+        colors: [AppColors.brandDark, AppColors.brandSecondary],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
       ),
+      borderRadius: BorderRadius.circular(16),
+      boxShadow: [
+        BoxShadow(
+          color: AppColors.primary.withOpacity(0.3),
+          blurRadius: 10,
+          offset: const Offset(0, 4),
+        ),
+      ],
       child: Stack(
         children: [
           Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                const Icon(Icons.monetization_on, color: Colors.yellowAccent, size: 40),
+                const Icon(
+                  Icons.monetization_on,
+                  color: Colors.yellowAccent,
+                  size: 40,
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -483,31 +474,26 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       ),
                       const SizedBox(height: 4),
                       const Text(
-                        'Become a listener and earn \u20B92/min by helping others!',
+                        'Become an expert and earn \u20B92/min by helping others!',
                         style: TextStyle(color: Colors.white70, fontSize: 13),
                       ),
                       const SizedBox(height: 8),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => BecomeHostOnboarding()),
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: const Text(
-                            'Apply Now',
-                            style: TextStyle(
-                              color: Color(0xFFAD1457),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
-                          ),
+                      SizedBox(
+                        width: 132,
+                        child: PrimaryCtaButton(
+                          label: 'Apply Now',
+                          height: 40,
+                          backgroundColor: Colors.white,
+                          textColor: AppColors.brandDark,
+                          loaderColor: AppColors.brandDark,
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => BecomeHostOnboarding(),
+                              ),
+                            );
+                          },
                         ),
                       ),
                     ],
@@ -547,10 +533,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             const TopBar(),
             _buildChatEarnBanner(),
             if (_offerCtrl.shouldShow)
-              Flexible(
-                flex: 0,
-                child: _buildOfferBannerState(),
-              ),
+              Flexible(flex: 0, child: _buildOfferBannerState()),
             if (!_offerCtrl.shouldShow) _buildOfferBannerState(),
 
             // Title + Dropdown Filter
@@ -576,7 +559,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     height: 40,
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFE4EC),
+                      color: AppColors.chipBg,
                       borderRadius: BorderRadius.circular(25),
                       boxShadow: [
                         BoxShadow(
@@ -591,7 +574,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         value: selectedTopic,
                         icon: const Icon(
                           Icons.keyboard_arrow_down_rounded,
-                          color: Colors.pinkAccent,
+                          color: AppColors.primary,
                           size: 24,
                         ),
                         elevation: 8,
@@ -619,7 +602,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                       ? FontWeight.w600
                                       : FontWeight.w500,
                                   color: selectedTopic == value
-                                      ? Colors.pinkAccent
+                                      ? AppColors.primary
                                       : Colors.black87,
                                 ),
                               ),
@@ -762,7 +745,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     SizedBox(width: 6),
                     Text(
                       'Ad Banner — AdMob',
-                      style: TextStyle(color: Colors.grey, fontSize: 12, fontStyle: FontStyle.italic),
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 12,
+                        fontStyle: FontStyle.italic,
+                      ),
                     ),
                   ],
                 ),

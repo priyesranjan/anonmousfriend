@@ -8,6 +8,7 @@ import '../../models/call_model.dart';
 import '../actions/calling.dart';
 import '../actions/charting.dart';
 import '../../ui/skeleton_loading_ui/recent_chat_skeleton.dart';
+import '../../ui/theme/app_tokens.dart';
 
 class RecentsScreen extends StatefulWidget {
   const RecentsScreen({super.key});
@@ -20,7 +21,7 @@ class _RecentsScreenState extends State<RecentsScreen> {
   final CallService _callService = CallService();
   final StorageService _storageService = StorageService();
   final SocketService _socketService = SocketService();
-  
+
   bool _isLoading = true;
   String? _error;
   List<Call> _callHistory = [];
@@ -57,7 +58,7 @@ class _RecentsScreenState extends State<RecentsScreen> {
 
     try {
       final result = await _callService.getCallHistory(limit: 50);
-      
+
       if (result.success) {
         setState(() {
           _callHistory = result.calls;
@@ -90,8 +91,9 @@ class _RecentsScreenState extends State<RecentsScreen> {
     }
 
     _listenerStatusSubscription?.cancel();
-    _listenerStatusSubscription =
-        _socketService.listenerStatusStream.listen((statusMap) {
+    _listenerStatusSubscription = _socketService.listenerStatusStream.listen((
+      statusMap,
+    ) {
       if (!mounted) return;
 
       final previous = Map<String, bool>.from(_listenerOnlineMap);
@@ -243,10 +245,7 @@ class _RecentsScreenState extends State<RecentsScreen> {
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              Color(0xFFFEEBF1),
-              Color(0xFFF7F3FD),
-            ],
+            colors: [AppColors.surfaceTintA, AppColors.surfaceTintB],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -258,28 +257,32 @@ class _RecentsScreenState extends State<RecentsScreen> {
               child: _isLoading
                   ? ListView.builder(
                       itemCount: 10,
-                      itemBuilder: (context, index) => const RecentChatSkeleton(),
+                      itemBuilder: (context, index) =>
+                          const RecentChatSkeleton(),
                     )
                   : _error != null
-                      ? Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(_error!, style: const TextStyle(color: Colors.red)),
-                              const SizedBox(height: 16),
-                              ElevatedButton(
-                                onPressed: _loadCallHistory,
-                                child: const Text('Retry'),
-                              ),
-                            ],
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            _error!,
+                            style: const TextStyle(color: Colors.red),
                           ),
-                        )
-                        : _callHistory.isEmpty
-                          ? _buildEmptyState()
-                          : RefreshIndicator(
-                              onRefresh: _loadCallHistory,
-                              child: _buildCallList(),
-                            ),
+                          const SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: _loadCallHistory,
+                            child: const Text('Retry'),
+                          ),
+                        ],
+                      ),
+                    )
+                  : _callHistory.isEmpty
+                  ? _buildEmptyState()
+                  : RefreshIndicator(
+                      onRefresh: _loadCallHistory,
+                      child: _buildCallList(),
+                    ),
             ),
           ],
         ),
@@ -292,7 +295,11 @@ class _RecentsScreenState extends State<RecentsScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.call_missed_outgoing, size: 64, color: Colors.grey.shade400),
+          Icon(
+            Icons.call_missed_outgoing,
+            size: 64,
+            color: Colors.grey.shade400,
+          ),
           const SizedBox(height: 16),
           Text(
             'No recent calls',
@@ -305,10 +312,7 @@ class _RecentsScreenState extends State<RecentsScreen> {
           const SizedBox(height: 8),
           Text(
             'Your call history will appear here',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey.shade500,
-            ),
+            style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
           ),
         ],
       ),
@@ -318,14 +322,14 @@ class _RecentsScreenState extends State<RecentsScreen> {
   Widget _buildCallList() {
     final groupedCalls = _groupCallsByDate();
     final dateKeys = groupedCalls.keys.toList();
-    
+
     return ListView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       itemCount: dateKeys.length,
       itemBuilder: (context, index) {
         final dateKey = dateKeys[index];
         final calls = groupedCalls[dateKey]!;
-        
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -349,7 +353,7 @@ class _RecentsScreenState extends State<RecentsScreen> {
 
   Widget _buildCustomHeader(BuildContext context) {
     final canPop = Navigator.of(context).canPop();
-    
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
@@ -385,8 +389,9 @@ class _RecentsScreenState extends State<RecentsScreen> {
 
   Widget _buildRecentItemCard(Call call) {
     // For user, show listener info (the person they called)
-    final name = call.listenerName ?? 'Unknown Listener';
-    final avatar = call.listenerAvatar ?? 'https://randomuser.me/api/portraits/lego/1.jpg';
+    final name = call.listenerName ?? 'Unknown Expert';
+    final avatar =
+        call.listenerAvatar ?? 'https://randomuser.me/api/portraits/lego/1.jpg';
     final status = call.status;
     final isCompleted = status == 'completed';
     final listenerUserId = call.listenerUserId;
@@ -398,7 +403,7 @@ class _RecentsScreenState extends State<RecentsScreen> {
         : call.listenerLastSeen;
 
     const cardGradient = LinearGradient(
-      colors: [Color(0xFFFEE9F2), Color(0xFFFBEFFF)],
+      colors: [AppColors.cardTintA, AppColors.cardTintB],
       begin: Alignment.centerLeft,
       end: Alignment.centerRight,
     );
@@ -410,7 +415,7 @@ class _RecentsScreenState extends State<RecentsScreen> {
         borderRadius: BorderRadius.circular(25),
         boxShadow: [
           BoxShadow(
-            color: Colors.pinkAccent.withOpacity(0.05),
+            color: AppColors.primary.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -447,7 +452,10 @@ class _RecentsScreenState extends State<RecentsScreen> {
                   bottom: 0,
                   left: 0,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: _getStatusColor(status),
                       borderRadius: BorderRadius.circular(10),
@@ -482,10 +490,7 @@ class _RecentsScreenState extends State<RecentsScreen> {
                   const SizedBox(height: 4),
                   Text(
                     '${call.formattedDuration} - ${_formatTime(call.createdAt)}',
-                    style: const TextStyle(
-                      color: Colors.black54,
-                      fontSize: 13,
-                    ),
+                    style: const TextStyle(color: Colors.black54, fontSize: 13),
                   ),
                   const SizedBox(height: 2),
                   Row(
@@ -507,7 +512,9 @@ class _RecentsScreenState extends State<RecentsScreen> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: isOnline ? Colors.green[700] : Colors.grey[600],
+                            color: isOnline
+                                ? Colors.green[700]
+                                : Colors.grey[600],
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
                           ),
@@ -518,10 +525,7 @@ class _RecentsScreenState extends State<RecentsScreen> {
                   if (call.durationSeconds != null && isCompleted)
                     Text(
                       'Total minutes: ${_calculateTotalMinutes(call.durationSeconds)}',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 13,
-                      ),
+                      style: TextStyle(color: Colors.grey[600], fontSize: 13),
                     ),
                 ],
               ),
@@ -538,7 +542,11 @@ class _RecentsScreenState extends State<RecentsScreen> {
                     shape: BoxShape.circle,
                   ),
                   child: IconButton(
-                    icon: const Icon(Icons.chat_bubble_outline, color: Colors.grey, size: 22),
+                    icon: const Icon(
+                      Icons.chat_bubble_outline,
+                      color: Colors.grey,
+                      size: 22,
+                    ),
                     onPressed: call.listenerUserId == null
                         ? null
                         : () {
@@ -562,7 +570,7 @@ class _RecentsScreenState extends State<RecentsScreen> {
                   height: 46,
                   decoration: const BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [Colors.pinkAccent, Colors.purpleAccent],
+                      colors: [AppColors.primary, Colors.purpleAccent],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
@@ -597,4 +605,3 @@ class _RecentsScreenState extends State<RecentsScreen> {
     );
   }
 }
-

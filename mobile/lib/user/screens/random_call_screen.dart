@@ -73,7 +73,7 @@ class _RandomCallScreenState extends State<RandomCallScreen>
       vsync: this,
       duration: const Duration(seconds: 10),
     )..repeat();
-    
+
     // Pre-fetch basic premium status and cache user ID
     _fetchInitialPremiumStatus();
     _storage.getUserId().then((id) => _currentUserId = id);
@@ -88,7 +88,7 @@ class _RandomCallScreenState extends State<RandomCallScreen>
         });
       }
     } catch (e) {
-      debugPrint('Failed to pre-fetch subscription: $e');
+      // Ignore prefetch errors and continue with defaults.
     }
   }
 
@@ -122,7 +122,8 @@ class _RandomCallScreenState extends State<RandomCallScreen>
           'city': '',
           'topic': 'Random Match',
           'gender': matchedUser['gender']?.toString() ?? 'Unknown',
-          'image': matchedUser['avatarUrl']?.toString() ??
+          'image':
+              matchedUser['avatarUrl']?.toString() ??
               'assets/images/female_profile/avatar2.jpg',
         };
       });
@@ -134,7 +135,9 @@ class _RandomCallScreenState extends State<RandomCallScreen>
           MaterialPageRoute(
             builder: (_) => ChatPage(
               expertName: this.matchedUser!['name'] ?? 'User',
-              imagePath: this.matchedUser!['image'] ?? 'assets/images/female_profile/avatar2.jpg',
+              imagePath:
+                  this.matchedUser!['image'] ??
+                  'assets/images/female_profile/avatar2.jpg',
               otherUserId: this.matchedUser!['id'],
               otherUserAvatar: this.matchedUser!['image'],
               isEphemeral: true,
@@ -166,13 +169,14 @@ class _RandomCallScreenState extends State<RandomCallScreen>
       if (room != null) {
         final callerName = data['callerName'] ?? 'User';
         final callerAvatar = data['callerAvatar'];
-        
+
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => Calling(
               callerName: callerName,
-              callerAvatar: callerAvatar ?? 'assets/images/female_profile/avatar2.jpg',
+              callerAvatar:
+                  callerAvatar ?? 'assets/images/female_profile/avatar2.jpg',
               userName: 'You',
               userAvatar: null,
               channelName: room,
@@ -184,22 +188,26 @@ class _RandomCallScreenState extends State<RandomCallScreen>
     });
 
     _socketService.socket?.on('random:match_closed', (data) {
-       if (!mounted || !_isUserMatch) return;
-       ScaffoldMessenger.of(context).showSnackBar(
-         const SnackBar(content: Text('The other user disconnected. Finding new match...')),
-       );
-       setState(() {
-         isSearching = true;
-         matchedUser = null;
-         _isUserMatch = false;
-       });
-       findRandomPerson(); 
+      if (!mounted || !_isUserMatch) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('The other user disconnected. Finding new match...'),
+        ),
+      );
+      setState(() {
+        isSearching = true;
+        matchedUser = null;
+        _isUserMatch = false;
+      });
+      findRandomPerson();
     });
   }
 
   void _skipMatch() {
     if (_isUserMatch && matchedUser != null) {
-      _socketService.emit('random:match_closed', {'targetUserId': matchedUser!['id']});
+      _socketService.emit('random:match_closed', {
+        'targetUserId': matchedUser!['id'],
+      });
     }
     setState(() {
       isSearching = true;
@@ -215,9 +223,13 @@ class _RandomCallScreenState extends State<RandomCallScreen>
     _socketService.socket?.once('random:no_match', (data) {
       if (!mounted) return;
       _stopSearchSound();
-      setState(() { isSearching = false; });
+      setState(() {
+        isSearching = false;
+      });
 
-      final preferredGender = (data is Map) ? data['preferredGender']?.toString() ?? 'Any' : 'Any';
+      final preferredGender = (data is Map)
+          ? data['preferredGender']?.toString() ?? 'Any'
+          : 'Any';
       final hasGenderPref = preferredGender != 'Any';
       final genderLabel = hasGenderPref ? preferredGender : '';
 
@@ -226,10 +238,17 @@ class _RandomCallScreenState extends State<RandomCallScreen>
         barrierDismissible: false,
         builder: (ctx) => AlertDialog(
           backgroundColor: const Color(0xFF1E1E2E),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           title: Text(
-            hasGenderPref ? 'All $genderLabel Users Are Busy!' : 'No Users Available',
-            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            hasGenderPref
+                ? 'All $genderLabel Users Are Busy!'
+                : 'No Users Available',
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           content: Text(
             hasGenderPref
@@ -240,7 +259,10 @@ class _RandomCallScreenState extends State<RandomCallScreen>
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: Colors.white54),
+              ),
             ),
             ElevatedButton(
               onPressed: () {
@@ -253,11 +275,16 @@ class _RandomCallScreenState extends State<RandomCallScreen>
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFEC4899),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
               child: Text(
                 hasGenderPref ? 'Call $genderLabel Expert' : 'Call Expert',
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ],
@@ -272,7 +299,7 @@ class _RandomCallScreenState extends State<RandomCallScreen>
       await _searchAudioPlayer.setReleaseMode(ReleaseMode.loop);
       await _searchAudioPlayer.play(AssetSource('voice/random.mp3'));
     } catch (e) {
-      debugPrint('RandomCall: search sound error: $e');
+      // Ignore audio errors and continue search flow.
     }
   }
 
@@ -324,7 +351,9 @@ class _RandomCallScreenState extends State<RandomCallScreen>
 
       if (gateResult['allowed'] != true) {
         if (mounted) {
-          setState(() { isSearching = false; });
+          setState(() {
+            isSearching = false;
+          });
           await _stopSearchSound();
           _showDailyLimitDialog(gateResult['message'] ?? 'Daily limit reached');
         }
@@ -343,7 +372,9 @@ class _RandomCallScreenState extends State<RandomCallScreen>
         await _stopSearchSound();
         final adWatched = await _showAdDialog();
         if (adWatched != true) {
-          setState(() { isSearching = false; });
+          setState(() {
+            isSearching = false;
+          });
           return;
         }
         _startSearchSound();
@@ -351,15 +382,22 @@ class _RandomCallScreenState extends State<RandomCallScreen>
 
       onlineListeners = await getListenersFuture;
     } catch (e) {
-      debugPrint('Error during random match prep: $e');
+      // Fall through to empty-state handling below.
     }
 
     if (onlineListeners.isEmpty) {
       await _stopSearchSound();
       if (mounted) {
-        setState(() { isSearching = false; matchedUser = null; });
+        setState(() {
+          isSearching = false;
+          matchedUser = null;
+        });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No experts available right now. Please try again later.')),
+          const SnackBar(
+            content: Text(
+              'No experts available right now. Please try again later.',
+            ),
+          ),
         );
       }
       return;
@@ -380,7 +418,8 @@ class _RandomCallScreenState extends State<RandomCallScreen>
         'topic': randomListener.specialties.isNotEmpty
             ? randomListener.specialties.first
             : 'General',
-        'image': randomListener.avatarUrl ??
+        'image':
+            randomListener.avatarUrl ??
             'assets/images/female_profile/avatar2.jpg',
       };
     });
@@ -388,7 +427,7 @@ class _RandomCallScreenState extends State<RandomCallScreen>
     // ---- Auto-Connect directly to Call ----
     if (matchedUser != null) {
       startCall(matchedUser!);
-      
+
       // Clear match state so if they return to this screen, it's ready for next
       Future.delayed(const Duration(milliseconds: 500), () {
         if (mounted) {
@@ -423,7 +462,9 @@ class _RandomCallScreenState extends State<RandomCallScreen>
           // Toggle ON → 'full' (professional expert) | Toggle OFF → 'casual' (regular)
           final targetType = _matchWithVerified ? 'full' : 'casual';
           result = result.copyWithListeners(
-            result.listeners.where((l) => l.listenerType == targetType).toList(),
+            result.listeners
+                .where((l) => l.listenerType == targetType)
+                .toList(),
           );
         }
       }
@@ -493,7 +534,8 @@ class _RandomCallScreenState extends State<RandomCallScreen>
         MaterialPageRoute(
           builder: (context) => Calling(
             callerName: user['name'] ?? 'User',
-            callerAvatar: user['image'] ?? 'assets/images/female_profile/avatar2.jpg',
+            callerAvatar:
+                user['image'] ?? 'assets/images/female_profile/avatar2.jpg',
             userName: userName,
             userAvatar: userAvatar,
             channelName: callId,
@@ -517,16 +559,17 @@ class _RandomCallScreenState extends State<RandomCallScreen>
 
     if (!callResult.success) {
       final error = callResult.error ?? 'Failed to initiate call';
-      final isBalanceError = error.toLowerCase().contains('insufficient') ||
+      final isBalanceError =
+          error.toLowerCase().contains('insufficient') ||
           error.toLowerCase().contains('low balance');
 
       if (mounted) {
         if (isBalanceError) {
           _showLowBalanceDialog(error);
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(error)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(error)));
         }
       }
       return;
@@ -536,7 +579,6 @@ class _RandomCallScreenState extends State<RandomCallScreen>
 
     // Notify listener via socket
     if (listenerId != null) {
-      print('Caller: Initiating call to Experts userId: $listenerId');
       _socketService.initiateCall(
         callId: callId,
         listenerId: listenerId,
@@ -545,8 +587,6 @@ class _RandomCallScreenState extends State<RandomCallScreen>
         topic: user['topic'],
         gender: userGender,
       );
-    } else {
-      print('Warning: No Experts userId available for call');
     }
 
     if (!mounted) return;
@@ -601,28 +641,44 @@ class _RandomCallScreenState extends State<RandomCallScreen>
           children: [
             Icon(Icons.timer_off, color: Colors.orangeAccent, size: 28),
             SizedBox(width: 8),
-            Text('Daily Limit Reached', style: TextStyle(color: Colors.white, fontSize: 18)),
+            Text(
+              'Daily Limit Reached',
+              style: TextStyle(color: Colors.white, fontSize: 18),
+            ),
           ],
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(message, style: const TextStyle(color: Colors.white70, fontSize: 14)),
+            Text(
+              message,
+              style: const TextStyle(color: Colors.white70, fontSize: 14),
+            ),
             const SizedBox(height: 16),
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(colors: [Color(0xFFEC4899), Color(0xFF8B5CF6)]),
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFEC4899), Color(0xFF8B5CF6)],
+                ),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Row(
                 children: [
-                  Icon(Icons.workspace_premium, color: Colors.yellowAccent, size: 24),
+                  Icon(
+                    Icons.workspace_premium,
+                    color: Colors.yellowAccent,
+                    size: 24,
+                  ),
                   SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       'Premium — ₹999/year\nUnlimited calls • Gender filter • No ads',
-                      style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ],
@@ -633,22 +689,33 @@ class _RandomCallScreenState extends State<RandomCallScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Maybe Later', style: TextStyle(color: Colors.white70)),
+            child: const Text(
+              'Maybe Later',
+              style: TextStyle(color: Colors.white70),
+            ),
           ),
           ElevatedButton(
             onPressed: () {
               Navigator.of(ctx).pop();
               // In a real app, route to the subscription purchase flow here
-               Navigator.push(
-                 context,
-                 MaterialPageRoute(builder: (_) => const WalletScreen()),
-               );
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const WalletScreen()),
+              );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.pinkAccent,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
             ),
-            child: const Text('Upgrade Now', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+            child: const Text(
+              'Upgrade Now',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
           ),
         ],
       ),
@@ -666,7 +733,10 @@ class _RandomCallScreenState extends State<RandomCallScreen>
           children: [
             Icon(Icons.workspace_premium, color: Colors.yellowAccent, size: 28),
             SizedBox(width: 8),
-            Text('Premium Feature', style: TextStyle(color: Colors.white, fontSize: 18)),
+            Text(
+              'Premium Feature',
+              style: TextStyle(color: Colors.white, fontSize: 18),
+            ),
           ],
         ),
         content: Column(
@@ -680,7 +750,9 @@ class _RandomCallScreenState extends State<RandomCallScreen>
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(colors: [Color(0xFFEC4899), Color(0xFF8B5CF6)]),
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFEC4899), Color(0xFF8B5CF6)],
+                ),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Row(
@@ -690,7 +762,11 @@ class _RandomCallScreenState extends State<RandomCallScreen>
                   Expanded(
                     child: Text(
                       'Get Premium to unlock:\n• Gender filters\n• Verified Experts\n• Ad-free experience',
-                      style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ],
@@ -701,7 +777,10 @@ class _RandomCallScreenState extends State<RandomCallScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Colors.white70),
+            ),
           ),
           ElevatedButton(
             onPressed: () {
@@ -713,15 +792,22 @@ class _RandomCallScreenState extends State<RandomCallScreen>
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.pinkAccent,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
             ),
-            child: const Text('Upgrade', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+            child: const Text(
+              'Upgrade',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
           ),
         ],
       ),
     );
   }
-
 
   /// Shows the ad dialog and triggers rewarded ad via AdService
   Future<bool?> _showAdDialog() async {
@@ -735,7 +821,12 @@ class _RandomCallScreenState extends State<RandomCallScreen>
           children: [
             Icon(Icons.play_circle_fill, color: Colors.greenAccent, size: 28),
             SizedBox(width: 8),
-            Flexible(child: Text('Free Call', style: TextStyle(color: Colors.white, fontSize: 18))),
+            Flexible(
+              child: Text(
+                'Free Call',
+                style: TextStyle(color: Colors.white, fontSize: 18),
+              ),
+            ),
           ],
         ),
         content: Column(
@@ -755,7 +846,11 @@ class _RandomCallScreenState extends State<RandomCallScreen>
               ),
               child: const Row(
                 children: [
-                  Icon(Icons.smart_display, color: Colors.greenAccent, size: 20),
+                  Icon(
+                    Icons.smart_display,
+                    color: Colors.greenAccent,
+                    size: 20,
+                  ),
                   SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -771,7 +866,10 @@ class _RandomCallScreenState extends State<RandomCallScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Colors.white54),
+            ),
           ),
           ElevatedButton.icon(
             onPressed: () async {
@@ -798,7 +896,9 @@ class _RandomCallScreenState extends State<RandomCallScreen>
     if (result['success'] == true) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('🎉 Premium activated! Unlimited random calls unlocked.'),
+          content: Text(
+            '🎉 Premium activated! Unlimited random calls unlocked.',
+          ),
           backgroundColor: Colors.green,
         ),
       );
@@ -809,7 +909,10 @@ class _RandomCallScreenState extends State<RandomCallScreen>
         _showLowBalanceDialog(error.toString());
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(error.toString()), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text(error.toString()),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     }
@@ -1028,15 +1131,18 @@ class _RandomCallScreenState extends State<RandomCallScreen>
                 ),
               ),
               SizedBox(height: size.height * 0.02),
-              
+
               // Gender Filter — ONLY visible to Premium users
               if (_isPremium) ...[
                 GestureDetector(
                   onTap: () {
                     setState(() {
-                      if (_selectedGender == 'Any') _selectedGender = 'Female';
-                      else if (_selectedGender == 'Female') _selectedGender = 'Male';
-                      else _selectedGender = 'Any';
+                      if (_selectedGender == 'Any')
+                        _selectedGender = 'Female';
+                      else if (_selectedGender == 'Female')
+                        _selectedGender = 'Male';
+                      else
+                        _selectedGender = 'Any';
                     });
                   },
                   child: Container(
@@ -1059,7 +1165,11 @@ class _RandomCallScreenState extends State<RandomCallScreen>
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
-                          _selectedGender == 'Female' ? Icons.female : (_selectedGender == 'Male' ? Icons.male : Icons.people_outline),
+                          _selectedGender == 'Female'
+                              ? Icons.female
+                              : (_selectedGender == 'Male'
+                                    ? Icons.male
+                                    : Icons.people_outline),
                           color: _selectedGender != 'Any'
                               ? Colors.blueAccent
                               : Colors.white.withOpacity(0.8),
@@ -1069,7 +1179,9 @@ class _RandomCallScreenState extends State<RandomCallScreen>
                         Text(
                           'Gender: $_selectedGender',
                           style: TextStyle(
-                            color: _selectedGender != 'Any' ? Colors.blueAccent.shade100 : Colors.white.withOpacity(0.9),
+                            color: _selectedGender != 'Any'
+                                ? Colors.blueAccent.shade100
+                                : Colors.white.withOpacity(0.9),
                             fontSize: size.width * 0.035,
                             fontWeight: FontWeight.w600,
                           ),
@@ -1080,8 +1192,6 @@ class _RandomCallScreenState extends State<RandomCallScreen>
                 ),
                 SizedBox(height: size.height * 0.01),
               ],
-
-
 
               GestureDetector(
                 onTap: () {
@@ -1219,7 +1329,11 @@ class _RandomCallScreenState extends State<RandomCallScreen>
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.workspace_premium, color: Colors.yellowAccent, size: 20),
+                        const Icon(
+                          Icons.workspace_premium,
+                          color: Colors.yellowAccent,
+                          size: 20,
+                        ),
                         SizedBox(width: size.width * 0.02),
                         Text(
                           "Unlock Premium — ₹999/year",
@@ -1235,18 +1349,34 @@ class _RandomCallScreenState extends State<RandomCallScreen>
                 ),
               if (_isPremium)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.green.withOpacity(0.15),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.greenAccent.withOpacity(0.3)),
+                    border: Border.all(
+                      color: Colors.greenAccent.withOpacity(0.3),
+                    ),
                   ),
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.workspace_premium, color: Colors.greenAccent, size: 16),
+                      Icon(
+                        Icons.workspace_premium,
+                        color: Colors.greenAccent,
+                        size: 16,
+                      ),
                       SizedBox(width: 6),
-                      Text('Premium Active', style: TextStyle(color: Colors.greenAccent, fontSize: 13, fontWeight: FontWeight.w600)),
+                      Text(
+                        'Premium Active',
+                        style: TextStyle(
+                          color: Colors.greenAccent,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -1416,298 +1546,315 @@ class _RandomCallScreenState extends State<RandomCallScreen>
       physics: const BouncingScrollPhysics(),
       child: GestureDetector(
         onVerticalDragEnd: (details) {
-          if (details.primaryVelocity != null && details.primaryVelocity! < -300) {
+          if (details.primaryVelocity != null &&
+              details.primaryVelocity! < -300) {
             _skipMatch();
           }
         },
         child: Padding(
           padding: EdgeInsets.symmetric(
-          horizontal: size.width * 0.05,
-          vertical: size.height * 0.02,
-        ),
-        child: Container(
-          width: double.infinity,
-          padding: EdgeInsets.all(size.width * 0.05),
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFF111827), Color(0xFF1F2937)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: Colors.white.withOpacity(0.08)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.5),
-                blurRadius: 40,
-                offset: const Offset(0, 20),
-              ),
-            ],
+            horizontal: size.width * 0.05,
+            vertical: size.height * 0.02,
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Success Badge
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: size.width * 0.04,
-                  vertical: size.height * 0.01,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.18),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.green.withOpacity(0.45)),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.check_circle_rounded,
-                      color: Colors.greenAccent,
-                      size: size.width * 0.038,
-                    ),
-                    SizedBox(width: size.width * 0.02),
-                    Text(
-                      "Match Found!",
-                      style: TextStyle(
-                        color: Colors.greenAccent,
-                        fontWeight: FontWeight.bold,
-                        fontSize: size.width * 0.034,
-                      ),
-                    ),
-                  ],
-                ),
+          child: Container(
+            width: double.infinity,
+            padding: EdgeInsets.all(size.width * 0.05),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF111827), Color(0xFF1F2937)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-              SizedBox(height: size.height * 0.025),
-
-              // Avatar with Glow
-              Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFFEC4899), Color(0xFF8B5CF6)],
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: Colors.white.withOpacity(0.08)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.5),
+                  blurRadius: 40,
+                  offset: const Offset(0, 20),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Success Badge
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: size.width * 0.04,
+                    vertical: size.height * 0.01,
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.pinkAccent.withOpacity(0.5),
-                      blurRadius: 20,
-                      spreadRadius: 2,
-                    ),
-                  ],
-                ),
-                child: CircleAvatar(
-                  radius: maxAvatarRadius,
-                  backgroundImage: AssetImage(user['image']!),
-                  backgroundColor: Colors.grey[800],
-                ),
-              ),
-              SizedBox(height: size.height * 0.02),
-
-              // User Details
-              Text(
-                user['name']!,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: size.width * 0.058,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: size.height * 0.008),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.location_on,
-                    color: Colors.white.withOpacity(0.6),
-                    size: size.width * 0.04,
+                  decoration: BoxDecoration(
+                    color: Colors.green.withOpacity(0.18),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.green.withOpacity(0.45)),
                   ),
-                  SizedBox(width: size.width * 0.01),
-                  Text(
-                    user['city']!,
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.6),
-                      fontSize: size.width * 0.038,
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: size.height * 0.02),
-
-              // Tags
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: size.width * 0.04,
-                  vertical: size.height * 0.01,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.06),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.white.withOpacity(0.08)),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.topic_rounded,
-                      color: const Color(0xFF8B5CF6),
-                      size: size.width * 0.045,
-                    ),
-                    SizedBox(width: size.width * 0.02),
-                    Text(
-                      user['topic']!,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: size.width * 0.034,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    if (user['gender'] != null && user['gender'] != 'Unknown') ...[
-                      SizedBox(width: size.width * 0.04),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
                       Icon(
-                        user['gender'] == 'Female' ? Icons.female : (user['gender'] == 'Male' ? Icons.male : Icons.transgender),
-                        color: user['gender'] == 'Female' ? Colors.pinkAccent : Colors.blueAccent,
+                        Icons.check_circle_rounded,
+                        color: Colors.greenAccent,
+                        size: size.width * 0.038,
+                      ),
+                      SizedBox(width: size.width * 0.02),
+                      Text(
+                        "Match Found!",
+                        style: TextStyle(
+                          color: Colors.greenAccent,
+                          fontWeight: FontWeight.bold,
+                          fontSize: size.width * 0.034,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: size.height * 0.025),
+
+                // Avatar with Glow
+                Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFFEC4899), Color(0xFF8B5CF6)],
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.pinkAccent.withOpacity(0.5),
+                        blurRadius: 20,
+                        spreadRadius: 2,
+                      ),
+                    ],
+                  ),
+                  child: CircleAvatar(
+                    radius: maxAvatarRadius,
+                    backgroundImage: AssetImage(user['image']!),
+                    backgroundColor: Colors.grey[800],
+                  ),
+                ),
+                SizedBox(height: size.height * 0.02),
+
+                // User Details
+                Text(
+                  user['name']!,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: size.width * 0.058,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: size.height * 0.008),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.location_on,
+                      color: Colors.white.withOpacity(0.6),
+                      size: size.width * 0.04,
+                    ),
+                    SizedBox(width: size.width * 0.01),
+                    Text(
+                      user['city']!,
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.6),
+                        fontSize: size.width * 0.038,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: size.height * 0.02),
+
+                // Tags
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: size.width * 0.04,
+                    vertical: size.height * 0.01,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.06),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.white.withOpacity(0.08)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.topic_rounded,
+                        color: const Color(0xFF8B5CF6),
                         size: size.width * 0.045,
                       ),
-                      SizedBox(width: size.width * 0.01),
+                      SizedBox(width: size.width * 0.02),
                       Text(
-                        user['gender']!,
+                        user['topic']!,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: size.width * 0.034,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
+                      if (user['gender'] != null &&
+                          user['gender'] != 'Unknown') ...[
+                        SizedBox(width: size.width * 0.04),
+                        Icon(
+                          user['gender'] == 'Female'
+                              ? Icons.female
+                              : (user['gender'] == 'Male'
+                                    ? Icons.male
+                                    : Icons.transgender),
+                          color: user['gender'] == 'Female'
+                              ? Colors.pinkAccent
+                              : Colors.blueAccent,
+                          size: size.width * 0.045,
+                        ),
+                        SizedBox(width: size.width * 0.01),
+                        Text(
+                          user['gender']!,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: size.width * 0.034,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
-              ),
-              SizedBox(height: size.height * 0.03),
+                SizedBox(height: size.height * 0.03),
 
-              // Actions — free user match shows Chat + Call; expert match shows paid Call only
-              if (_isUserMatch) ...[  
-                // ── Free User-to-User Actions ──
-                Row(
-                  children: [
-                    // Free Chat button
-                    Expanded(
-                      child: SizedBox(
-                        height: size.height * 0.06,
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => ChatPage(
-                                  expertName: user['name'] ?? 'User',
-                                  imagePath: user['image'] ?? 'assets/images/female_profile/avatar2.jpg',
-                                  otherUserId: user['id'],
-                                  otherUserAvatar: user['image'],
-                                  isEphemeral: true,
+                // Actions — free user match shows Chat + Call; expert match shows paid Call only
+                if (_isUserMatch) ...[
+                  // ── Free User-to-User Actions ──
+                  Row(
+                    children: [
+                      // Free Chat button
+                      Expanded(
+                        child: SizedBox(
+                          height: size.height * 0.06,
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => ChatPage(
+                                    expertName: user['name'] ?? 'User',
+                                    imagePath:
+                                        user['image'] ??
+                                        'assets/images/female_profile/avatar2.jpg',
+                                    otherUserId: user['id'],
+                                    otherUserAvatar: user['image'],
+                                    isEphemeral: true,
+                                  ),
                                 ),
+                              );
+                            },
+                            icon: const Icon(
+                              Icons.chat_bubble_outline,
+                              size: 18,
+                            ),
+                            label: const Text('Free Chat'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF6C63FF),
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
                               ),
-                            );
-                          },
-                          icon: const Icon(Icons.chat_bubble_outline, size: 18),
-                          label: const Text('Free Chat'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF6C63FF),
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
+                              elevation: 4,
                             ),
-                            elevation: 4,
                           ),
                         ),
                       ),
-                    ),
-                    SizedBox(width: size.width * 0.03),
-                    // Free Call button
-                    Expanded(
-                      child: SizedBox(
-                        height: size.height * 0.06,
-                        child: ElevatedButton.icon(
-                          onPressed: () => startCall(user),
-                          icon: const Icon(Icons.call, size: 18),
-                          label: const Text('Free Call'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF22C55E),
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
+                      SizedBox(width: size.width * 0.03),
+                      // Free Call button
+                      Expanded(
+                        child: SizedBox(
+                          height: size.height * 0.06,
+                          child: ElevatedButton.icon(
+                            onPressed: () => startCall(user),
+                            icon: const Icon(Icons.call, size: 18),
+                            label: const Text('Free Call'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF22C55E),
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              elevation: 4,
                             ),
-                            elevation: 4,
                           ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: size.height * 0.02),
-                // Swipe up / Skip match hint
-                GestureDetector(
-                  onTap: _skipMatch,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    alignment: Alignment.center,
-                    child: Text(
-                      "Swipe up or tap here to skip to next match",
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.5),
-                        fontSize: size.width * 0.035,
-                        fontWeight: FontWeight.w500,
+                    ],
+                  ),
+                  SizedBox(height: size.height * 0.02),
+                  // Swipe up / Skip match hint
+                  GestureDetector(
+                    onTap: _skipMatch,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      alignment: Alignment.center,
+                      child: Text(
+                        "Swipe up or tap here to skip to next match",
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.5),
+                          fontSize: size.width * 0.035,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
                   ),
-                )
-              ] else ...[  
-                // ── Paid Expert Call ──
-                SizedBox(
-                  width: double.infinity,
-                  height: size.height * 0.06,
-                  child: ElevatedButton(
-                    onPressed: () => startCall(user),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFEC4899),
-                      foregroundColor: Colors.white,
-                      padding: EdgeInsets.symmetric(vertical: size.height * 0.015),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18),
+                ] else ...[
+                  // ── Paid Expert Call ──
+                  SizedBox(
+                    width: double.infinity,
+                    height: size.height * 0.06,
+                    child: ElevatedButton(
+                      onPressed: () => startCall(user),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFEC4899),
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(
+                          vertical: size.height * 0.015,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                        elevation: 4,
+                        shadowColor: const Color(0xFFEC4899).withOpacity(0.4),
                       ),
-                      elevation: 4,
-                      shadowColor: const Color(0xFFEC4899).withOpacity(0.4),
-                    ),
-                    child: Text(
-                      'Start Expert Call',
-                      style: TextStyle(
-                        fontSize: size.width * 0.041,
-                        fontWeight: FontWeight.bold,
+                      child: Text(
+                        'Start Expert Call',
+                        style: TextStyle(
+                          fontSize: size.width * 0.041,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
+                  ),
+                ],
+                SizedBox(height: size.height * 0.012),
+                TextButton(
+                  onPressed: () {
+                    // Leave pool if user match, then re-search
+                    if (_isUserMatch) {
+                      _socketService.emit('random:leave_pool', {
+                        'userId': _currentUserId,
+                      });
+                    }
+                    findRandomPerson();
+                  },
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.symmetric(vertical: size.height * 0.01),
+                    foregroundColor: Colors.white.withOpacity(0.7),
+                  ),
+                  child: Text(
+                    'Find Another Match',
+                    style: TextStyle(fontSize: size.width * 0.037),
                   ),
                 ),
               ],
-              SizedBox(height: size.height * 0.012),
-              TextButton(
-                onPressed: () {
-                  // Leave pool if user match, then re-search
-                  if (_isUserMatch) {
-                    _socketService.emit('random:leave_pool', {'userId': _currentUserId});
-                  }
-                  findRandomPerson();
-                },
-                style: TextButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: size.height * 0.01),
-                  foregroundColor: Colors.white.withOpacity(0.7),
-                ),
-                child: Text(
-                  'Find Another Match',
-                  style: TextStyle(fontSize: size.width * 0.037),
-                ),
-              ),
-            ],
-          ),
+            ),
           ),
         ),
       ),
@@ -1850,7 +1997,9 @@ class _LowBalanceSheetState extends State<_LowBalanceSheet>
                     const SizedBox(height: 10),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 10),
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.red.shade900.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(12),
@@ -1923,8 +2072,11 @@ class _LowBalanceSheetState extends State<_LowBalanceSheet>
                       child: const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.add_circle_outline,
-                              color: Colors.white, size: 20),
+                          Icon(
+                            Icons.add_circle_outline,
+                            color: Colors.white,
+                            size: 20,
+                          ),
                           SizedBox(width: 8),
                           Text(
                             'Add Balance',
@@ -1950,8 +2102,10 @@ class _LowBalanceSheetState extends State<_LowBalanceSheet>
               child: TextButton(
                 onPressed: widget.onDismiss,
                 style: TextButton.styleFrom(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 10,
+                  ),
                 ),
                 child: Text(
                   'Maybe Later',

@@ -46,7 +46,10 @@ const UsersManagement = () => {
   const filterUsers = () => {
     let filtered = users.filter(user =>
       (user.email && user.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (user.display_name && user.display_name.toLowerCase().includes(searchTerm.toLowerCase()))
+      (user.display_name && user.display_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (user.phone_number && user.phone_number.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (user.mobile_number && user.mobile_number.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (user.phone && user.phone.toLowerCase().includes(searchTerm.toLowerCase()))
     );
     if (statusFilter === 'active') {
       filtered = filtered.filter(user => user.is_active);
@@ -192,7 +195,7 @@ const UsersManagement = () => {
               </svg>
               <input
                 type="text"
-                placeholder="Search by email or display name..."
+                placeholder="Search by email, phone or display name..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
@@ -245,7 +248,7 @@ const UsersManagement = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900 dark:text-white">{user.email || 'N/A'}</div>
+                      <div className="text-sm text-gray-900 dark:text-white">{user.email || user.phone_number || user.mobile_number || user.phone || 'N/A'}</div>
                       <div className="text-sm text-gray-500 dark:text-gray-400">{user.city && user.country ? `${user.city}, ${user.country}` : 'N/A'}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">

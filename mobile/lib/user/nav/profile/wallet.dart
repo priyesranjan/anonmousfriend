@@ -3,6 +3,10 @@ import '../../../models/recharge_pack_model.dart';
 import '../../../services/payment_service.dart';
 import '../../../services/user_service.dart';
 import '../../../services/storage_service.dart';
+import '../../../ui/theme/app_tokens.dart';
+import '../../../ui/widgets/info_card.dart';
+import '../../../ui/widgets/primary_cta_button.dart';
+import '../../../ui/widgets/status_chip.dart';
 import 'my_transaction.dart';
 
 class WalletScreen extends StatefulWidget {
@@ -83,14 +87,19 @@ class _WalletScreenState extends State<WalletScreen> {
   @override
   Widget build(BuildContext context) {
     final media = MediaQuery.of(context).size;
-    final crossAxisCount = media.width > 600 ? 3 : 2;
+    final isVerySmallPhone = media.width < 340;
+    final isSmallPhone = media.width < 380;
+    final crossAxisCount = media.width > 600 ? 3 : (isVerySmallPhone ? 1 : 2);
+    final cardAspectRatio = crossAxisCount == 1
+        ? 3.2
+        : (isSmallPhone ? 2.0 : 2.35);
 
     return Scaffold(
       // Gradient background
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFFFDEFEF), Color(0xFFF8E1F4)],
+            colors: [AppColors.gradientTop, AppColors.gradientBottom],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -100,8 +109,10 @@ class _WalletScreenState extends State<WalletScreen> {
             children: [
               // --- AppBar replacement for gradient ---
               Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -111,8 +122,10 @@ class _WalletScreenState extends State<WalletScreen> {
                     ),
                     const Text(
                       'Wallet',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     TextButton.icon(
                       onPressed: () async {
@@ -124,10 +137,13 @@ class _WalletScreenState extends State<WalletScreen> {
                         );
                         _loadUserData();
                       },
-                      icon: const Icon(Icons.swap_vert, color: Colors.pink),
+                      icon: const Icon(
+                        Icons.swap_vert,
+                        color: AppColors.primary,
+                      ),
                       label: const Text(
                         'Transactions',
-                        style: TextStyle(color: Colors.pink),
+                        style: TextStyle(color: AppColors.primary),
                       ),
                     ),
                   ],
@@ -136,36 +152,34 @@ class _WalletScreenState extends State<WalletScreen> {
 
               // --- Balance card ---
               Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.shade300,
-                        blurRadius: 10,
-                        offset: const Offset(0, 5),
-                      ),
-                    ],
-                  ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
+                child: InfoCard(
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.shade300,
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text(
                         'My Balance',
                         style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w500),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                       Text(
                         '₹${_walletBalance.toStringAsFixed(2)}',
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: Colors.pink,
+                          color: AppColors.primary,
                         ),
                       ),
                     ],
@@ -173,14 +187,20 @@ class _WalletScreenState extends State<WalletScreen> {
                 ),
               ),
 
-              if (_unlimitedExpiresAt != null && _unlimitedExpiresAt!.isAfter(DateTime.now()))
+              if (_unlimitedExpiresAt != null &&
+                  _unlimitedExpiresAt!.isAfter(DateTime.now()))
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 6,
+                  ),
                   child: Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(colors: [Colors.purple, Colors.deepPurple]),
+                      gradient: const LinearGradient(
+                        colors: [Colors.purple, Colors.deepPurple],
+                      ),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -191,8 +211,20 @@ class _WalletScreenState extends State<WalletScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('VIP Unlimited Calling Active', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                              Text('Expires on ${_unlimitedExpiresAt!.toLocal().toString().split('.')[0]}', style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                              const Text(
+                                'VIP Unlimited Calling Active',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                'Expires on ${_unlimitedExpiresAt!.toLocal().toString().split('.')[0]}',
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -211,8 +243,7 @@ class _WalletScreenState extends State<WalletScreen> {
                   alignment: Alignment.centerLeft,
                   child: Text(
                     'Add Balance to Wallet',
-                    style: TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.w600),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                   ),
                 ),
               ),
@@ -224,122 +255,112 @@ class _WalletScreenState extends State<WalletScreen> {
                   child: _isLoadingPacks
                       ? const Center(child: CircularProgressIndicator())
                       : _rechargePacks.isEmpty
-                          ? Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Icon(Icons.info_outline,
-                                      size: 48, color: Colors.grey),
-                                  const SizedBox(height: 16),
-                                  const Text('No recharge packs available'),
-                                  TextButton(
-                                    onPressed: _loadRechargePacks,
-                                    child: const Text('Retry'),
-                                  ),
-                                ],
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(
+                                Icons.info_outline,
+                                size: 48,
+                                color: Colors.grey,
                               ),
-                            )
-                          : GridView.builder(
-                              itemCount: _rechargePacks.length,
-                              gridDelegate:
-                                  SliverGridDelegateWithFixedCrossAxisCount(
+                              const SizedBox(height: 16),
+                              const Text('No recharge packs available'),
+                              TextButton(
+                                onPressed: _loadRechargePacks,
+                                child: const Text('Retry'),
+                              ),
+                            ],
+                          ),
+                        )
+                      : GridView.builder(
+                          itemCount: _rechargePacks.length,
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: crossAxisCount,
                                 mainAxisSpacing: 12,
                                 crossAxisSpacing: 12,
-                                childAspectRatio: 2.5,
+                                childAspectRatio: cardAspectRatio,
                               ),
-                              itemBuilder: (context, index) {
-                                final pack = _rechargePacks[index];
-                                final selected = _selectedIndex == index;
+                          itemBuilder: (context, index) {
+                            final pack = _rechargePacks[index];
+                            final selected = _selectedIndex == index;
 
-                                return GestureDetector(
-                                  onTap: () =>
-                                      setState(() => _selectedIndex = index),
-                                  child: AnimatedContainer(
-                                    duration: const Duration(milliseconds: 200),
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 16),
-                                    decoration: BoxDecoration(
-                                      color: selected
-                                          ? Colors.pink.shade50
-                                          : Colors.white,
-                                      borderRadius: BorderRadius.circular(14),
-                                      border: selected
-                                          ? Border.all(
-                                              color: Colors.pink, width: 2)
-                                          : null,
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.grey.shade300,
-                                          blurRadius: 8,
-                                          offset: const Offset(0, 4),
-                                        ),
-                                      ],
+                            return GestureDetector(
+                              onTap: () =>
+                                  setState(() => _selectedIndex = index),
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 200),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 10,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: selected
+                                      ? AppColors.primary.withValues(
+                                          alpha: 0.08,
+                                        )
+                                      : AppColors.surface,
+                                  borderRadius: BorderRadius.circular(14),
+                                  border: selected
+                                      ? Border.all(
+                                          color: AppColors.primary,
+                                          width: 2,
+                                        )
+                                      : null,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.shade300,
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 4),
                                     ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              '₹${pack.amount.toStringAsFixed(0)}',
-                                              style: const TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.pink,
-                                              ),
-                                            ),
-                                            if (pack.isUnlimited)
-                                              Text(
-                                                '${pack.unlimitedDays} Days VIP',
-                                                style: const TextStyle(
-                                                  fontSize: 13,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.purple,
-                                                ),
-                                              )
-                                            else if (pack.extraPercentOrAmount > 0)
-                                              Text(
-                                                '+${pack.extraPercentOrAmount.toStringAsFixed(0)}% extra',
-                                                style: const TextStyle(
-                                                  fontSize: 12,
-                                                  color: Colors.green,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                          ],
-                                        ),
-                                        if (pack.badgeText != null)
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 8,
-                                              vertical: 4,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: Colors.redAccent,
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                            ),
-                                            child: Text(
-                                              pack.badgeText!,
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 11,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                          ),
-                                      ],
+                                  ],
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '₹${pack.amount.toStringAsFixed(0)}',
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.primary,
+                                      ),
                                     ),
-                                  ),
-                                );
-                              },
-                            ),
+                                    if (pack.isUnlimited)
+                                      Text(
+                                        '${pack.unlimitedDays} Days VIP',
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.purple,
+                                        ),
+                                      )
+                                    else if (pack.extraPercentOrAmount > 0)
+                                      Text(
+                                        '+${pack.extraPercentOrAmount.toStringAsFixed(0)}% extra',
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.green,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    if (pack.badgeText != null &&
+                                        pack.badgeText!.trim().isNotEmpty) ...[
+                                      const SizedBox(height: 6),
+                                      StatusChip(
+                                        label: pack.badgeText!,
+                                        backgroundColor: Colors.redAccent,
+                                        textColor: Colors.white,
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
                 ),
               ),
 
@@ -351,7 +372,7 @@ class _WalletScreenState extends State<WalletScreen> {
 
       // --- Bottom CTA bar ---
       bottomNavigationBar: Container(
-        color: Colors.white,
+        color: AppColors.surface,
         padding: const EdgeInsets.fromLTRB(16, 10, 16, 20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -360,57 +381,51 @@ class _WalletScreenState extends State<WalletScreen> {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 8),
               decoration: BoxDecoration(
-                color: Colors.green.shade50,
+                color: AppColors.successBg,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Center(
                 child: Text(
-                  _hasValidSelection && _rechargePacks[_selectedIndex!].isUnlimited
+                  _hasValidSelection &&
+                          _rechargePacks[_selectedIndex!].isUnlimited
                       ? 'Pay ₹${_rechargePacks[_selectedIndex!].amount.toStringAsFixed(0)} → Get ${_rechargePacks[_selectedIndex!].unlimitedDays} Days VIP Unlimited Calling'
-                      : _hasValidSelection && _rechargePacks[_selectedIndex!].extraPercentOrAmount > 0
+                      : _hasValidSelection &&
+                            _rechargePacks[_selectedIndex!]
+                                    .extraPercentOrAmount >
+                                0
                       ? 'Pay ₹${_rechargePacks[_selectedIndex!].amount.toStringAsFixed(0)} → Get ₹${(_rechargePacks[_selectedIndex!].amount + _rechargePacks[_selectedIndex!].amount * _rechargePacks[_selectedIndex!].extraPercentOrAmount / 100).toStringAsFixed(2)} in wallet (+₹${(_rechargePacks[_selectedIndex!].amount * _rechargePacks[_selectedIndex!].extraPercentOrAmount / 100).toStringAsFixed(2)} extra)'
                       : _hasValidSelection
-                          ? 'Pay ₹${_rechargePacks[_selectedIndex!].amount.toStringAsFixed(0)} → Get ₹${_rechargePacks[_selectedIndex!].amount.toStringAsFixed(2)} in wallet'
-                          : 'Select a pack to add balance',
-                  style: const TextStyle(color: Colors.green, fontSize: 13, fontWeight: FontWeight.bold),
+                      ? 'Pay ₹${_rechargePacks[_selectedIndex!].amount.toStringAsFixed(0)} → Get ₹${_rechargePacks[_selectedIndex!].amount.toStringAsFixed(2)} in wallet'
+                      : 'Select a pack to add balance',
+                  style: const TextStyle(
+                    color: AppColors.success,
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                  ),
                   textAlign: TextAlign.center,
                 ),
               ),
             ),
             const SizedBox(height: 10),
-            SizedBox(
-              height: 50,
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.pink,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(28),
-                  ),
-                ),
-                onPressed: _isProcessing || _isLoadingPacks || _rechargePacks.isEmpty || !_hasValidSelection
-                    ? null
-                    : () {
-                        if (!_hasValidSelection) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Please select a pack')),
-                          );
-                          return;
-                        }
-                        final selected = _rechargePacks[_selectedIndex!];
-                        final amount = selected.amount;
-                        _initiateRazorpayPayment(amount, amount, selected);
-                      },
-                child: _isProcessing
-                    ? const SizedBox(
-                        height: 20, width: 20,
-                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                      )
-                    : const Text(
-                        'Add Balance',
-                        style: TextStyle(fontSize: 16, color: Colors.white),
-                      ),
-              ),
+            PrimaryCtaButton(
+              label: 'Add Balance',
+              isLoading: _isProcessing,
+              onPressed:
+                  _isLoadingPacks ||
+                      _rechargePacks.isEmpty ||
+                      !_hasValidSelection
+                  ? null
+                  : () {
+                      if (!_hasValidSelection) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Please select a pack')),
+                        );
+                        return;
+                      }
+                      final selected = _rechargePacks[_selectedIndex!];
+                      final amount = selected.amount;
+                      _initiateRazorpayPayment(amount, amount, selected);
+                    },
             ),
           ],
         ),
@@ -419,7 +434,11 @@ class _WalletScreenState extends State<WalletScreen> {
   }
 
   // ===== Razorpay Payment Flow =====
-  void _initiateRazorpayPayment(double rechargeAmount, double payableAmount, RechargePack selectedPack) {
+  void _initiateRazorpayPayment(
+    double rechargeAmount,
+    double payableAmount,
+    RechargePack selectedPack,
+  ) {
     final amountInPaise = (payableAmount * 100).round();
     _setProcessing(true);
 
@@ -437,7 +456,8 @@ class _WalletScreenState extends State<WalletScreen> {
       },
       onError: (error) {
         _setProcessing(false);
-        final msg = error?.message?.toString() ?? 'Payment failed. Please try again.';
+        final msg =
+            error?.message?.toString() ?? 'Payment failed. Please try again.';
         _showFailureDialog(msg);
       },
       onExternalWallet: (wallet) {
@@ -458,7 +478,11 @@ class _WalletScreenState extends State<WalletScreen> {
     );
   }
 
-  Future<void> _onPaymentSuccess(String paymentId, double rechargeAmount, RechargePack selectedPack) async {
+  Future<void> _onPaymentSuccess(
+    String paymentId,
+    double rechargeAmount,
+    RechargePack selectedPack,
+  ) async {
     final result = await _userService.addBalance(
       rechargeAmount,
       paymentId: paymentId,
@@ -471,50 +495,88 @@ class _WalletScreenState extends State<WalletScreen> {
         _walletBalance = result.balance;
         _unlimitedExpiresAt = result.unlimitedExpiresAt;
       });
-      _showSuccessDialog(paymentId, rechargeAmount, result.bonusAmount, result.totalCredited, selectedPack);
+      _showSuccessDialog(
+        paymentId,
+        rechargeAmount,
+        result.bonusAmount,
+        result.totalCredited,
+        selectedPack,
+      );
     } else {
-      _showFailureDialog('Payment received but wallet sync failed. Please contact support.');
+      _showFailureDialog(
+        'Payment received but wallet sync failed. Please contact support.',
+      );
     }
   }
 
-  void _showSuccessDialog(String paymentId, double amount, double bonusAmount, double totalCredited, [RechargePack? pack]) {
+  void _showSuccessDialog(
+    String paymentId,
+    double amount,
+    double bonusAmount,
+    double totalCredited, [
+    RechargePack? pack,
+  ]) {
     final hasBonus = bonusAmount > 0;
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (dialogCtx) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               const Icon(Icons.check_circle, color: Colors.green, size: 64),
               const SizedBox(height: 16),
-              const Text('Payment Successful!',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.green)),
+              const Text(
+                'Payment Successful!',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green,
+                ),
+              ),
               const SizedBox(height: 10),
               if (pack != null && pack.isUnlimited) ...[
                 Text(
                   '${pack.unlimitedDays} Days VIP Access Activated!',
-                  style: const TextStyle(fontSize: 16, color: Colors.purple, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    color: Colors.purple,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 4),
               ] else if (hasBonus) ...[
                 Text(
                   '₹${amount.toStringAsFixed(2)} + ₹${bonusAmount.toStringAsFixed(2)} extra',
-                  style: const TextStyle(fontSize: 15, color: Colors.black87, fontWeight: FontWeight.w600),
+                  style: const TextStyle(
+                    fontSize: 15,
+                    color: Colors.black87,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'Total ₹${totalCredited.toStringAsFixed(2)} added to your wallet',
-                  style: const TextStyle(fontSize: 14, color: Colors.green, fontWeight: FontWeight.w500),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.green,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ] else
-                Text('₹${amount.toStringAsFixed(2)} added to your wallet',
-                    style: const TextStyle(fontSize: 15, color: Colors.black54)),
+                Text(
+                  '₹${amount.toStringAsFixed(2)} added to your wallet',
+                  style: const TextStyle(fontSize: 15, color: Colors.black54),
+                ),
               const SizedBox(height: 8),
-              Text('Transaction ID: $paymentId',
-                  style: const TextStyle(fontSize: 12, color: Colors.grey)),
+              Text(
+                'Transaction ID: $paymentId',
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
+              ),
             ],
           ),
           actions: [
@@ -523,10 +585,15 @@ class _WalletScreenState extends State<WalletScreen> {
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.pink,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
                 onPressed: () => Navigator.pop(dialogCtx),
-                child: const Text('Done', style: TextStyle(color: Colors.white)),
+                child: const Text(
+                  'Done',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
             ),
           ],
@@ -540,18 +607,32 @@ class _WalletScreenState extends State<WalletScreen> {
       context: context,
       builder: (dialogCtx) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.error_outline, color: Colors.redAccent, size: 64),
+              const Icon(
+                Icons.error_outline,
+                color: Colors.redAccent,
+                size: 64,
+              ),
               const SizedBox(height: 16),
-              const Text('Payment Failed',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.redAccent)),
+              const Text(
+                'Payment Failed',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.redAccent,
+                ),
+              ),
               const SizedBox(height: 10),
-              Text(message,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 14, color: Colors.black54)),
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 14, color: Colors.black54),
+              ),
             ],
           ),
           actions: [
@@ -580,27 +661,26 @@ class _WalletScreenState extends State<WalletScreen> {
   Widget _buildPremiumBenefits(Size size) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.pink.withOpacity(0.1),
-              blurRadius: 15,
-              offset: const Offset(0, 5),
-            ),
-          ],
-          border: Border.all(color: Colors.pink.withOpacity(0.2)),
-        ),
+      child: InfoCard(
+        border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withOpacity(0.1),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
             Row(
               children: [
-                const Icon(Icons.workspace_premium, color: Colors.amber, size: 24),
+                const Icon(
+                  Icons.workspace_premium,
+                  color: Colors.amber,
+                  size: 24,
+                ),
                 const SizedBox(width: 8),
                 Text(
                   'Premium VIP Benefits',
@@ -613,11 +693,23 @@ class _WalletScreenState extends State<WalletScreen> {
               ],
             ),
             const SizedBox(height: 12),
-            _buildBenefitRow(Icons.no_cell, 'Ad-Free Experience', 'Zero interruptions during your calls'),
+            _buildBenefitRow(
+              Icons.no_cell,
+              'Ad-Free Experience',
+              'Zero interruptions during your calls',
+            ),
             const SizedBox(height: 8),
-            _buildBenefitRow(Icons.perm_media, 'Media Sharing', 'Send images, videos, and audio in chat'),
+            _buildBenefitRow(
+              Icons.perm_media,
+              'Media Sharing',
+              'Send images, videos, and audio in chat',
+            ),
             const SizedBox(height: 8),
-            _buildBenefitRow(Icons.all_inclusive, 'Unlimited Calling', 'Call freely without worrying about minutes'),
+            _buildBenefitRow(
+              Icons.all_inclusive,
+              'Unlimited Calling',
+              'Call freely without worrying about minutes',
+            ),
           ],
         ),
       ),
@@ -642,7 +734,10 @@ class _WalletScreenState extends State<WalletScreen> {
             children: [
               Text(
                 title,
-                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
               ),
               Text(
                 subtitle,

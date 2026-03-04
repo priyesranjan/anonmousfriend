@@ -14,7 +14,7 @@ class _FemaleProfilePageState extends State<FemaleProfilePage> {
   final TextEditingController cityController = TextEditingController();
   int? selectedAvatarIndex;
 
-  final List<String> avatarImages = [
+  static const List<String> _maleAvatarImages = [
     'assets/images/male_profile/avatar1.jpg',
     'assets/images/male_profile/avatar2.jpg',
     'assets/images/male_profile/avatar3.jpg',
@@ -34,6 +34,50 @@ class _FemaleProfilePageState extends State<FemaleProfilePage> {
     'assets/images/male_profile/avatar17.jpg',
     'assets/images/male_profile/avatar18.jpg',
   ];
+
+  static const List<String> _femaleAvatarImages = [
+    'assets/images/female_profile/avatar1.jpg',
+    'assets/images/female_profile/avatar2.jpg',
+    'assets/images/female_profile/avatar3.jpg',
+    'assets/images/female_profile/avatar4.jpg',
+    'assets/images/female_profile/avatar5.jpg',
+    'assets/images/female_profile/avatar6.jpg',
+    'assets/images/female_profile/avatar7.jpg',
+    'assets/images/female_profile/avatar8.jpg',
+    'assets/images/female_profile/avatar9.jpg',
+    'assets/images/female_profile/avatar10.jpg',
+    'assets/images/female_profile/avatar11.jpg',
+    'assets/images/female_profile/avatar12.jpg',
+    'assets/images/female_profile/avatar13.jpg',
+    'assets/images/female_profile/avatar14.jpg',
+    'assets/images/female_profile/avatar15.jpg',
+  ];
+
+  List<String> avatarImages = _maleAvatarImages;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAvatarSetByGender();
+  }
+
+  Future<void> _loadAvatarSetByGender() async {
+    final storageService = StorageService();
+    final gender = (await storageService.getGender() ?? '')
+        .trim()
+        .toLowerCase();
+    final bool isFemale =
+        gender == 'female' ||
+        gender == 'f' ||
+        gender == 'woman' ||
+        gender == 'girl';
+
+    if (!mounted) return;
+    setState(() {
+      avatarImages = isFemale ? _femaleAvatarImages : _maleAvatarImages;
+      selectedAvatarIndex = null;
+    });
+  }
 
   Future<void> _submitProfile() async {
     if (dummyNameController.text.isEmpty ||
@@ -76,10 +120,7 @@ class _FemaleProfilePageState extends State<FemaleProfilePage> {
         elevation: 0,
         title: const Text(
           'Complete Your Profile',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         iconTheme: const IconThemeData(color: Colors.white),
       ),
@@ -88,10 +129,7 @@ class _FemaleProfilePageState extends State<FemaleProfilePage> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFFFF4081),
-              Color(0xFFFCE4EC),
-            ],
+            colors: [Color(0xFFFF4081), Color(0xFFFCE4EC)],
           ),
         ),
         child: SafeArea(
@@ -118,8 +156,11 @@ class _FemaleProfilePageState extends State<FemaleProfilePage> {
                   ),
                   child: ClipOval(
                     child: selectedAvatarIndex == null
-                        ? const Icon(Icons.person,
-                            size: 70, color: Colors.white)
+                        ? const Icon(
+                            Icons.person,
+                            size: 70,
+                            color: Colors.white,
+                          )
                         : Image.asset(
                             avatarImages[selectedAvatarIndex!],
                             fit: BoxFit.cover,
@@ -187,8 +228,8 @@ class _FemaleProfilePageState extends State<FemaleProfilePage> {
                               child: _buildAvatarOption(
                                 avatarImages[index],
                                 selectedAvatarIndex == index,
-                                () => setState(
-                                    () => selectedAvatarIndex = index),
+                                () =>
+                                    setState(() => selectedAvatarIndex = index),
                               ),
                             );
                           },
@@ -217,7 +258,7 @@ class _FemaleProfilePageState extends State<FemaleProfilePage> {
                             ),
                           ),
                         ),
-                      )
+                      ),
                     ],
                   ),
                 ),
@@ -266,7 +307,10 @@ class _FemaleProfilePageState extends State<FemaleProfilePage> {
 
   /// 🔹 Avatar Option (Bigger + Animated)
   Widget _buildAvatarOption(
-      String imageUrl, bool isSelected, VoidCallback onTap) {
+    String imageUrl,
+    bool isSelected,
+    VoidCallback onTap,
+  ) {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedScale(
@@ -278,23 +322,14 @@ class _FemaleProfilePageState extends State<FemaleProfilePage> {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(
-              color:
-                  isSelected ? const Color(0xFFFF4081) : Colors.transparent,
+              color: isSelected ? const Color(0xFFFF4081) : Colors.transparent,
               width: 4,
             ),
             boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.15),
-                blurRadius: 10,
-              ),
+              BoxShadow(color: Colors.black.withOpacity(0.15), blurRadius: 10),
             ],
           ),
-          child: ClipOval(
-            child: Image.asset(
-              imageUrl,
-              fit: BoxFit.cover,
-            ),
-          ),
+          child: ClipOval(child: Image.asset(imageUrl, fit: BoxFit.cover)),
         ),
       ),
     );

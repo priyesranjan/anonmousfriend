@@ -12,15 +12,34 @@ class TopBar extends StatefulWidget {
 }
 
 class _TopBarState extends State<TopBar> {
-  late Future<String?> _avatarFuture;
+  late Future<Map<String, String?>> _profileFuture;
   final UserService _userService = UserService();
   double _walletBalance = 0.0;
 
   @override
   void initState() {
     super.initState();
-    _avatarFuture = StorageService().getAvatarUrl();
+    _profileFuture = _loadProfileData();
     _loadWalletBalance();
+  }
+
+  Future<Map<String, String?>> _loadProfileData() async {
+    final storage = StorageService();
+    final avatar = await storage.getAvatarUrl();
+    final gender = await storage.getGender();
+    return {'avatar': avatar, 'gender': gender};
+  }
+
+  String _defaultAvatarByGender(String? gender) {
+    final normalized = (gender ?? '').trim().toLowerCase();
+    final isFemale =
+        normalized == 'female' ||
+        normalized == 'f' ||
+        normalized == 'woman' ||
+        normalized == 'girl';
+    return isFemale
+        ? 'assets/images/female_profile/avatar2.jpg'
+        : 'assets/images/male_profile/avatar2.jpg';
   }
 
   Future<void> _loadWalletBalance() async {
@@ -38,7 +57,7 @@ class _TopBarState extends State<TopBar> {
       clipper: BottomCurveClipper(),
       child: Container(
         width: double.infinity,
-        // color: Colors.pinkAccent, 
+        // color: Colors.pinkAccent,
         color: const Color.fromARGB(255, 235, 155, 238),
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 25),
         child: Column(
@@ -61,28 +80,34 @@ class _TopBarState extends State<TopBar> {
                         );
                         if (result != null) {
                           setState(() {
-                            _avatarFuture = StorageService().getAvatarUrl();
+                            _profileFuture = _loadProfileData();
                           });
                         }
                         // Reload wallet balance when returning from profile
                         _loadWalletBalance();
                       },
-                      child: FutureBuilder<String?>(
-                        future: _avatarFuture,
+                      child: FutureBuilder<Map<String, String?>>(
+                        future: _profileFuture,
                         builder: (context, snapshot) {
-                          if (snapshot.hasData && snapshot.data != null) {
-                            final imageUrl = snapshot.data!;
-                            return CircleAvatar(
-                              radius: 20,
-                              backgroundImage: imageUrl.startsWith('http')
-                                  ? NetworkImage(imageUrl)
-                                  : AssetImage(imageUrl),
-                            );
+                          final data =
+                              snapshot.data ?? const <String, String?>{};
+                          final imageUrl = (data['avatar'] ?? '').trim();
+                          final gender = data['gender'];
+                          final defaultAvatar = _defaultAvatarByGender(gender);
+
+                          ImageProvider? foreground;
+                          if (imageUrl.isNotEmpty) {
+                            if (imageUrl.startsWith('http')) {
+                              foreground = NetworkImage(imageUrl);
+                            } else if (imageUrl.startsWith('assets/')) {
+                              foreground = AssetImage(imageUrl);
+                            }
                           }
-                          return const CircleAvatar(
+
+                          return CircleAvatar(
                             radius: 20,
-                            backgroundImage:
-                                AssetImage('assets/images/male_profile/avatar2.jpg'),
+                            backgroundImage: AssetImage(defaultAvatar),
+                            foregroundImage: foreground,
                           );
                         },
                       ),
@@ -164,8 +189,8 @@ class _TopBarState extends State<TopBar> {
             ),
 
             const SizedBox(height: 12),
- 
-          // 🔔 Promotion Banner
+
+            // 🔔 Promotion Banner
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
@@ -185,8 +210,7 @@ class _TopBarState extends State<TopBar> {
                   ),
                 ],
               ),
-              padding:
-                  const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
               child: Row(
                 children: const [
                   Expanded(
@@ -225,8 +249,7 @@ class _TopBarState extends State<TopBar> {
               ),
             ),
 
-           
-// ----------------------------
+            // ----------------------------
           ],
         ),
       ),

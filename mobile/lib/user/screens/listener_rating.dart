@@ -138,7 +138,11 @@ class _ListenerRatingScreenState extends State<ListenerRatingScreen>
                           backgroundColor: Colors.pinkAccent.withOpacity(0.2),
                           backgroundImage: _avatarImage(),
                           child: _avatarImage() == null
-                              ? const Icon(Icons.person, size: 40, color: Colors.white70)
+                              ? const Icon(
+                                  Icons.person,
+                                  size: 40,
+                                  color: Colors.white70,
+                                )
                               : null,
                         ),
                         const SizedBox(height: 16),
@@ -159,7 +163,7 @@ class _ListenerRatingScreenState extends State<ListenerRatingScreen>
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          'Your feedback helps improve listener quality',
+                          'Your feedback helps improve expert quality',
                           style: TextStyle(
                             color: Colors.grey.shade600,
                             fontSize: 13,
@@ -173,7 +177,9 @@ class _ListenerRatingScreenState extends State<ListenerRatingScreen>
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          _rating == 0 ? 'Select a rating' : '${_rating.toStringAsFixed(1)}/5',
+                          _rating == 0
+                              ? 'Select a rating'
+                              : '${_rating.toStringAsFixed(1)}/5',
                           style: TextStyle(
                             fontSize: 14,
                             color: _rating == 0
@@ -186,13 +192,16 @@ class _ListenerRatingScreenState extends State<ListenerRatingScreen>
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed:
-                                (_isSubmitting || _rating == 0) ? null : _submitRating,
+                            onPressed: (_isSubmitting || _rating == 0)
+                                ? null
+                                : _submitRating,
                             child: _isSubmitting
                                 ? const SizedBox(
                                     height: 20,
                                     width: 20,
-                                    child: CircularProgressIndicator(strokeWidth: 2.5),
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2.5,
+                                    ),
                                   )
                                 : const Text('Submit'),
                           ),
@@ -215,10 +224,17 @@ class _ListenerRatingScreenState extends State<ListenerRatingScreen>
                                       listenerName: widget.listenerName,
                                     );
                                   },
-                            icon: const Icon(Icons.flag_outlined, size: 16, color: Colors.redAccent),
+                            icon: const Icon(
+                              Icons.flag_outlined,
+                              size: 16,
+                              color: Colors.redAccent,
+                            ),
                             label: const Text(
                               'Report Issue',
-                              style: TextStyle(color: Colors.redAccent, fontSize: 13),
+                              style: TextStyle(
+                                color: Colors.redAccent,
+                                fontSize: 13,
+                              ),
                             ),
                           ),
                         ],
@@ -290,11 +306,7 @@ class _StarRating extends StatelessWidget {
                   ),
                 ),
               if (isFull)
-                Icon(
-                  Icons.star,
-                  size: starSize,
-                  color: Colors.amber.shade400,
-                ),
+                Icon(Icons.star, size: starSize, color: Colors.amber.shade400),
             ],
           ),
         );
