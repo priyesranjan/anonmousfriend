@@ -28,6 +28,7 @@ class Listener {
   final String? rejectionReason;
   final int reapplyAttempts;
   final bool isVerified;
+  final String listenerType; // 'full' = professional expert, 'casual' = regular
 
   Listener({
     required this.listenerId,
@@ -58,6 +59,7 @@ class Listener {
     this.rejectionReason,
     this.reapplyAttempts = 0,
     this.isVerified = false,
+    this.listenerType = 'casual',
   });
 
   factory Listener.fromJson(Map<String, dynamic> json) {
@@ -101,6 +103,7 @@ class Listener {
       rejectionReason: json['rejection_reason'],
       reapplyAttempts: json['reapply_attempts'] ?? 0,
       isVerified: json['is_verified'] ?? false,
+      listenerType: json['listener_type'] ?? 'casual',
     );
   }
 
@@ -150,6 +153,7 @@ class Listener {
       'rejection_reason': rejectionReason,
       'reapply_attempts': reapplyAttempts,
       'is_verified': isVerified,
+      'listener_type': listenerType,
     };
   }
 

@@ -98,7 +98,14 @@ router.get('/smart-match', authenticate, async (req, res) => {
     let params = [];
     let paramIndex = 1;
 
-    const verifiedFilter = is_verified_only === 'true' ? ' AND l.is_verified = TRUE' : '';
+    // Toggle ON  → 'full' (professional) experts  |  Toggle OFF → 'casual' listeners
+    // NOTE: is_verified mirrors verification_status='approved', so ALL approved listeners
+    // have is_verified=TRUE — it cannot distinguish casual from professional experts.
+    // listener_type is the correct field: 'full' = professional, 'casual' = regular.
+    const expertFilter = is_verified_only === 'true'
+      ? " AND l.listener_type = 'full'"
+      : " AND l.listener_type = 'casual'";
+
 
     if (userType === 'trial' || userType === 'free') {
       // Trial / Free Random → New (Probation) + Casual Talkers
@@ -114,7 +121,7 @@ router.get('/smart-match', authenticate, async (req, res) => {
         WHERE l.is_active = TRUE
           AND l.verification_status = 'approved'
           AND (l.quality_status IN ('probation', 'active', 'warning'))
-          AND l.is_online = TRUE AND l.is_busy = FALSE${verifiedFilter}
+          AND l.is_online = TRUE AND l.is_busy = FALSE${expertFilter}
         ORDER BY match_rank ASC, l.average_rating DESC
         LIMIT 50
       `;
@@ -132,7 +139,7 @@ router.get('/smart-match', authenticate, async (req, res) => {
         WHERE l.is_active = TRUE
           AND l.verification_status = 'approved'
           AND l.quality_status IN ('active', 'warning')
-          AND l.is_online = TRUE AND l.is_busy = FALSE${verifiedFilter}
+          AND l.is_online = TRUE AND l.is_busy = FALSE${expertFilter}
         ORDER BY match_rank ASC, l.average_rating DESC
         LIMIT 50
       `;
@@ -150,7 +157,7 @@ router.get('/smart-match', authenticate, async (req, res) => {
         WHERE l.is_active = TRUE
           AND l.verification_status = 'approved'
           AND l.quality_status = 'active'
-          AND l.is_online = TRUE AND l.is_busy = FALSE${verifiedFilter}
+          AND l.is_online = TRUE AND l.is_busy = FALSE${expertFilter}
         ORDER BY match_rank ASC, l.average_rating DESC, l.total_calls DESC
         LIMIT 50
       `;
@@ -174,7 +181,7 @@ router.get('/smart-match', authenticate, async (req, res) => {
         WHERE l.is_active = TRUE
           AND l.verification_status = 'approved'
           AND l.quality_status = 'active'
-          AND l.is_online = TRUE AND l.is_busy = FALSE${verifiedFilter}
+          AND l.is_online = TRUE AND l.is_busy = FALSE${expertFilter}
           ${whereFilter}
         ORDER BY l.average_rating DESC, l.total_calls DESC
         LIMIT 50

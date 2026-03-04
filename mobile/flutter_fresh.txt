@@ -1,0 +1,55 @@
+--------- beginning of main
+I/flutter (32554): [SOCKET] Socket connect error: SocketException: Failed host lookup: 'api.appdost.com' (OS Error: No address associated with hostname, errno = 7)
+I/flutter (32554): [LIFECYCLE] AppLifecycleState: AppLifecycleState.hidden
+I/flutter (32554): [LIFECYCLE] AppLifecycleState: AppLifecycleState.inactive
+I/flutter (32554): [LIFECYCLE] AppLifecycleState: AppLifecycleState.resumed
+I/flutter (32554): [ChatStateManager] App resumed (foreground)
+I/flutter (32554): [SOCKET] App coming to foreground
+I/flutter (32554): [ChatStateManager] App resumed (foreground)
+I/flutter (32554): [SOCKET] Connecting socket for userId=be83b15d-01fc-4a7e-aa00-25b4b0505a78
+I/flutter (32554): [SOCKET] Socket connected: id=PPnTaP6idIAedqgWAAAX
+I/flutter (32554): [SOCKET] Emitting user:join be83b15d-01fc-4a7e-aa00-25b4b0505a78
+I/flutter (32554): [SOCKET] Received initial listener status: [e51c27a2-51d0-4f05-af14-85f5b6e3c6c0]
+I/flutter (32554): [LISTENER_SERVICE] Fetching listeners with params: {sort_by: rating, limit: 50, offset: 0, is_online: true, is_busy: false}
+I/flutter (32554): [LISTENER_SERVICE] Response success: true, data keys: (listeners, count, filters)
+I/flutter (32554): [LISTENER_SERVICE] Raw listeners count from API: 1
+I/flutter (32554): [LISTENER_SERVICE] Parsed listeners count: 1
+I/flutter (32554): [LISTENER_SERVICE] Fetching listeners with params: {sort_by: rating, limit: 50, offset: 0, is_online: true, is_busy: false}
+I/flutter (32554): [LISTENER_SERVICE] Response success: true, data keys: (listeners, count, filters)
+I/flutter (32554): [LISTENER_SERVICE] Raw listeners count from API: 1
+I/flutter (32554): [LISTENER_SERVICE] Parsed listeners count: 1
+I/flutter (32554): [HOME] Fetching Experts...
+I/flutter (32554): [LISTENER_SERVICE] Fetching listeners with params: {sort_by: rating, limit: 100, offset: 0}
+I/flutter (32554): [OfferService] API: activeOffer=true, walletBalance=0.0, reason=null
+I/flutter (32554): [LISTENER_SERVICE] Response success: true, data keys: (listeners, count, filters)
+I/flutter (32554): [LISTENER_SERVICE] Raw listeners count from API: 1
+I/flutter (32554): [LISTENER_SERVICE] Parsed listeners count: 1
+I/flutter (32554): [HOME] Result success: true, count: 1
+I/flutter (32554): [HOME] Listener: Angel, ID: b52a1a0a-6692-43d2-b583-b2e64f17861e, userId: e51c27a2-51d0-4f05-af14-85f5b6e3c6c0, isAvailable: true
+I/flutter (32554): [HOME] Filtered Experts count: 1
+I/flutter (32554): [OfferService] Cached banner: offerId=4affa62a-55f8-4ecb-9841-e82b168a7a06
+I/flutter (32554): [OfferService] offerId=4affa62a-55f8-4ecb-9841-e82b168a7a06, shouldShow=true, expiresAt=2026-03-04 18:01:28.045Z
+I/flutter (32554): [OfferCtrl] API result: success=true, shouldShow=true, hasOffer=true
+I/flutter (32554): [EXPERT_CARD] Init for listenerUserId: e51c27a2-51d0-4f05-af14-85f5b6e3c6c0, listenerId: b52a1a0a-6692-43d2-b583-b2e64f17861e, isOnline: true
+I/flutter (32554): [EXPERT_CARD] Ensuring socket connection...
+I/flutter (32554): [EXPERT_CARD] Socket already connected
+I/flutter (32554): [HOME] Fetching Experts...
+I/flutter (32554): [LISTENER_SERVICE] Fetching listeners with params: {sort_by: rating, limit: 100, offset: 0}
+I/flutter (32554): [OfferService] API: activeOffer=true, walletBalance=0.0, reason=null
+I/flutter (32554): [LISTENER_SERVICE] Response success: true, data keys: (listeners, count, filters)
+I/flutter (32554): [LISTENER_SERVICE] Raw listeners count from API: 1
+I/flutter (32554): [LISTENER_SERVICE] Parsed listeners count: 1
+I/flutter (32554): [HOME] Result success: true, count: 1
+I/flutter (32554): [HOME] Listener: Angel, ID: b52a1a0a-6692-43d2-b583-b2e64f17861e, userId: e51c27a2-51d0-4f05-af14-85f5b6e3c6c0, isAvailable: true
+I/flutter (32554): [HOME] Filtered Experts count: 1
+I/flutter (32554): [OfferService] Cached banner: offerId=4affa62a-55f8-4ecb-9841-e82b168a7a06
+I/flutter (32554): [OfferService] offerId=4affa62a-55f8-4ecb-9841-e82b168a7a06, shouldShow=true, expiresAt=2026-03-04 18:01:28.045Z
+I/flutter (32554): [OfferCtrl] API result: success=true, shouldShow=true, hasOffer=true
+I/flutter (32554): [EXPERT_CARD] Init for listenerUserId: e51c27a2-51d0-4f05-af14-85f5b6e3c6c0, listenerId: b52a1a0a-6692-43d2-b583-b2e64f17861e, isOnline: true
+I/flutter (32554): [EXPERT_CARD] Ensuring socket connection...
+I/flutter (32554): [EXPERT_CARD] Socket already connected
+E/flutter (32554): [ERROR:flutter/runtime/dart_vm_initializer.cc(40)] Unhandled Exception: Null check operator used on a null value
+E/flutter (32554): #0      State.setState (package:flutter/src/widgets/framework.dart:1219)
+E/flutter (32554): #1      _RandomCallScreenState.findRandomPerson (package:callto/user/screens/random_call_screen.dart:112)
+E/flutter (32554): <asynchronous suspension>
+E/flutter (32554): 

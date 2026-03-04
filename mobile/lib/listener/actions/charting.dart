@@ -12,6 +12,7 @@ class ChatPage extends StatefulWidget {
   final String? chatId; // Chat ID from backend
   final String? otherUserId; // The other user's ID
   final String? otherUserAvatar;
+  final bool isEphemeral; // Added for self-destructing random chats
 
   const ChatPage({
     super.key,
@@ -20,6 +21,7 @@ class ChatPage extends StatefulWidget {
     this.chatId,
     this.otherUserId,
     this.otherUserAvatar,
+    this.isEphemeral = false,
   });
 
   @override
@@ -372,6 +374,13 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
     // Leave chat room - this updates ChatStateManager and notifies server
     if (_chatId != null) {
       _socketService.leaveChatRoom(_chatId!);
+      
+      // If this is an ephemeral random chat, permanently destroy it on exit
+      if (widget.isEphemeral) {
+        print('[ChatPage-Listener] Ephemeral Chat. Destroying chat $_chatId...');
+        _chatService.clearChat(_chatId!);
+        _chatService.deleteChat(_chatId!);
+      }
     }
 
     // Cancel subscriptions

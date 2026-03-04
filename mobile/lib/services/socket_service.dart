@@ -729,7 +729,18 @@ class SocketService {
     _socket = null;
   }
 
+  // ── Generic helpers for custom socket events ─────────────────────────────
+  /// Expose the raw socket so callers can register `once()` listeners.
+  IO.Socket? get socket => _socket;
+
+  /// Generic emit — sends any event with an optional payload.
+  void emit(String event, [dynamic data]) {
+    _socket?.emit(event, data);
+  }
+  // ─────────────────────────────────────────────────────────────────────────
+
   /// Initiate a call (emit to server)
+
   void initiateCall({
     required String callId,
     required String listenerId,

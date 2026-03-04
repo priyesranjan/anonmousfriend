@@ -12,8 +12,6 @@ import '../../services/ad_service.dart';
 import '../../models/listener_model.dart' as model;
 import '../actions/charting.dart';
 
-enum CommMode { chat, audio, both }
-
 class RandomCallScreen extends StatefulWidget {
   const RandomCallScreen({super.key, this.onBackToHome});
 
@@ -43,7 +41,10 @@ class _RandomCallScreenState extends State<RandomCallScreen>
   int _freeCallsLimit = 2;
   int? _maxMinutes;
   bool _matchWithVerified = false;
-  CommMode _commMode = CommMode.both;
+  String _selectedGender = 'Any';
+  // true when the current match is user-to-user (toggle OFF), false when expert match
+  bool _isUserMatch = false;
+  String? _currentUserId; // Cached so it can be used synchronously in dispose()
 
   late AnimationController _pulseController;
   late AnimationController _orbitController;
@@ -72,6 +73,23 @@ class _RandomCallScreenState extends State<RandomCallScreen>
       vsync: this,
       duration: const Duration(seconds: 10),
     )..repeat();
+    
+    // Pre-fetch basic premium status and cache user ID
+    _fetchInitialPremiumStatus();
+    _storage.getUserId().then((id) => _currentUserId = id);
+  }
+
+  Future<void> _fetchInitialPremiumStatus() async {
+    try {
+      final status = await _subscriptionService.getSubscriptionStatus();
+      if (mounted) {
+        setState(() {
+          _isPremium = status['isPremium'] == true;
+        });
+      }
+    } catch (e) {
+      debugPrint('Failed to pre-fetch subscription: $e');
+    }
   }
 
   @override
@@ -80,7 +98,148 @@ class _RandomCallScreenState extends State<RandomCallScreen>
     _searchAudioPlayer.dispose();
     _pulseController.dispose();
     _orbitController.dispose();
+    // Leave random user pool if still searching
+    if (_currentUserId != null) {
+      _socketService.emit('random:leave_pool', {'userId': _currentUserId});
+    }
     super.dispose();
+  }
+
+  /// Attach a one-time listener for `random:matched` from the socket server.
+  void _listenRandomMatch() {
+    _socketService.socket?.once('random:matched', (data) {
+      if (!mounted) return;
+      final matchedUser = (data is Map) ? data['matchedUser'] as Map? : null;
+      if (matchedUser == null) return;
+      _stopSearchSound();
+      setState(() {
+        isSearching = false;
+        _isUserMatch = true;
+        this.matchedUser = {
+          'id': matchedUser['userId']?.toString() ?? '',
+          'listener_id': '',
+          'name': matchedUser['displayName']?.toString() ?? 'User',
+          'city': '',
+          'topic': 'Random Match',
+          'gender': matchedUser['gender']?.toString() ?? 'Unknown',
+          'image': matchedUser['avatarUrl']?.toString() ??
+              'assets/images/female_profile/avatar2.jpg',
+        };
+      });
+    });
+    // Also listen for no-match timeout & p2p call events
+    _listenNoMatch();
+    _listenP2PEvents();
+  }
+
+  void _listenP2PEvents() {
+    _socketService.socket?.off('random:call_invite');
+    _socketService.socket?.off('random:match_closed');
+
+    _socketService.socket?.on('random:call_invite', (data) {
+      if (!mounted || !_isUserMatch) return;
+      final room = data['channelName'];
+      if (room != null) {
+        final callerName = data['callerName'] ?? 'User';
+        final callerAvatar = data['callerAvatar'];
+        
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Calling(
+              callerName: callerName,
+              callerAvatar: callerAvatar ?? 'assets/images/female_profile/avatar2.jpg',
+              userName: 'You',
+              userAvatar: null,
+              channelName: room,
+              isRandomCall: true,
+            ),
+          ),
+        );
+      }
+    });
+
+    _socketService.socket?.on('random:match_closed', (data) {
+       if (!mounted || !_isUserMatch) return;
+       ScaffoldMessenger.of(context).showSnackBar(
+         const SnackBar(content: Text('The other user disconnected. Finding new match...')),
+       );
+       setState(() {
+         isSearching = true;
+         matchedUser = null;
+         _isUserMatch = false;
+       });
+       findRandomPerson(); 
+    });
+  }
+
+  void _skipMatch() {
+    if (_isUserMatch && matchedUser != null) {
+      _socketService.emit('random:match_closed', {'targetUserId': matchedUser!['id']});
+    }
+    setState(() {
+      isSearching = true;
+      matchedUser = null;
+      _isUserMatch = false;
+    });
+    findRandomPerson();
+  }
+
+  /// Listen for `random:no_match` — fired when the 30s pool timeout expires.
+  /// Shows a gender-specific fallback dialog offering a Verified Expert call.
+  void _listenNoMatch() {
+    _socketService.socket?.once('random:no_match', (data) {
+      if (!mounted) return;
+      _stopSearchSound();
+      setState(() { isSearching = false; });
+
+      final preferredGender = (data is Map) ? data['preferredGender']?.toString() ?? 'Any' : 'Any';
+      final hasGenderPref = preferredGender != 'Any';
+      final genderLabel = hasGenderPref ? preferredGender : '';
+
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (ctx) => AlertDialog(
+          backgroundColor: const Color(0xFF1E1E2E),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Text(
+            hasGenderPref ? 'All $genderLabel Users Are Busy!' : 'No Users Available',
+            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+          content: Text(
+            hasGenderPref
+                ? 'No $genderLabel users are available right now. Want to talk to a Verified $genderLabel Expert instead?'
+                : 'No users are available right now. Want to talk to a Verified Expert instead?',
+            style: const TextStyle(color: Colors.white70),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(ctx);
+                // Switch to expert mode with same gender filter
+                setState(() {
+                  _matchWithVerified = true;
+                });
+                findRandomPerson();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFEC4899),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              child: Text(
+                hasGenderPref ? 'Call $genderLabel Expert' : 'Call Expert',
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   Future<void> _startSearchSound() async {
@@ -100,182 +259,162 @@ class _RandomCallScreenState extends State<RandomCallScreen>
   }
 
   void findRandomPerson() async {
-    // ===== SUBSCRIPTION GATE =====
-    final gateResult = await _subscriptionService.checkRandomCall();
-    if (gateResult['allowed'] != true) {
+    setState(() {
+      isSearching = true;
+      matchedUser = null;
+      _isUserMatch = false;
+    });
+    _startSearchSound();
+    _socketService.connect();
+
+    if (!_matchWithVerified) {
+      // ── Toggle OFF: Free user-to-user random match via socket pool ──────────
+      final userId = _currentUserId ?? await _storage.getUserId() ?? '';
+      final displayName = await _storage.getDisplayName() ?? 'User';
+      final avatarUrl = await _storage.getAvatarUrl();
+      final gender = await _storage.getGender();
+
+      _listenRandomMatch();
+
+      // Pass preferredGender so backend can try gender-aware matching
+      final preferredGender = _isPremium ? _selectedGender : 'Any';
+      _socketService.emit('random:join_pool', {
+        'userId': userId,
+        'displayName': displayName,
+        'avatarUrl': avatarUrl,
+        'gender': gender,
+        'preferredGender': preferredGender,
+      });
+      return;
+    }
+
+    // ── Toggle ON: Paid expert / listener match (existing flow) ─────────────
+    late Map<String, dynamic> gateResult;
+    List<model.Listener> onlineListeners = [];
+
+    try {
+      final checkSubFuture = _subscriptionService.checkRandomCall();
+      final getListenersFuture = _fetchListenersWithRetry();
+
+      gateResult = await checkSubFuture;
+
+      if (gateResult['allowed'] != true) {
+        if (mounted) {
+          setState(() { isSearching = false; });
+          await _stopSearchSound();
+          _showDailyLimitDialog(gateResult['message'] ?? 'Daily limit reached');
+        }
+        return;
+      }
+
+      setState(() {
+        _isPremium = gateResult['isPremium'] == true;
+        _adRequired = gateResult['adRequired'] == true;
+        _maxMinutes = gateResult['maxMinutes'];
+        _freeCallsUsed = gateResult['freeCallsUsed'] ?? 0;
+        _freeCallsLimit = gateResult['freeCallsLimit'] ?? 2;
+      });
+
+      if (_adRequired && mounted) {
+        await _stopSearchSound();
+        final adWatched = await _showAdDialog();
+        if (adWatched != true) {
+          setState(() { isSearching = false; });
+          return;
+        }
+        _startSearchSound();
+      }
+
+      onlineListeners = await getListenersFuture;
+    } catch (e) {
+      debugPrint('Error during random match prep: $e');
+    }
+
+    if (onlineListeners.isEmpty) {
+      await _stopSearchSound();
       if (mounted) {
-        _showDailyLimitDialog(gateResult['message'] ?? 'Daily limit reached');
+        setState(() { isSearching = false; matchedUser = null; });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No experts available right now. Please try again later.')),
+        );
       }
       return;
     }
 
-    setState(() {
-      _isPremium = gateResult['isPremium'] == true;
-      _adRequired = gateResult['adRequired'] == true;
-      _maxMinutes = gateResult['maxMinutes'];
-      _freeCallsUsed = gateResult['freeCallsUsed'] ?? 0;
-      _freeCallsLimit = gateResult['freeCallsLimit'] ?? 2;
-    });
-
-    // Free user must watch rewarded ad before proceeding
-    if (_adRequired && mounted) {
-      final adWatched = await _showAdDialog();
-      if (adWatched != true) return;
-    }
+    onlineListeners.shuffle();
+    final randomListener = onlineListeners.first;
+    await _stopSearchSound();
 
     setState(() {
-      isSearching = true;
-      matchedUser = null;
+      isSearching = false;
+      _isUserMatch = false;
+      matchedUser = {
+        'id': randomListener.userId,
+        'listener_id': randomListener.listenerId,
+        'name': randomListener.professionalName ?? 'Unknown',
+        'city': randomListener.city ?? 'Unknown',
+        'topic': randomListener.specialties.isNotEmpty
+            ? randomListener.specialties.first
+            : 'General',
+        'image': randomListener.avatarUrl ??
+            'assets/images/female_profile/avatar2.jpg',
+      };
     });
+  }
 
-    _startSearchSound();
+  Future<List<model.Listener>> _fetchListenersWithRetry() async {
+    int maxRetries = 2; // Reduced retries to speed up perceived time
+    int retryCount = 0;
+    List<model.Listener> onlineListeners = [];
 
+    while (retryCount < maxRetries && onlineListeners.isEmpty) {
+      var result = await _listenerService.getSmartMatchListeners(
+        genderFilter: _selectedGender == 'Any' ? null : _selectedGender,
+        isVerifiedOnly: _matchWithVerified,
+      );
 
-    try {
-      // Connect socket in background — don't block the search on this.
-      // Real-time status is a bonus; backend online/busy flags are the fallback.
-      _socketService.connect();
-
-      int maxRetries = 3;
-      int retryCount = 0;
-      List<model.Listener> onlineListeners = [];
-
-      // Retry logic to find online listeners
-      while (retryCount < maxRetries && onlineListeners.isEmpty) {
-        // Use Smart Matching API for ranked listener results
-        var result = await _listenerService.getSmartMatchListeners(
-          isVerifiedOnly: _matchWithVerified,
+      if (!result.success || result.listeners.isEmpty) {
+        result = await _listenerService.getListeners(
+          isOnline: true,
+          isBusy: false,
+          limit: 50,
         );
-
-        // Fallback to basic fetch if smart-match fails
-        if (!result.success || result.listeners.isEmpty) {
-          result = await _listenerService.getListeners(
-            isOnline: true,
-            isBusy: false,
-            limit: 50,
+        if (result.success) {
+          // Filter frontend pool strictly by listener_type to match backend behaviour.
+          // Toggle ON → 'full' (professional expert) | Toggle OFF → 'casual' (regular)
+          final targetType = _matchWithVerified ? 'full' : 'casual';
+          result = result.copyWithListeners(
+            result.listeners.where((l) => l.listenerType == targetType).toList(),
           );
-          // Apply verified filter on fallback path too
-          if (_matchWithVerified && result.success) {
-            result = result.copyWithListeners(
-              result.listeners.where((l) => l.isVerified == true).toList(),
-            );
-          }
-        }
-
-        if (result.success && result.listeners.isNotEmpty) {
-          // Get real-time online status from socket
-          final socketOnlineMap = _socketService.listenerOnlineMap;
-          final backendEligibleListeners = result.listeners.where((listener) {
-            // Hard filter from backend status so busy/unavailable listeners
-            // are never shown in random matching.
-            return !listener.isBusy && listener.isAvailable;
-          }).toList();
-
-          // Prefer socket-confirmed online status, with backend as fallback.
-          onlineListeners = backendEligibleListeners.where((listener) {
-            if (socketOnlineMap.isEmpty) {
-              return listener.isOnline;
-            }
-            final socketOnline = socketOnlineMap[listener.userId];
-            return socketOnline ?? listener.isOnline;
-          }).toList();
-
-          // If socket map is stale/empty for these users, still trust backend
-          // online + busy status.
-          if (onlineListeners.isEmpty && backendEligibleListeners.isNotEmpty) {
-            onlineListeners = backendEligibleListeners
-                .where((listener) => listener.isOnline)
-                .toList();
-          }
-        }
-
-        if (onlineListeners.isEmpty) {
-          retryCount++;
-          if (retryCount < maxRetries) {
-            await Future.delayed(const Duration(milliseconds: 500));
-          }
         }
       }
 
+      if (result.success && result.listeners.isNotEmpty) {
+        final socketOnlineMap = _socketService.listenerOnlineMap;
+        final backendEligibleListeners = result.listeners.where((listener) {
+          return !listener.isBusy && listener.isAvailable;
+        }).toList();
 
-      if (onlineListeners.isNotEmpty) {
-        // Shuffle and pick random listener
-        onlineListeners.shuffle();
-        final randomListener = onlineListeners.first;
+        onlineListeners = backendEligibleListeners.where((listener) {
+          if (socketOnlineMap.isEmpty) return listener.isOnline;
+          return socketOnlineMap[listener.userId] ?? listener.isOnline;
+        }).toList();
 
-        await _stopSearchSound();
-
-        final matchedData = {
-          'id': randomListener.userId,
-          'listener_id': randomListener.listenerId,
-          'name': randomListener.professionalName ?? 'Unknown',
-          'city': randomListener.city ?? 'Unknown',
-          'topic': randomListener.specialties.isNotEmpty
-              ? randomListener.specialties.first
-              : 'General',
-          'image':
-              randomListener.avatarUrl ??
-              'assets/images/female_profile/avatar2.jpg',
-        };
-
-        // If user chose Chat-only mode, navigate directly to chat without
-        // showing the intermediate matched-card screen.
-        if (_commMode == CommMode.chat && mounted) {
-          setState(() {
-            isSearching = false;
-            matchedUser = null;
-          });
-          await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => ChatPage(
-                expertName: matchedData['name']!,
-                imagePath: matchedData['image']!,
-                otherUserId: matchedData['id'],
-              ),
-            ),
-          );
-          return;
-        }
-
-        setState(() {
-          isSearching = false;
-          matchedUser = matchedData;
-        });
-      } else {
-        await _stopSearchSound();
-        setState(() {
-          isSearching = false;
-          matchedUser = null;
-        });
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-                'No Experts online right now. Please try again later.',
-              ),
-              backgroundColor: Colors.orange,
-            ),
-          );
+        if (onlineListeners.isEmpty && backendEligibleListeners.isNotEmpty) {
+          onlineListeners = backendEligibleListeners
+              .where((listener) => listener.isOnline)
+              .toList();
         }
       }
-    } catch (e) {
-      print('Error finding random listener: $e');
-      await _stopSearchSound();
 
-      setState(() {
-        isSearching = false;
-        matchedUser = null;
-      });
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to find Experts: ${e.toString()}'),
-            backgroundColor: Colors.red,
-          ),
-        );
+      if (onlineListeners.isEmpty) {
+        retryCount++;
+        if (retryCount < maxRetries) {
+          await Future.delayed(const Duration(milliseconds: 500));
+        }
       }
     }
+    return onlineListeners;
   }
 
   void startCall(Map<String, String> user) async {
@@ -296,7 +435,39 @@ class _RandomCallScreenState extends State<RandomCallScreen>
     final userAvatar = await _storage.getAvatarUrl();
     final userGender = await _storage.getGender();
 
-    final listenerId = user['id'];
+    final targetId = user['id'];
+
+    if (_isUserMatch) {
+      // ── Toggle OFF: Free peer-to-peer call (bypass billing) ──
+      final callId = 'p2p_${DateTime.now().millisecondsSinceEpoch}';
+
+      _socketService.emit('random:call_invite', {
+        'targetUserId': targetId,
+        'channelName': callId,
+        'callerName': userName,
+        'callerAvatar': userAvatar,
+      });
+
+      if (!mounted) return;
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Calling(
+            callerName: user['name'] ?? 'User',
+            callerAvatar: user['image'] ?? 'assets/images/female_profile/avatar2.jpg',
+            userName: userName,
+            userAvatar: userAvatar,
+            channelName: callId,
+            listenerId: targetId,
+            isRandomCall: true,
+          ),
+        ),
+      );
+      return;
+    }
+
+    // ── Toggle ON: Paid Expert call via CallService ──
+    final listenerId = targetId;
 
     // Create call record in database first
     final callService = CallService();
@@ -423,20 +594,95 @@ class _RandomCallScreenState extends State<RandomCallScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Later', style: TextStyle(color: Colors.white54)),
+            child: const Text('Maybe Later', style: TextStyle(color: Colors.white70)),
           ),
           ElevatedButton(
-            onPressed: () async {
+            onPressed: () {
               Navigator.of(ctx).pop();
-              _purchasePremium();
+              // In a real app, route to the subscription purchase flow here
+               Navigator.push(
+                 context,
+                 MaterialPageRoute(builder: (_) => const WalletScreen()),
+               );
             },
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFEC4899)),
-            child: const Text('Upgrade Now'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.pinkAccent,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            ),
+            child: const Text('Upgrade Now', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
           ),
         ],
       ),
     );
   }
+
+  /// Shows a dialog explaining that the selected filter requires Premium
+  void _showPremiumRequiredDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF1F2937),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Row(
+          children: [
+            Icon(Icons.workspace_premium, color: Colors.yellowAccent, size: 28),
+            SizedBox(width: 8),
+            Text('Premium Feature', style: TextStyle(color: Colors.white, fontSize: 18)),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Gender filters and Match with Verified Experts are restricted to Premium members only.',
+              style: TextStyle(color: Colors.white70, fontSize: 14),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(colors: [Color(0xFFEC4899), Color(0xFF8B5CF6)]),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.star, color: Colors.yellowAccent, size: 24),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Get Premium to unlock:\n• Gender filters\n• Verified Experts\n• Ad-free experience',
+                      style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const WalletScreen()),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.pinkAccent,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            ),
+            child: const Text('Upgrade', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
 
   /// Shows the ad dialog and triggers rewarded ad via AdService
   Future<bool?> _showAdDialog() async {
@@ -743,6 +989,61 @@ class _RandomCallScreenState extends State<RandomCallScreen>
                 ),
               ),
               SizedBox(height: size.height * 0.02),
+              
+              // Gender Filter — ONLY visible to Premium users
+              if (_isPremium) ...[
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      if (_selectedGender == 'Any') _selectedGender = 'Female';
+                      else if (_selectedGender == 'Female') _selectedGender = 'Male';
+                      else _selectedGender = 'Any';
+                    });
+                  },
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: size.width * 0.04,
+                      vertical: size.height * 0.008,
+                    ),
+                    decoration: BoxDecoration(
+                      color: _selectedGender != 'Any'
+                          ? Colors.blueAccent.withOpacity(0.15)
+                          : Colors.white.withOpacity(0.08),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: _selectedGender != 'Any'
+                            ? Colors.blueAccent.withOpacity(0.3)
+                            : Colors.white.withOpacity(0.08),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          _selectedGender == 'Female' ? Icons.female : (_selectedGender == 'Male' ? Icons.male : Icons.people_outline),
+                          color: _selectedGender != 'Any'
+                              ? Colors.blueAccent
+                              : Colors.white.withOpacity(0.8),
+                          size: size.width * 0.05,
+                        ),
+                        SizedBox(width: size.width * 0.03),
+                        Text(
+                          'Gender: $_selectedGender',
+                          style: TextStyle(
+                            color: _selectedGender != 'Any' ? Colors.blueAccent.shade100 : Colors.white.withOpacity(0.9),
+                            fontSize: size.width * 0.035,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(height: size.height * 0.01),
+              ],
+
+
+
               GestureDetector(
                 onTap: () {
                   setState(() {
@@ -808,42 +1109,8 @@ class _RandomCallScreenState extends State<RandomCallScreen>
                   ),
                 ),
               ),
-              SizedBox(height: size.height * 0.02),
-              // Communication Mode Selector
-              Container(
-                margin: EdgeInsets.symmetric(horizontal: size.width * 0.05),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.05),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.white.withOpacity(0.08)),
-                ),
-                child: Row(
-                  children: [
-                    _buildCommModeChip(
-                      context,
-                      mode: CommMode.chat,
-                      label: "Chat",
-                      icon: Icons.chat_bubble_outline,
-                      size: size,
-                    ),
-                    _buildCommModeChip(
-                      context,
-                      mode: CommMode.audio,
-                      label: "Audio",
-                      icon: Icons.headset_mic_outlined,
-                      size: size,
-                    ),
-                    _buildCommModeChip(
-                      context,
-                      mode: CommMode.both,
-                      label: "Both",
-                      icon: Icons.all_inclusive,
-                      size: size,
-                    ),
-                  ],
-                ),
-              ),
               SizedBox(height: size.height * 0.04),
+
               // Start Matching Button
               Container(
                 height: size.height * 0.065,
@@ -1108,8 +1375,14 @@ class _RandomCallScreenState extends State<RandomCallScreen>
     return SingleChildScrollView(
       key: const ValueKey('matched'),
       physics: const BouncingScrollPhysics(),
-      child: Padding(
-        padding: EdgeInsets.symmetric(
+      child: GestureDetector(
+        onVerticalDragEnd: (details) {
+          if (details.primaryVelocity != null && details.primaryVelocity! < -300) {
+            _skipMatch();
+          }
+        },
+        child: Padding(
+          padding: EdgeInsets.symmetric(
           horizontal: size.width * 0.05,
           vertical: size.height * 0.02,
         ),
@@ -1251,115 +1524,151 @@ class _RandomCallScreenState extends State<RandomCallScreen>
                         fontWeight: FontWeight.w500,
                       ),
                     ),
+                    if (user['gender'] != null && user['gender'] != 'Unknown') ...[
+                      SizedBox(width: size.width * 0.04),
+                      Icon(
+                        user['gender'] == 'Female' ? Icons.female : (user['gender'] == 'Male' ? Icons.male : Icons.transgender),
+                        color: user['gender'] == 'Female' ? Colors.pinkAccent : Colors.blueAccent,
+                        size: size.width * 0.045,
+                      ),
+                      SizedBox(width: size.width * 0.01),
+                      Text(
+                        user['gender']!,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: size.width * 0.034,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
               SizedBox(height: size.height * 0.03),
 
-              // Actions
-              SizedBox(
-                width: double.infinity,
-                height: size.height * 0.06,
-                child: ElevatedButton(
-                  onPressed: () {
-                    if (_commMode == CommMode.chat) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => ChatPage(
-                            expertName: user['name']!,
-                            imagePath: user['image']!, // Used as fallback if avatar is null
-                            otherUserId: user['id'],
-                            otherUserAvatar: user['image'],
+              // Actions — free user match shows Chat + Call; expert match shows paid Call only
+              if (_isUserMatch) ...[  
+                // ── Free User-to-User Actions ──
+                Row(
+                  children: [
+                    // Free Chat button
+                    Expanded(
+                      child: SizedBox(
+                        height: size.height * 0.06,
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ChatPage(
+                                  expertName: user['name'] ?? 'User',
+                                  imagePath: user['image'] ?? 'assets/images/female_profile/avatar2.jpg',
+                                  otherUserId: user['id'],
+                                  otherUserAvatar: user['image'],
+                                  isEphemeral: true,
+                                ),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.chat_bubble_outline, size: 18),
+                          label: const Text('Free Chat'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF6C63FF),
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            elevation: 4,
                           ),
                         ),
-                      );
-                    } else {
-                      startCall(user);
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFEC4899),
-                    foregroundColor: Colors.white,
-                    padding: EdgeInsets.symmetric(
-                      vertical: size.height * 0.015,
+                      ),
                     ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(18),
+                    SizedBox(width: size.width * 0.03),
+                    // Free Call button
+                    Expanded(
+                      child: SizedBox(
+                        height: size.height * 0.06,
+                        child: ElevatedButton.icon(
+                          onPressed: () => startCall(user),
+                          icon: const Icon(Icons.call, size: 18),
+                          label: const Text('Free Call'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF22C55E),
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            elevation: 4,
+                          ),
+                        ),
+                      ),
                     ),
-                    elevation: 4,
-                    shadowColor: const Color(0xFFEC4899).withOpacity(0.4),
+                  ],
+                ),
+                SizedBox(height: size.height * 0.02),
+                // Swipe up / Skip match hint
+                GestureDetector(
+                  onTap: _skipMatch,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    alignment: Alignment.center,
+                    child: Text(
+                      "Swipe up or tap here to skip to next match",
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.5),
+                        fontSize: size.width * 0.035,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                   ),
-                  child: Text(
-                    _commMode == CommMode.chat ? "Start Chat Now" : "Start Call Now",
-                    style: TextStyle(
-                      fontSize: size.width * 0.041,
-                      fontWeight: FontWeight.bold,
+                )
+              ] else ...[  
+                // ── Paid Expert Call ──
+                SizedBox(
+                  width: double.infinity,
+                  height: size.height * 0.06,
+                  child: ElevatedButton(
+                    onPressed: () => startCall(user),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFEC4899),
+                      foregroundColor: Colors.white,
+                      padding: EdgeInsets.symmetric(vertical: size.height * 0.015),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      elevation: 4,
+                      shadowColor: const Color(0xFFEC4899).withOpacity(0.4),
+                    ),
+                    child: Text(
+                      'Start Expert Call',
+                      style: TextStyle(
+                        fontSize: size.width * 0.041,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
-              ),
+              ],
               SizedBox(height: size.height * 0.012),
               TextButton(
-                onPressed: findRandomPerson,
+                onPressed: () {
+                  // Leave pool if user match, then re-search
+                  if (_isUserMatch) {
+                    _socketService.emit('random:leave_pool', {'userId': _currentUserId});
+                  }
+                  findRandomPerson();
+                },
                 style: TextButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: size.height * 0.01),
                   foregroundColor: Colors.white.withOpacity(0.7),
                 ),
                 child: Text(
-                  "Find Another Match",
+                  'Find Another Match',
                   style: TextStyle(fontSize: size.width * 0.037),
                 ),
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCommModeChip(
-    BuildContext context, {
-    required CommMode mode,
-    required String label,
-    required IconData icon,
-    required Size size,
-  }) {
-    final isSelected = _commMode == mode;
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => setState(() => _commMode = mode),
-        child: Container(
-          padding: EdgeInsets.symmetric(vertical: size.height * 0.012),
-          decoration: BoxDecoration(
-            color: isSelected
-                ? const Color(0xFFEC4899).withOpacity(0.2)
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: isSelected
-                  ? const Color(0xFFEC4899).withOpacity(0.5)
-                  : Colors.transparent,
-            ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                icon,
-                color: isSelected ? Colors.white : Colors.white54,
-                size: size.width * 0.05,
-              ),
-              SizedBox(height: 4),
-              Text(
-                label,
-                style: TextStyle(
-                  color: isSelected ? Colors.white : Colors.white54,
-                  fontSize: size.width * 0.028,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                ),
-              ),
-            ],
           ),
         ),
       ),
