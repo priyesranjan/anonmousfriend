@@ -462,6 +462,28 @@ io.on('connection', (socket) => {
     }
   });
 
+  // Relaying random match calls (free user-to-user) without billing
+  socket.on('random:call_invite', (data) => {
+    const { targetUserId, channelName, callerName, callerAvatar } = data || {};
+    if (!targetUserId) return;
+    const targetSocketId = connectedUsers.get(targetUserId) || listenerSockets.get(targetUserId);
+    if (targetSocketId) {
+      io.to(targetSocketId).emit('random:call_invite', { channelName, callerName, callerAvatar });
+      console.log(`[RANDOM] Call invite from ${socket.userId} to ${targetUserId}`);
+    }
+  });
+
+  // Relaying when a user skips the match
+  socket.on('random:match_closed', (data) => {
+    const { targetUserId } = data || {};
+    if (!targetUserId) return;
+    const targetSocketId = connectedUsers.get(targetUserId) || listenerSockets.get(targetUserId);
+    if (targetSocketId) {
+      io.to(targetSocketId).emit('random:match_closed', {});
+      console.log(`[RANDOM] Match closed by ${socket.userId} for ${targetUserId}`);
+    }
+  });
+
   // Clean up pool entry on disconnect
   socket.on('disconnect', () => {
     const userId = socket.userId;
