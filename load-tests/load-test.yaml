@@ -1,0 +1,39 @@
+config:
+  target: "https://api.appdost.com"
+  phases:
+    - duration: 30
+      arrivalRate: 5
+      name: "Warm up (150 users)"
+    - duration: 60
+      arrivalRate: 30
+      rampTo: 50
+      name: "Ramp up to 2000+ connections"
+    - duration: 30
+      arrivalRate: 50
+      name: "Hold at peak load"
+  engines:
+    socketio:
+      # Sets the Socket.IO transports to use
+      transports:
+        - websocket
+        - polling
+
+scenarios:
+  - name: "Random Match Pool - Socket.IO Stress Test"
+    engine: "socketio"
+    flow:
+      # Simulate joining the random match pool just like the app does
+      - emit:
+          channel: "random:join_pool"
+          data:
+            userId: "stress_{{ $randomString() }}"
+            displayName: "Load Tester {{ $randomNumber(1, 9999) }}"
+            gender: "male"
+            preferredGender: "Any"
+      # Stay connected for 20 seconds (simulate waiting for a match)
+      - think: 20
+      # Leave the pool (simulate user cancelling search)
+      - emit:
+          channel: "random:leave_pool"
+          data:
+            userId: "stress_{{ $randomString() }}"

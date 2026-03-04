@@ -1512,6 +1512,12 @@ async function startServer() {
     console.log(`🔌 Socket.IO ready for connections`);
     console.log(`📊 API endpoints available at http://localhost:${boundPort}/api`);
     console.log('='.repeat(50) + '\n');
+
+    // Notify PM2 that the process is ready to receive traffic (for cluster mode)
+    if (process.send) {
+      process.send('ready');
+    }
+
     setInterval(() => {
       processNotifications().catch((err) => {
         console.error('processNotifications fatal error:', err.message);
